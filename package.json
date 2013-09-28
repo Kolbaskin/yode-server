@@ -39,14 +39,15 @@
     "node-html-encoder": "~0.0.2",
     "nodemailer": "~0.3.37",
     "node-static": "~0.6.5",
-    "pagination": "~0.3.3"
+    "pagination": "~0.3.3",
+    "request": "*"
   },
   "analyze": false,
 
   "bundledDependencies": [
     "captcha",
     "forms",
-    "gs",
+    "gc",
     "http_codes",
     "pages",
     "multipart",
