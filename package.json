@@ -41,8 +41,7 @@
     "node-html-encoder": "~0.0.2",
     "nodemailer": "~0.3.37",
     "node-static": "~0.6.5",
-    "pagination": "~0.3.3",
-    "request": "~2.27.0"
+    "pagination": "~0.3.3"
   },
   "analyze": false,
 
