@@ -29,14 +29,12 @@
   ],
   "dependencies" : {
     "ccap"   :  "~0.4.1",
-    "dateformat" :  "~1.0.6",
     "easyimage" :  "~0.1.3",
     "formidable"    :  "~1.0.14",
     "iconv" :  "~2.0.6",
     "jqtpl" :  "~2.0.11",
     "memcache": "~0.3.6",
     "mongodb": "~1.2.5",
-    "multipart": "~0.1.5",
     "node-cryptojs-aes": "~0.3.9",
     "node-html-encoder": "~0.0.2",
     "nodemailer": "~0.3.37",
@@ -50,7 +48,9 @@
     "forms",
     "gs",
     "http_codes",
-    "pages"
+    "pages",
+    "multipart",
+    "dateformat"
   ],  
 
   "license": "GPL-2"  
