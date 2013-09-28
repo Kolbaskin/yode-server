@@ -43,7 +43,8 @@
     "request": "*",
     "stream-buffers": "*",
     "ncp": "*",
-    "rmdir": "*"
+    "rmdir": "*",
+    "rimraf": "*"
   },
   "analyze": false,
 
