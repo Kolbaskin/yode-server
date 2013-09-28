@@ -1,0 +1,6 @@
+{ 
+    "name": "My Users", 
+    "iconCls": "users", 
+    "module": "users", 
+    "controller": "users.controller.Main" 
+}

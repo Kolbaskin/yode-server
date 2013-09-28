@@ -1,0 +1,6 @@
+{ 
+    "name": "Pages", 
+    "iconCls": "pages", 
+    "module": "pages", 
+    "controller": "pages.controller.Main" 
+}
