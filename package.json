@@ -53,8 +53,5 @@
     "pages"
   ],  
 
-  "license": "GPL-2",
-  "engines": {
-    "node": ">=0.10"
-  }
+  "license": "GPL-2"  
 }
