@@ -1,4 +1,4 @@
-yode-server
+Yode-server
 ===========
 
 Yode-server is npm module
