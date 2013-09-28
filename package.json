@@ -10,7 +10,7 @@
     } 
   ],
   "scripts": {
-    "start": "node ./install_exapples",
+    "start": "node ./setup",
     "predeploy": "echo Installing examples",
     "postdeploy": "echo Type \"node server.js\" to run examle server"
   },
@@ -40,7 +40,10 @@
     "nodemailer": "~0.3.37",
     "node-static": "~0.6.5",
     "pagination": "~0.3.3",
-    "request": "*"
+    "request": "*",
+    "stream-buffers": "*",
+    "ncp": "*",
+    "rmdir": "*"
   },
   "analyze": false,
 
@@ -54,5 +57,5 @@
     "dateformat"
   ],  
 
-  "license": "GPL-2"  
+  "license": "LGPL-2"  
 }
