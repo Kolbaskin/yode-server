@@ -27,8 +27,6 @@ var projects = {}
  * Starting virtual hosts
  **/
 
-
-
 exports.start = function(conf) {
     
     for(var i in conf) {
@@ -53,10 +51,12 @@ exports.start = function(conf) {
     var staticMain = new(static.Server)(__dirname + '/static', staticParams)
     
     var vHostStart = function(host) {
-        projects[host] = new(subserv.Server)(config.projects_dir + '/' + host, staticParams, host, port);
-        projects[host].init(function() {
-            console.log('Virtual host ' + host + ' [Ready]')    
-        });
+        if(!process.argv[2] || process.argv.indexOf(host) != -1) {
+            projects[host] = new(subserv.Server)(config.projects_dir + '/' + host, staticParams, host, port);
+            projects[host].init(function() {
+                console.log('Virtual host ' + host + ' [Ready]')    
+            });
+        }
     }
 
     // GS starts

@@ -14,39 +14,17 @@ var port = 80
     ,projectsDir = 'www'
 
 var config = {
-    STATIC_DIR: 'static',
-    ADMIN_MODULES_DIR: 'static/admin',
-    ROWS_PER_PAGE: 20,
-    UPLOAD_DIR: 'upload', // dir for user files in STATIC_DIR
-    LOGS: true,
     MONGO: {
-        db_name: 'testdb',
+        db_name: 'exampledb',
         port: 27017,
         host: 'localhost',
         user: '',
         pass: ''
     },
-    DEBUG: true,
-    TIME_TO_CONSOLE_LOG: false, // замеры времени
-    PLUGIN_DIR: 'plugins',
     MEMCACHE: {
         host: 'localhost',
         port: 11211
-    },
-    TOKEN: {
-        lifetime: 300, // session max lifetime in sec
-        len: 32, // token length bytes
-        sessPassLen: 3 // session password length
-    },
-    MAIL: {
-      
-    },
-    HASH_ALG: 'sha1',
-    GLOBAL_AUTH: true, // check authorisation globaly
-    REDIRECT_401: '/',
-    ERRORPAGES: {
-        404: 'http://metri.local:8000/errors/404/'    
-    }
+    }    
 }
 
 var steps = [
@@ -75,7 +53,7 @@ var steps = [
     },
     
     function(callback) {    
-        rl.question("Server port [" + port + "]?", function(answer) {
+        rl.question("Server port [" + port + "]: ", function(answer) {
             if(answer != '') {
                 var p = parseInt(answer)
                 if(!isNaN(p)) port = p
@@ -85,29 +63,36 @@ var steps = [
     },
     
     function(callback) {    
-        rl.question("Mongodb host [" + config.MONGO.host + "]?", function(answer) {
+        rl.question("Mongodb host [" + config.MONGO.host + "]: ", function(answer) {
             if(answer != '') config.MONGO.host = answer     
             callback(true)          
         })       
     },
     
     function(callback) {    
-        rl.question("Mongodb port [" + config.MONGO.port + "]?", function(answer) {
+        rl.question("Mongodb port [" + config.MONGO.port + "]: ", function(answer) {
             if(answer != '') config.MONGO.port = parseInt(answer)     
             callback(true)          
         })       
     },
     
     function(callback) {    
-        rl.question("Mongodb user [" + config.MONGO.user + "]?", function(answer) {
+        rl.question("Mongodb user [" + config.MONGO.user + "]: ", function(answer) {
             if(answer != '') config.MONGO.user = answer     
             callback(true)          
         })       
     },
     
     function(callback) {    
-        rl.question("Mongodb password [" + config.MONGO.pass + "]?", function(answer) {
+        rl.question("Mongodb password [" + config.MONGO.pass + "]: ", function(answer) {
             if(answer != '') config.MONGO.pass = answer     
+            callback(true)          
+        })       
+    },
+    
+    function(callback) {    
+        rl.question("Mongodb database name [" + config.MONGO.db_name + "]: ", function(answer) {
+            if(answer != '') config.MONGO.db_name = answer     
             callback(true)          
         })       
     },
@@ -118,7 +103,7 @@ var steps = [
         if(config.MONGO.user) {
             usr = config.MONGO.user + ':' + config.MONGO.pass + '@'    
         }
-        mongo.MongoClient.connect('mongodb://' + usr + config.MONGO.host + ':' + config.MONGO.port + '/test1db', function(e, db) {        
+        mongo.MongoClient.connect('mongodb://' + usr + config.MONGO.host + ':' + config.MONGO.port + '/' + config.MONGO.db_name, function(e, db) {        
              if(e) {
                  console.log('Trying mongo connect: ERROR!')
                  callback(false)   
@@ -158,14 +143,14 @@ var steps = [
     },
     
     function(callback) {    
-        rl.question("Memcache host [" + config.MEMCACHE.host + "]?", function(answer) {
+        rl.question("Memcache host [" + config.MEMCACHE.host + "]: ", function(answer) {
             if(answer != '') config.MEMCACHE.host = answer     
             callback(true)          
         })       
     },
     
     function(callback) {    
-        rl.question("Memcache port [" + config.MEMCACHE.port + "]?", function(answer) {
+        rl.question("Memcache port [" + config.MEMCACHE.port + "]: ", function(answer) {
             if(answer != '') config.MEMCACHE.port = parseInt(answer)     
             callback(true)          
         })       
@@ -192,7 +177,7 @@ var steps = [
     },
 
     function(callback) {
-        rl.question("Project directory [" + projectsDir + "]?", function(answer) {
+        rl.question("Project directory [" + projectsDir + "]: ", function(answer) {
             if(answer != '') projectsDir = answer     
             callback(true)          
         })    
@@ -226,6 +211,7 @@ var steps = [
                 d = d.replace("${MONGO.host}", config.MONGO.host)
                 d = d.replace("${MONGO.user}", config.MONGO.user)
                 d = d.replace("${MONGO.pass}", config.MONGO.pass)
+                d = d.replace("${MONGO.db_name}", config.MONGO.db_name)
                 
                 d = d.replace("${MEMCACHE.port}", config.MEMCACHE.port)
                 d = d.replace("${MEMCACHE.host}", config.MEMCACHE.host)

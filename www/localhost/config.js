@@ -6,7 +6,7 @@ exports.params = {
     UPLOAD_DIR: 'upload', // dir for user files in STATIC_DIR
     LOGS: true,
     MONGO: {
-        db_name: 'testdb',
+        db_name: '${MONGO.db_name}',
         port: ${MONGO.port},
         host: '${MONGO.host}',
         user: '${MONGO.user}',
