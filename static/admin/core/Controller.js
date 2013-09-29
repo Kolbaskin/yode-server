@@ -184,7 +184,7 @@ Ext.define('MyDesktop.core.Controller', {
                 this.modifyInside(null, true)
             }
         } else
-            this.modify({}, true)
+            this.modify({}, null, true)
         
     }
     
@@ -204,7 +204,7 @@ Ext.define('MyDesktop.core.Controller', {
         
     }
     
-    ,modify: function(rec, formClassName) {
+    ,modify: function(rec, formClassName, innerCall) {
         
         if(!innerCall && this.accessRights && !this.accessRights.modify) return;
         
@@ -329,8 +329,8 @@ Ext.define('MyDesktop.core.Controller', {
             data = form.getForm().getValues()    
         }
         
+
         var saveF = function(data) {
-            
             if(me.store) store = Ext.create(me.store) 
             else {
                 if(win.store) {
@@ -342,7 +342,7 @@ Ext.define('MyDesktop.core.Controller', {
             }
             
             var modelName = me.getModelName(store)
-            
+     
             Core.Ajax.request({
                 url: 'model:save/' + modelName,
                 jsonData: data,

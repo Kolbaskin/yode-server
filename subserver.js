@@ -120,7 +120,7 @@ exports.Server.prototype.getDefaultController = function() {
     if(fs.existsSync(this.dir+'/'+this.config.PLUGIN_DIR+'/default.js')) {
         plg = require(this.dir+'/'+this.config.PLUGIN_DIR+'/default');
     } else
-    if(fs.existsSync('./'+this.config.PLUGIN_DIR+'/default.js')) {
+    if(fs.existsSync(__dirname + '/'+this.config.PLUGIN_DIR+'/default.js')) {
         plg = require('./'+this.config.PLUGIN_DIR+'/default');
     }
     

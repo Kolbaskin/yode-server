@@ -131,7 +131,7 @@ exports.Plugin.prototype.getdata = function(params, callback, auth) {
 }
 
 exports.Plugin.prototype.save = function(params, callback, auth) {    
-    if(!!auth) {
+    if(auth) {
         var me = this
         me.server.getModel('admin.models.access').checkAccess2Model({urlparams:[null,params.urlparams[0]]}, function(access) {
             data.save(params, me, callback, access, auth);

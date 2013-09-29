@@ -123,6 +123,7 @@ exports.init = function(parent, callback, auth) {
     var func = function(access) {
         parent.db.collection(me.collection).findOne({root: true}, fields, function(e, data) {
             if(!data) {
+
                 parent.db.collection(me.collection).insert({root: true, name: me.root.name, leaf: false}, {w:1}, function(e, r) {
                     me.root = r;
                     callback(); 
@@ -177,6 +178,10 @@ exports.beforeSave = function(data, auth, callback, server) {
         }
         func(pid)    
         return;        
+    } else {
+        data.dir = '/'
+        data.alias = ''
+        callback(data)
     }
 }
 

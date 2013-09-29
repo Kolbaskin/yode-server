@@ -129,7 +129,28 @@ var steps = [
                      pass: "3d4f2bf07dc1be38b20cd6e46949a1071f9d0e3d",
                      superuser: true
                      }, function() {
-                     callback(true)
+                        
+                        db.collection('admin_templates').insert({
+                           "mtime": new Date(),
+                           "name": "Main",
+                           "blocks": 1,
+                           "tpl": "index.tpl",
+                           "controller": ""   
+                        }, function(e,r) {
+                            db.collection('pages').insert({
+                               "root": true,
+                               "name": "Home page",
+                               "dir": "/",
+                               "alias": "",
+                               "tpl": r._id,
+                               "leaf": false 
+                            }
+                            , function(e,r) {
+                               callback(true) 
+                            })
+                        })
+                     
+                     
                  })
                  
              }

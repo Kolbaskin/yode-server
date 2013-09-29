@@ -285,6 +285,7 @@ var createDataRecord = function(data, cur_data, model, server, callback) {
 *
 */
 exports.save = function(params, parent, callback, access, auth) {    
+    
     readmodel(params.urlparams[0], parent, function(model) {   
         
         if(!model) {
@@ -348,7 +349,7 @@ exports.save = function(params, parent, callback, access, auth) {
                         }
                     }
                 }
-                
+
                 if(!!model.beforeSave) {
                     model.beforeSave(data, auth, function(data, e) {
                         if(data) allFunc(data)

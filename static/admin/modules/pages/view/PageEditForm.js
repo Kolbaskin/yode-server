@@ -63,7 +63,7 @@ Ext.define('MyDesktop.modules.pages.view.PageEditForm', {
             {
                 items:[{
                     name: 'alias',
-                    allowBlank: false,
+                    //allowBlank: false,
                     flex: 1,
                     blankText: D.t('Enter a name of the pege in the url'),
                     fieldLabel: D.t('Url alias')

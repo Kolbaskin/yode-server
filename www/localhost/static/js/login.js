@@ -40,7 +40,7 @@ $(document).ready(function() {
                 pass: p
             }, function(r) {
                 if(r.status && r.status == 'OK') {
-                    if(r.data.dblauth != null && r.data.dblauth) {
+                    if(r.data && r.data.dblauth) {
                         $("#step1").css("display","none")
                         $("#step2").css("display","block")
                         $("#submit2").click(function() {
