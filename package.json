@@ -11,8 +11,14 @@
   ],
   "scripts": {
     "start": "node ./setup",
+    "test": "./node_modules/.bin/mocha --timeout 15000 --require should --reporter spec tests/tests.js",
     "predeploy": "echo Installing examples",
     "postdeploy": "echo Type \"node server.js\" to run examle server"
+  },
+  "devDependencies": {
+      "mocha": "1.7.0"
+    , "should": "1.2.1"
+    , "supertest": "0.4.0"
   },
   "main": "./index",
   "repository": {
