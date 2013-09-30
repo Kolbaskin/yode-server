@@ -63,7 +63,11 @@ exports.Plugin.prototype.serve = function(request, callback, auth) {
     
     request.path = request.pathname.substr(0,i+1)
     request.page = request.pathname.substr(i+1)
+
     this.db.collection('pages').findOne({dir:request.path, removed:{$ne:true}}, function(e,data) {
+        
+       
+        
         if(data) {
             // Проверим страницу на приватность
             // и наличие авторизации

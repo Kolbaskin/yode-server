@@ -24,12 +24,11 @@ var readmodel = function(urlparam, parent, callback, auth) {
     fn[0] = config.ADMIN_MODULES_DIR
     fn = fn.join("/")
     
-    var fName = './'+fn+'.js'
-   
+    var fName = parent.server.dir + '/' + fn + '.js'
     if(fs.existsSync(fName)) {
         var model = null        
         try { 
-            model = require(__dirname+'/../../.'+fName)
+            model = require(fName)
         } catch(e) {
             
             callback(null)
@@ -210,7 +209,6 @@ var builData = function(data, model, server) {
 */
 exports.getdata = function(params, parent, callback) {    
     var me = this;
-
     readmodel(params.urlparams[0], parent, function(model) {
 
         if(!model) {
@@ -237,7 +235,6 @@ exports.getdata = function(params, parent, callback) {
         limit = parseInt(params.limit)
         if(isNaN(start)) start = 0;
         if(isNaN(limit)) limit = 25;
-
         var cursor = parent.db.collection(model.collection).find(find,fields)
             
         cursor.count(function(e, cnt) {
