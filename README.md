@@ -28,7 +28,64 @@ html-templates are in www/localhost/view
 
 You can create separate directory for your project in www. The name of project directory must be same as host name. For example: if your project hostname is www.example.com you must create directory "www/www.example.com"
 
-### Hello world examples
+Command
+```
+npm start yode-server
+```
+or
+```
+node server.js
+```
+starts all virtual hosts which located in project directory. If you need to start only one of them, do it:
 
-file: www/localhost/
+```
+node server.js www.example.com
+```
+
+### Admin interface
+
+The entrance to the admin panel (don't forget to add the port if it is not 80):
+
+http://localhost/admin/
+
+login: yeti
+pass: 111111
+
+
+### Hello world (easy)
+
+file: www/localhost/plugins/hello.js
+```javascript
+// the pattern of a yode-module
+// object "server" contents connections to mongodb, memcached and has more useful properties 
+exports.Plugin = function(server) {
+    this.server = server;
+}
+
+exports.Plugin.prototype.helloWorld = function(req, callback, auth) {
+    callback('Hello World!')
+}
+```
+
+in the browser :
+
+http://localhost/hello:helloWorld/
+
+### Hello world (MVC)
+
+Model code (www/localhost/plugins/models/hello.js):
+```javascript
+
+exports.Plugin = function(server) {
+    this.server = server;
+}
+
+// as in the previous example but an object has passed to the callback.
+exports.Plugin.prototype.helloWorld = function(req, callback, auth) {
+    callback({text: 'Hello World!'})
+}
+
+```
+
+
 
