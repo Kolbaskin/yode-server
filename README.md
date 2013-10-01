@@ -44,7 +44,7 @@ node server.js www.example.com
 
 ### Admin interface
 
-The entrance to the admin panel (don't forget to add the port if it is not 80):
+The enterance to the admin panel (don't forget to add the port if it is not 80):
 
 http://localhost/admin/
 
@@ -81,11 +81,34 @@ exports.Plugin = function(server) {
 }
 
 // as in the previous example but an object has passed to the callback.
-exports.Plugin.prototype.helloWorld = function(req, callback, auth) {
+exports.Plugin.prototype.getHello = function(req, callback, auth) {
     callback({text: 'Hello World!'})
 }
 
 ```
 
+View, template code (www/localhost/plugins/view/hello.tpl)
+```html
+<!-- uses jqtpl engine -->
+<h1>${text}</h1>
+```
 
+Controller code (www/localhost/plugins/hellomvc.tpl)
+```javascript
+
+exports.Plugin = function(server) {
+    this.server = server;
+}
+
+exports.Plugin.prototype.helloWorld = function(req, callback, auth) {
+    
+    var me = this
+    me.server.getModel('models.hello').getHello(req, function(data, e) {
+        this.server.tpl('hello.tpl', data, function(code) {
+            callback(code);
+        })
+    })
+}
+
+```
 
