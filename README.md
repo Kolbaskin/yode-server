@@ -92,7 +92,7 @@ exports.Plugin.prototype.getHello = function(req, callback, auth) {
 ```
 
 #### View, template code 
-www/localhost/plugins/view/hello.tpl
+www/localhost/view/hello.tpl
 ```html
 <!-- uses jqtpl engine -->
 <h1>${text}</h1>
