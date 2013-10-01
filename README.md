@@ -128,6 +128,7 @@ Also, you can use the model in an outside apps as REST-service: http://localhost
 2. goto Start -> Site tools -> Pages
 3. Press (+) icon
 4. Enter page name
+5. Select template
 5. Press [Add] - button (in right-bottom panel "Page blocks")
 6. Enter "hellomvc:helloWorld" to folder "Content type"
 7. Save
