@@ -219,10 +219,10 @@ var runs = function(i) {
     if(i == steps.length) {
         
         console.log('Setup is success!')
-        console.log('Now you can run yode-server: node server.js')
+        require('../../server')
         
         rl.close();
-        process.exit(0);
+        //process.exit(0);
         return;
     }
     steps[i](function(log) {
