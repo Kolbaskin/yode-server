@@ -99,7 +99,7 @@ www/localhost/plugins/view/hello.tpl
 ```
 
 #### Controller code 
-www/localhost/plugins/hellomvc.tpl
+www/localhost/plugins/hellomvc.js
 ```javascript
 
 exports.Plugin = function(server) {
