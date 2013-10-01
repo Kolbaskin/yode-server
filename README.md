@@ -19,10 +19,13 @@ npm start yode-server
 ## Usage
 
 The installer will create a directory "www" for yor projects (if you didn't type another). 
+
 There is an examples project in "www/localhost". 
 
 All backend files are located in www/localhost/plugins,
+
 all static files (css, images, browser-js) are in www/localhost/static,
+
 html-templates are in www/localhost/view
 
 You can create separate directory for your project in www. The name of project directory must be same as host name. For example: if your project hostname is www.example.com you must create directory "www/www.example.com"
@@ -48,6 +51,7 @@ The enterance to the admin panel (don't forget to add the port if it is not 80):
 http://localhost/admin/
 
 login: yeti
+
 pass: 111111
 
 
@@ -115,6 +119,7 @@ exports.Plugin.prototype.helloWorld = function(req, callback, auth) {
 ```
 
 See the result: http://localhost/hellomvc:helloWorld/
+
 Also, you can use the model in an outside apps as REST-service: http://localhost/models.hello:getHello/ 
 
 ### "Hello World" on CMS virtual pages 
