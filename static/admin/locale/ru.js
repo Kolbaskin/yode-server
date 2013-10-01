@@ -77,6 +77,19 @@ TEXTS = {
 'File can not be uploaded!': 'Не возможно загрузить файл!', 
 'Maybe you are trying to upload a file into an archive?': 'Возможно, Вы пытаетесь загрузиь файл в архив.',
 
+'Create dir': 'Создать каталог',
+'Open': 'Открыть',
+'Preview': 'Предпросмотр',
+'Open file': 'Открыть файл',
+'Upload': 'Загрузить...',
+'User files': 'Мои документы',
+'Viewer': 'Просмотр',
+'Print': 'Печать',
+'Increase': 'Увеличить',
+'Reduce': 'Уменьшить',
+'Original': 'Оригинальный размер',
+'File manager': 'Менеджер файлов',
+
 // Список моделей данных
 "ads-RentFlatsModel": "Объявления: Аренда квартир и комнат",
 "ads-SaleFlatsModel": "Объявления: Продажа квартир и комнат",

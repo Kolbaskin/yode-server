@@ -1,10 +1,17 @@
 
 $(document).ready(function() {
 
+    var l = localStorage.getItem('locale');
+    if(l) {
+        l = $('[value=' + l + ']')
+        if(l) l.attr('selected', true)
+    }
+
     var success = function(data) {
     
         localStorage.setItem('uid', data.id);
         localStorage.setItem('token', data.token);
+        localStorage.setItem('locale', $("[name=lan]").val());
         location = "/admin/"
     }
 

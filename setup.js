@@ -27,20 +27,7 @@ var config = {
     }    
 }
 
-var steps = [
-    
-    // Step 1
-    function(callback) {
-        
-        fs.exists(__dirname + '/../../server.js', function(log) {
-            if(log) {
-                console.log('Yode-server already exists!');
-                process.exit(0);
-            } else {
-                callback(true)
-            }
-        })
-    },
+var steps = [ 
     
 
     // Step 1
@@ -247,4 +234,13 @@ var runs = function(i) {
     })
 }
 
-runs(0)
+
+fs.exists(__dirname + '/../../server.js', function(log) {
+    if(log) {
+        require('../../server')
+    } else {
+        runs(0)
+    }
+})
+
+

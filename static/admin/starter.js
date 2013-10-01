@@ -30,8 +30,10 @@ Ext.require([ 'Ext.ux.aceeditor.Panel', 'MyDesktop.core.Ajax' ]);
 
 var myDesktopApp,
     initLoad = true;
-
+    
 Ext.onReady(function () {
+    
+    
     
     Ext.QuickTips.init();
     Ext.tip.Tip.prototype.minWidth = 'auto';

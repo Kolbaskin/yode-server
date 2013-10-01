@@ -440,6 +440,19 @@ div.ux-taskbar div.x-toolbar {
     color: #444444;
 }
 
+.prev-page {
+    border:1px solid #9a9a9a;
+    margin: 20px auto 20px auto;
+    padding: 40px;
+    width:1024px;
+    min-height: 1468px;
+    background: #ffffff;
+}
+
+.prev-page img {
+    width: 100%;    
+}
+
 .villages {    
     background-image: url(../images/icons/house-folder.png) !important;
 }
@@ -503,4 +516,10 @@ div.ux-taskbar div.x-toolbar {
 
 .show-document {    
     background: url(../images/icons/page_magnifier.png) no-repeat center center !important;
+}
+.show-file {    
+    background: url(../images/icons/page_white_magnify.png) left center no-repeat;
+}
+.show-file-32 {    
+    background: url(../images/icons/32/page_white_magnify.png) left center no-repeat;
 }
