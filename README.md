@@ -3,7 +3,7 @@ Yode-server
 
 [![NPM](https://nodei.co/npm/yode-server.png)](https://nodei.co/npm/yode-server/)
 
-## Install
+## Setup
 
 First, install MongoDB and Memcached and run them. 
 
