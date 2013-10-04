@@ -5,6 +5,7 @@ var  static   = require('node-static')
     ,http_codes = require('http_codes')
     ,gc = require('gc')
     ,request = require('request')
+    ,util = require('util')
 
 
 /**
@@ -153,7 +154,17 @@ exports.Server.prototype.init = function(callback) {
     }
 }
 
-    
+/* for crush test
+
+var requestPerSecond;
+
+setInterval(function() {
+    console.log(requestPerSecond)  // requests per sec
+    console.log(parseInt(process.memoryUsage().rss/1024/1024) + '\n'); // memory used
+    requestPerSecond = 0;
+}, 1000)
+*/  
+  
 /**
  * Основной серверный метод
  * req -- http-запрос
@@ -180,21 +191,30 @@ exports.Server.prototype.serve = function(req, res, post) {
             return;
         }  
         
-        if(!head && typeof body === "object") head = 'JSON'
+          
+        
+        if(typeof body === "object" && (!head || (head.heads && ['text/plain','text/json'].indexOf(head.heads['Content-Type']) != -1))) {
+            if(!head) head = 'JSON'
+            body = JSON.stringify({status: 'OK', data: body})
+        }        
         if(head == null || head == 200) res.writeHead(200, "OK", {'Content-Type': 'text/html; charset=utf-8'});
         else if(head == "JSON") {
             res.writeHead(200, "OK", {'Content-Type': 'text/plain'});
             if(body == null && error != null) {
                 body = JSON.stringify({status: 'FAULT', data: error})
-            } else {
+            }/* else {
                 body = JSON.stringify({status: 'OK', data: body})
-            }
+            }*/
         } else res.writeHead(head.code, head.status, head.heads);
         if(th.config.TIME_TO_CONSOLE_LOG) {
             Time_Log = new Date().getTime() - Time_Log; 
             console.log(req.url + ': ' +Time_Log+ ' ms');
         }
+            
         res.end(body); 
+        //requestPerSecond++; // for crush test
+        
+        
     }    
 
     var x = req.url.split("/")

@@ -1,0 +1,6 @@
+{ 
+    "name": "News", 
+    "iconCls": "news", 
+    "module": "news", 
+    "controller": "news.controller.News" 
+}

@@ -1,4 +1,6 @@
 var fs = require('fs')
+    ,dataFuncs = require('./admin/models/data')
+    ,pages = require('pages')
 
 /**
  * Инициализация плагина
@@ -150,7 +152,18 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
                 if(!!(plg = me.server.getModel(ctr[0])) && !!plg[ctr[1]]) {
 
                     request.pageData = data
-                    plg[ctr[1]](request, function(bdata) {
+                    
+                    if(ctr.length>2) {
+                        if(!request.urlparams) request.urlparams = []
+                        for(var ii=2;ii<ctr.length;ii++) request.urlparams.push(ctr[ii])
+                    }
+                    plg[ctr[1]](request, function(bdata, error) {
+                        
+                        if(error) {
+                            callback(null, error)
+                            return;
+                        }
+                        
                         if(!data['BLOCK_'+b.block]) data['BLOCK_'+b.block] = []
                         
                         if(bdata === Object(bdata)) {
@@ -162,7 +175,7 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
                             data['BLOCK_'+b.block].push({html:bdata, m:true})
                         }
                         recur(j+1)
-                    }, auth)
+                    }, auth, data)
                 } else {
                     recur(j+1)
                 }
@@ -188,4 +201,58 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
     } else getBlocks(data)
     
     //callback(data)
+}
+
+/**
+ * html generation using an admin module model
+ */
+ 
+exports.Plugin.prototype.buildHtml = function(req, callback, auth) {    
+    var me = this   
+
+    req.urlparams[0] = '.modules.' + req.urlparams[0].replace('-', '.model.')    
+    dataFuncs.getmodel(req, me, function(model) {        
+        var publicConf = model.public(req)
+        if(req.page && publicConf.tpl_row) {
+        // let show one record    
+            req.params.query = '[{"property":"_id", "value":"' + req.page + '"}]'
+            dataFuncs.getdata(req.params, me, function(data) {            
+                if(data && data.list && data.list[0]) {
+                    
+                    if(publicConf.crumbField !== null) {
+                        req.pageData.crumbs[req.pageData.crumbs.length-1].cur = null
+                        if(data.list[0][publicConf.crumbField])
+                            req.pageData.crumbs.push({name: data.list[0][publicConf.crumbField], cur: true})
+                    }
+                    
+                    me.server.tpl(publicConf.tpl_row, data.list[0], function(code) {
+                        callback(code);
+                    })
+                } else {
+                    callback(null, {code: 404})
+                }
+            }, model)
+        } else if(publicConf.tpl_list) { 
+        // showing all records whith pages
+        
+            if(publicConf.sort) req.params.sort = publicConf.sort 
+                        
+            var limit = parseInt(req.params.limit)
+            
+            if(!limit || isNaN(limit) || limit>100) limit = 10;
+                
+            req.params.start = pages.getstart((req.params && req.params.page? parseInt(req.params.page):1), limit);
+                    
+            dataFuncs.getdata(req.params, me, function(data) {            
+                data.pages = pages.create({start:req.params.start, limit: limit, total: data.total, req: req})
+                if(data.pages.pageCount<=1) data.pages = null               
+                me.server.tpl(publicConf.tpl_list, data, function(code) {                    
+                    callback(code);
+                })                
+            }, model)
+                        
+        } else {
+            callback(null);
+        }
+    }, auth, true)
 }

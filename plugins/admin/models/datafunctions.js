@@ -91,8 +91,8 @@ exports.images_l = function(arr, record, model, key, server, oldData) {
         ,collection = model.collection
 
     for(var i=0;i<arr.length;i++) if(arr[i]) {
-       arr[i].preview = '/public.models.dirs:getimage/' + collection + '/' + id + '/' + key + '/' + i + '/preview/';
-       arr[i].img = '/public.models.dirs:getimage/' + collection + '/' + id + '/' + key + '/' + i + '/img/';
+       arr[i].preview = '/admin.models.fileOperations:getimage/' + collection + '/' + id + '/' + key + '/' + i + '/preview/';
+       arr[i].img = '/public.models.dirs:fileOperations/' + collection + '/' + id + '/' + key + '/' + i + '/img/';
     }
     return arr;
 }

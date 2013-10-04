@@ -1,0 +1,8 @@
+/* user's css */
+
+.news {    
+    background-image: url(./icons/newspaper.png) !important;
+}
+.news-32 {    
+    background-image: url(./icons/32/newspaper.png) !important;
+}

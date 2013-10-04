@@ -1,0 +1,204 @@
+/* ----------------------------------------------------------------------------------------------------------------*/
+/* ---------->>> global settings needed for thickbox <<<-----------------------------------------------------------*/
+/* ----------------------------------------------------------------------------------------------------------------*/
+*{padding: 0; margin: 0;}
+
+/* ----------------------------------------------------------------------------------------------------------------*/
+/* ---------->>> thickbox specific link and font settings <<<------------------------------------------------------*/
+/* ----------------------------------------------------------------------------------------------------------------*/
+#TB_window {
+    font: 12px Arial, Helvetica, sans-serif;
+    color: #333333;
+}
+
+#TB_secondLine {
+    font: 14px Arial, Helvetica, sans-serif;
+    color:#2f6776;
+}
+
+#TB_secondLine span {font-size: 28px;}
+
+#TB_window a:link, #TB_window a:visited {color: #257bc0; text-decoration: none;}
+#TB_window a:hover, #TB_window a:active {color: #b95810; text-decoration: none;}
+
+/* ----------------------------------------------------------------------------------------------------------------*/
+/* ---------->>> thickbox settings <<<-----------------------------------------------------------------------------*/
+/* ----------------------------------------------------------------------------------------------------------------*/
+#TB_overlay {
+    position: fixed;
+    z-index:100;
+    top: 0px;
+    left: 0px;
+    height:100%;
+    width:100%;
+}
+
+.TB_overlayBG {
+    background-color:#000;
+    filter:alpha(opacity=75);
+    -moz-opacity: 0.75;
+    opacity: 0.75;
+}
+
+#TB_overlay { /* ie6 hack */
+              _position: absolute;
+              _height: expression(document.body.scrollHeight > document.body.clientHeight ? document.body.scrollHeight : document.body.clientHeight + 'px');
+}
+
+#TB_window {
+    position: fixed;
+    background: #fff;
+    z-index: 102;
+    color:#000000;
+    display:none;
+    border: 4px solid #2f6776;
+    text-align:left;
+    top:50%;
+    left:50%;
+}
+
+* html #TB_window { /* ie6 hack */
+                    position: absolute;
+                    margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (TBWindowMargin = document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
+}
+
+#TB_window img#TB_Image {
+    display:block;
+    margin: 15px 15px 0 15px;
+    border: 1px solid #87c1d0;
+}
+
+#TB_caption{
+    height:25px;
+    padding:6px 0 20px 14px;
+    float:left;
+	color: #425772;
+}
+
+#TB_closeWindow{
+    height:25px;
+    padding:0 9px 0 0;
+    _padding: 0;
+    float:right;
+    font-size: 32px;
+}
+
+#TB_closeAjaxWindow{
+    padding:7px 10px 5px 0;
+    margin-bottom:1px;
+    text-align:right;
+    float:right;
+}
+
+#TB_ajaxWindowTitle{
+    float:left;
+    padding:7px 0 5px 10px;
+    margin-bottom:1px;
+}
+
+#TB_title{
+    background-color:#e8e8e8;
+    height:27px;
+}
+
+#TB_ajaxContent{
+    clear:both;
+    padding:2px 15px 15px 15px;
+    overflow:auto;
+    text-align:left;
+    line-height:1.4em;
+}
+
+#TB_ajaxContent.TB_modal{
+    padding:15px;
+}
+
+#TB_ajaxContent p{
+    padding:5px 0px 5px 0px;
+}
+
+#TB_load{
+    position: fixed;
+    display:none;
+    height:13px;
+    width:208px;
+    z-index:103;
+    top: 50%;
+    left: 50%;
+    margin: -6px 0 0 -104px; /* -height/2 0 0 -width/2 */
+}
+
+* html #TB_load { /* ie6 hack */
+                  position: absolute;
+                  margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (TBWindowMargin = document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
+}
+
+#TB_HideSelect{
+    z-index:99;
+    position:fixed;
+    top: 0;
+    left: 0;
+    background-color:#fff;
+    border:none;
+    filter:alpha(opacity=0);
+    -moz-opacity: 0;
+    opacity: 0;
+    height:100%;
+    width:100%;
+}
+
+* html #TB_HideSelect { /* ie6 hack */
+                        position: absolute;
+                        height: expression(document.body.scrollHeight > document.body.offsetHeight ? document.body.scrollHeight : document.body.offsetHeight + 'px');
+}
+
+#TB_iframeContent{
+    clear:both;
+    border:none;
+    margin-bottom:-1px;
+    margin-top:1px;
+    _margin-bottom:1px;
+}
+
+/*by das*/
+#TB_next {
+    margin-top: 15px;
+    /*border: 1px green solid;*/
+    width: 40%;
+    height: 100%;
+    right: 0;
+    position: absolute;
+    top:0;
+    cursor: pointer;
+    z-index: 105;
+    background-image: url(/images/blank.gif);
+    background-position: right;
+    background-repeat: no-repeat;
+}
+
+#TB_prev {
+    margin-top: 15px;
+    /*border: 1px green solid;*/
+    width: 40%;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top:0;
+    cursor: pointer;
+    z-index: 105;
+    background-image: url(/images/blank.gif);
+    background-position: left;
+    background-repeat: no-repeat;
+}
+
+/*#TB_next:hover {
+    background-image: url(/images/next.gif);
+    background-position: right 20%;
+    background-repeat: no-repeat;
+}
+
+#TB_prev:hover {
+    background-image: url(/images/prev.gif);
+    background-position: left 20%;
+    background-repeat: no-repeat;
+}*/

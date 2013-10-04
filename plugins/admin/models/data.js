@@ -13,18 +13,20 @@ var fs       = require('fs')
 var readmodel = function(urlparam, parent, callback, auth) {
     
     var config = parent.server.config
-   
-    // doesn't get a model from cache in debug mode
-    if(!config.DEBUG && modelsAll[urlparam]) {
-         callback(modelsAll[urlparam]);
-         return;
-    }
+       
     var fn = urlparam.split('.')
     
     fn[0] = config.ADMIN_MODULES_DIR
     fn = fn.join("/")
     
+    // doesn't get a model from cache in debug mode
+    if(!config.DEBUG && modelsAll[fn]) {
+         callback(modelsAll[fn]);
+         return;
+    }
+    
     var fName = parent.server.dir + '/' + fn + '.js'
+    
     if(fs.existsSync(fName)) {
         var model = null        
         try { 
@@ -74,15 +76,17 @@ var readmodel = function(urlparam, parent, callback, auth) {
         callback(null)
 }
 
+
+
 /*
 *
 * getting model details
 *
 */
-exports.getmodel = function(params, parent, callback, auth) {
+exports.getmodel = function(params, parent, callback, auth, getfull) {
     readmodel(params.urlparams[0], parent, function(model) {
         if(model) { 
-            var obj = {fields: model.fields}        
+            var obj = (getfull?  model:{fields: model.fields})        
             if(model.root) obj.root = model.root        
             callback(obj,null)    
         } else {
@@ -202,49 +206,68 @@ var builData = function(data, model, server) {
     return data
 }
 
+var buildSort = function(params, model) {
+    var sort = {}
+    
+    if(params.sort) {
+        if(typeof params.sort === "object") {
+            for(var i=0;i<model.fields.length;i++) {
+                if(params.sort[model.fields[i].name]) {
+                    sort[model.fields[i].name] = params.sort[model.fields[i].name]
+                }
+            }
+        } else {        
+            sort[params.sort] = (!!params.dir && params.dir == 'ASC'? 1:-1)
+        }
+    } else {
+        for(var i=0;i<model.fields.length;i++) {
+            if(model.fields[i].sort) {
+                sort[model.fields[i].name] = model.fields[i].sort
+            }
+        }
+    }
+    return sort;
+}
+
 /*
 *
 * geting all data with paging
 *
 */
-exports.getdata = function(params, parent, callback) {    
-    var me = this;
-    readmodel(params.urlparams[0], parent, function(model) {
-
-        if(!model) {
-            callback(null, {code:404});
-            return;
-        }
-        
-        var fields = getReadableFields(model, params),
-            start = params.start || 0,
-            limit = params.limit || 25,
-            find = buildWhere(params, model),
-            sort = {}
-        
-        if(!!params.sort) sort[params.sort] = (!!params.dir && params.dir == 'ASC'? 1:-1)
-        else {
-            for(var i=0;i<model.fields.length;i++) {
-                if(model.fields[i].sort) {
-                    sort[model.fields[i].name] = model.fields[i].sort
-                }
+exports.getdata = function(params, parent, callback, model) {    
+    var me = this
+        ,func = function(model) {
+            if(!model) {
+                callback(null, {code:404});
+                return;
             }
+            
+            var fields = getReadableFields(model, params),
+                start = params.start || 0,
+                limit = params.limit || 25,
+                find = buildWhere(params, model),
+                sort = buildSort(params, model)
+                                      
+            start = parseInt(params.start)
+            limit = parseInt(params.limit)
+            if(isNaN(start)) start = 0;
+            if(isNaN(limit)) limit = 25;
+            
+            var cursor = parent.db.collection(model.collection).find(find,fields)
+                
+            cursor.count(function(e, cnt) {
+                if(cnt && cnt>0) {
+                    cursor.sort(sort).limit(limit).skip(start).toArray(function(e,data) {
+                        callback({total: cnt, list: builData(data, model, parent), success: true},null)
+                    })
+                } else callback({total:0, list:[]})
+            })    
         }
-            
-        start = parseInt(params.start)
-        limit = parseInt(params.limit)
-        if(isNaN(start)) start = 0;
-        if(isNaN(limit)) limit = 25;
-        var cursor = parent.db.collection(model.collection).find(find,fields)
-            
-        cursor.count(function(e, cnt) {
-            if(cnt && cnt>0) {
-                cursor.sort(sort).limit(limit).skip(start).toArray(function(e,data) {
-                    callback({total: cnt, list: builData(data, model, parent), success: true},null)
-                })
-            } else callback({total:0, list:[]})
+    if(model) func(model)
+    else
+        readmodel(params.urlparams[0], parent, function(model) {
+            func(model)        
         })
-    })
 }
 
 var createDataRecord = function(data, cur_data, model, server, callback) {

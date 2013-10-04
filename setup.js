@@ -96,6 +96,13 @@ var steps = [
                  callback(false)   
              } else {
                  console.log('Trying mongo connect: OK')
+                 
+                 var dump = require('./defaultdb')
+                 
+                 dump.dump(db)
+                 callback(true)
+                 
+                 /*
                  db.collection('admin_users').insert({
                      login: "yeti",
                      pass: "3d4f2bf07dc1be38b20cd6e46949a1071f9d0e3d",
@@ -123,7 +130,7 @@ var steps = [
                         })
                      
                      
-                 })
+                 })*/
                  
              }
         });    
@@ -239,7 +246,7 @@ fs.exists(__dirname + '/../../server.js', function(log) {
     if(log) {
         require('../../server')
     } else {
-        runs(0)
+        runs(1)
     }
 })
 

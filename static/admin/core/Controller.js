@@ -239,7 +239,7 @@ Ext.define('MyDesktop.core.Controller', {
                 layout: 'fit'
             }
             
-            if(!!me.detailFormRecongig) wcnf = me.detailFormRecongig(wcnf)
+            if(!!me.detailFormReconfig) wcnf = me.detailFormReconfig(wcnf)
                                     
             win = desktop.createWindow(wcnf).show();
             
