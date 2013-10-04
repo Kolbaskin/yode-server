@@ -7,7 +7,7 @@ Yode-server
 
 First, install MongoDB and Memcached and run them. 
 
-Yode-server needs a Node.js 0.10.+
+Yode-server needs Node.js 0.10.+
 
 ```
 mkdir yode
@@ -20,7 +20,7 @@ npm start yode-server
 
 The installer will create a directory "www" for yor projects (if you didn't type another). 
 
-There is an examples project in "www/localhost". 
+There is an example project in "www/localhost". 
 
 All backend files are located in www/localhost/plugins,
 
