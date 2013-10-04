@@ -28,7 +28,7 @@ all static files (css, images, browser-js) are in www/localhost/static,
 
 html-templates are in www/localhost/view
 
-You can create separate directory for your project in www. The name of project directory must be same as host name. For example: if your project hostname is www.example.com you must create directory "www/www.example.com"
+You can create separate directory for your project in www. The name of project directory must be same as host name. For example: if your project hostname is ```www.example.com``` you must create directory "www/www.example.com"
 
 Command
 ```
