@@ -106,7 +106,12 @@ exports.Plugin.prototype.checkAccess2Model = function(req, callback, auth, user)
 
 exports.Plugin.prototype.getAllModels = function(req, callback, auth) {
     
-    var me = this, md = me.server.serverDir + '/' + this.server.config.ADMIN_MODULES_DIR + '/modules'
+    if(!auth) {
+        callback(null, {code: 401})
+        return;
+    }
+    
+    var me = this, md = me.server.dir + '/' + me.server.config.ADMIN_MODULES_DIR + '/modules'
         ,manifests = [];
     
     var readF = function(md, e, files) {  
@@ -119,6 +124,7 @@ exports.Plugin.prototype.getAllModels = function(req, callback, auth) {
                 s = fs.readdirSync(dr)
                 var ll, mn;
                 for(var j=0;j<s.length;j++) {
+    
                     ll = true
                     mn = files[i] + '-' + s[j].substr(0,s[j].length-3)
                     for(var jj=0;jj<manifests.length;jj++) {
@@ -127,7 +133,10 @@ exports.Plugin.prototype.getAllModels = function(req, callback, auth) {
                             break;
                         }
                     }
-                    if(ll) manifests.push({name: mn})
+                    if(ll) {
+                        var model = require(dr + s[j].substr(0,s[j].length-3))
+                        if(model) manifests.push({name: mn, publ: (model.publicContriller? model.publicContriller:(!!model.public? 'default:html:' + mn: false))})
+                    }
                 }
             }
         }
@@ -136,8 +145,8 @@ exports.Plugin.prototype.getAllModels = function(req, callback, auth) {
     
     fs.readdir(md, function(e, files) {
         readF(md, e, files) 
-        fs.readdir(me.server.dir + '/' + md, function(e, files) {
-            readF(me.server.dir + '/' + md, e, files)
+        fs.readdir(me.server.serverDir + '/static/admin/modules', function(e, files) {
+            readF(me.server.serverDir + '/static/admin/modules', e, files)
             callback({list:manifests},null)
         })
     })

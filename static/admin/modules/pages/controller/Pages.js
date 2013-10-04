@@ -40,7 +40,42 @@ Ext.define('MyDesktop.modules.pages.controller.Pages', {
         })
         win.down('treepanel').getView().on('drop', function (m, d, o, p, e) {return me.dropPage(m, d, o, p, e)})
         win.down('treepanel').getView().on('beforedrop', me.beforeDropPage)
+        
+        me.populateModels(win)
+        
         me.callParent(arguments)
+    }
+    
+    ,populateModels: function(win) {
+        var me = this
+                
+        Core.Ajax.request({
+            url: 'models.access:getAllModels',
+            succ: function(data) {
+                if(data.list) {
+                    me.modelsData = []
+                    for(var i=0;i<data.list.length;i++) {
+                        if(data.list[i].publ) {
+                            me.modelsData.push({
+                                name: D.t(data.list[i].name), 
+                                model: data.list[i].publ
+                            })                            
+                        }
+                    }                    
+                }
+            }
+        })
+        
+        win.down("[dataIndex=controller]").renderer = function(x) {
+            if(x) {
+                for(var i=0;i<me.modelsData.length;i++) {
+                    if(me.modelsData[i].model == x) return D.t(me.modelsData[i].name)
+                    return x
+                }
+            } else {
+                return D.t('Text');
+            }            
+        }        
     }
     
     ,openRecord: function(rec) {
@@ -303,7 +338,7 @@ Ext.define('MyDesktop.modules.pages.controller.Pages', {
                 id: Sess.makeGuid(),
                 block: 1,
                 module: '',
-                descript: D.t('Text')
+                descript: ''
             }
             ,row = store.add(rec)
         me.modifyBlock(row[0], true);
@@ -343,7 +378,10 @@ Ext.define('MyDesktop.modules.pages.controller.Pages', {
             '[action=remove]':{click: function() {win.editingBlock.store.remove(win.editingBlock);win.close();me.setButtonsDisabled('edit');}},
             '[action=save]':{click: function() {me.blockSave(win, true)}},
             '[action=apply]':{click: function() {me.blockSave(win, false)}}
-        })            
+        }) 
+        
+        win.down('[name=controller]').getStore().loadData(me.modelsData)
+        
     }
     
     ,blockSave: function(win, close) {

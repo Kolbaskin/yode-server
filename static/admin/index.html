@@ -40,8 +40,11 @@
        document.getElementsByTagName("head")[0].appendChild(e); 
     }
     var l = localStorage.getItem('locale');
+    LOCALE = {}
+    TEXTS = {}
     if(l) {    
         dhtmlLoadScript('/ext/locale/ext-lang-' + l + '.js')
+        dhtmlLoadScript('./locale/total/' + l + '.js')
         dhtmlLoadScript('./locale/' + l + '.js')
     }
 </script>

@@ -147,9 +147,10 @@ TEXTS={}
 D={
     t:function(t,val) {
         var tx;
-        try {
-        eval('tx=TEXTS["'+t+'"];if(tx==null) tx="'+t+'";');
-        } catch(e) {tx=t;}
+        if(LOCALE && LOCALE[t]) tx = LOCALE[t]
+        else 
+        if(TEXTS && TEXTS[t]) tx = TEXTS[t]
+        else tx = t
 	    if(val!=null)
 		for(var i=0;i<val.length;i++) tx=tx.replace('%s',val[i]);
 	    return tx;

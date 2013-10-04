@@ -86,30 +86,31 @@ Ext.define('MyDesktop.modules.pages.view.BlockEditWindow', {
     }
     
     ,buildFormItems: function() {
-        return [
-            {
+        return [{
                 fieldLabel: D.t('Block number'),  
                 xtype: 'numberfield',
                 minValue: 1,
                 value: 1,
                 name: 'block'
-            },
-            {
-                fieldLabel: D.t('Conten type'),  
-                //value: 'MyDesktop.modules.texteditor.controller.Editor',
-                name: 'controller'
-            },
-            {
+            },{                
+                xtype: 'combo',
+                store: Ext.create('Ext.data.ArrayStore', {
+                    fields: ['name','model']
+                }),
+                fieldLabel: D.t("Conten type"),
+                name: 'controller',
+                queryMode: 'local',
+                allowBlank: true,
+                displayField: 'name',
+                valueField: 'model'
+            },{
                 fieldLabel: D.t('Description'),   
                 name: 'descript'
-            },
-            {
+            },{
                 inputType: 'hidden',   
                 name: 'id'
             }
         ]
     }
-
-        
     
 })

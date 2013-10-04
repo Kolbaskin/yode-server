@@ -207,7 +207,7 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
  * html generation using an admin module model
  */
  
-exports.Plugin.prototype.buildHtml = function(req, callback, auth) {    
+exports.Plugin.prototype.html = function(req, callback, auth) {    
     var me = this   
 
     req.urlparams[0] = '.modules.' + req.urlparams[0].replace('-', '.model.')    
@@ -217,8 +217,7 @@ exports.Plugin.prototype.buildHtml = function(req, callback, auth) {
         // let show one record    
             req.params.query = '[{"property":"_id", "value":"' + req.page + '"}]'
             dataFuncs.getdata(req.params, me, function(data) {            
-                if(data && data.list && data.list[0]) {
-                    
+                if(data && data.list && data.list[0]) {                    
                     if(publicConf.crumbField !== null) {
                         req.pageData.crumbs[req.pageData.crumbs.length-1].cur = null
                         if(data.list[0][publicConf.crumbField])

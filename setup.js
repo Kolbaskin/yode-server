@@ -246,7 +246,7 @@ fs.exists(__dirname + '/../../server.js', function(log) {
     if(log) {
         require('../../server')
     } else {
-        runs(1)
+        runs(0)
     }
 })
 

@@ -1,0 +1,3 @@
+LOCALE = {
+"news-NewsModel": "News"     
+}
