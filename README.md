@@ -48,12 +48,11 @@ node server.js www.example.com
 
 The enterance to the admin panel (don't forget to add the port if it is not 80):
 
+```
 http://localhost/admin/
-
 login: yeti
-
 pass: 111111
-
+```
 
 ### Hello world (easy)
 
@@ -70,9 +69,7 @@ exports.Plugin.prototype.helloWorld = function(req, callback, auth) {
 }
 ```
 
-in the browser :
-
-http://localhost/hello:helloWorld/
+in the browser ```http://localhost/hello:helloWorld/```
 
 ### Hello world (MVC)
 
@@ -118,19 +115,19 @@ exports.Plugin.prototype.helloWorld = function(req, callback, auth) {
 
 ```
 
-See the result: http://localhost/hellomvc:helloWorld/
+See the result: ```http://localhost/hellomvc:helloWorld/```
 
-Also, you can use the model in an outside apps as REST-service: http://localhost/models.hello:getHello/ 
+Also, you can use the model in an outside apps as REST-service: ```http://localhost/models.hello:getHello/``` 
 
 ### "Hello World" on CMS virtual pages 
 
-1. goto admin interface: http://localhost/admin/ (yeti:111111)
+1. goto admin interface: ```http://localhost/admin/``` (yeti:111111)
 2. goto Start -> Site tools -> Pages
 3. Press (+) icon
 4. Enter page name
 5. Select template
-5. Press [Add] - button (in right-bottom panel "Page blocks")
-6. Enter "hellomvc:helloWorld" to folder "Content type"
+5. Press [Add] - button (in right-bottom panel ```Page blocks```)
+6. Enter ```hellomvc:helloWorld``` to folder ```Content type```
 7. Save
 
 Now you can see your "Hello World" on the new page (the path is in the second column of pages tree in admin-panel)
