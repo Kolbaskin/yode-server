@@ -475,7 +475,7 @@ db.collection("pages").insert({
     {
       "id": "1c5371cc-6859-069e-9ad3-c2a32a6637b3",
       "block": "1",
-      "controller": "default:buildHtml:news-NewsModel",
+      "controller": "default:html:news-NewsModel",
       "descript": "Text",
       "text": ""
     }
@@ -666,7 +666,7 @@ db.collection("pages").insert({
     {
       "text": "",
       "block": "1",
-      "controller": "default:buildHtml:news-NewsModel",
+      "controller": "default:html:news-NewsModel",
       "descript": "Text",
       "id": "b1068899-accc-5a2a-432f-fdbcc4d5b18c"
     }

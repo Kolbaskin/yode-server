@@ -198,6 +198,9 @@ var steps = [
         ncp(__dirname + "/www", __dirname + "/../../" + projectsDir, function (err) {
             var fn = __dirname + "/../../" + projectsDir + '/localhost/config.js'
             
+            fs.mkdir(__dirname + "/../../" + projectsDir + '/localhost/tmp')
+            fs.mkdir(__dirname + "/tmp")
+            
             fs.readFile(fn, 'utf8', function(e,d) {
                 
             
