@@ -56,8 +56,9 @@ pass: 111111
 
 ### Hello world (easy)
 
-file: www/localhost/plugins/hello.js
 ```javascript
+// file: www/localhost/plugins/hello.js
+
 // the pattern of a yode-module
 // object "server" contents connections to mongodb, memcached and has more useful properties 
 exports.Plugin = function(server) {
@@ -74,8 +75,9 @@ in the browser ```http://localhost/hello:helloWorld/```
 ### Hello world (MVC)
 
 #### Model code 
-www/localhost/plugins/models/hello.js
+
 ```javascript
+// file: www/localhost/plugins/models/hello.js
 
 exports.Plugin = function(server) {
     this.server = server;
@@ -89,15 +91,21 @@ exports.Plugin.prototype.getHello = function(req, callback, auth) {
 ```
 
 #### View, template code 
-www/localhost/view/hello.tpl
 ```html
-<!-- uses jqtpl engine -->
+<!-- 
+
+file: www/localhost/view/hello.tpl
+
+uses jqtpl engine 
+
+-->
 <h1>${text}</h1>
 ```
 
 #### Controller code 
-www/localhost/plugins/hellomvc.js
+
 ```javascript
+// file: www/localhost/plugins/hellomvc.js
 
 exports.Plugin = function(server) {
     this.server = server;
