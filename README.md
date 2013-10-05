@@ -5,9 +5,9 @@ Yode-server
 
 ## Setup
 
-First, install MongoDB and Memcached and run them. 
+First, install MongoDB and Memcached and run both 
 
-Yode-server needs Node.js 0.10.+
+Yode-server also requires node.js version 0.10 and above
 
 ```
 mkdir yode
@@ -18,17 +18,16 @@ npm start yode-server
 
 ## Usage
 
-The installer will create a directory "www" for yor projects (if you didn't type another). 
+The installer creates ```www``` directory. Or you can choose another name during installation.
+This is where your projects to be placed. In ```www/localhost``` you’ll find a sample project.
 
-There is an example project in "www/localhost". 
+All backend files are located in ```www/localhost/plugins```,
 
-All backend files are located in www/localhost/plugins,
+all static files (css, images, browser-js) are in ```www/localhost/static```,
 
-all static files (css, images, browser-js) are in www/localhost/static,
+html-templates are in ```www/localhost/view```
 
-html-templates are in www/localhost/view
-
-You can create separate directory for your project in ```www```. The name of project directory must be same as host name. For example: if your project hostname is ```www.example.com``` you must create directory ```www/www.example.com```
+Each new project requires separate directory inside ```www```. The name of project directory must be same as host name. For example: if your project hostname is ```www.example.com``` the path should be ```www/www.example.com```
 
 Command
 ```
@@ -38,7 +37,7 @@ or
 ```
 node server.js
 ```
-starts all virtual hosts which located in project directory. If you need to start only one of them, do it:
+starts all virtual hosts located in project directory. If you need to start only one of them, specify it:
 
 ```
 node server.js www.example.com
@@ -46,7 +45,7 @@ node server.js www.example.com
 
 ### Admin interface
 
-The enterance to the admin panel (don't forget to add the port if it is not 80):
+Admin panel default access (don't forget to add the port number in case it's not 80):
 
 ```
 http://localhost/admin/
@@ -125,16 +124,16 @@ exports.Plugin.prototype.helloWorld = function(req, callback, auth) {
 
 See the result: ```http://localhost/hellomvc:helloWorld/```
 
-Also, you can use the model in an outside apps as REST-service: ```http://localhost/models.hello:getHello/``` 
+You can also use the model as REST-service in external apps: ```http://localhost/models.hello:getHello/``` 
 
 ### "Hello World" on CMS virtual pages 
 
-1. goto admin interface: ```http://localhost/admin/``` (yeti:111111)
-2. goto Start -> Site tools -> Pages
-3. Press (+) icon
+1. Log into admin interface: ```http://localhost/admin/``` (yeti:111111)
+2. Go to Start -> Site tools -> Pages
+3. Click (+) icon
 4. Enter page name
 5. Select template
-5. Press [Add] - button (in right-bottom panel ```Page blocks```)
+5. Click [Add] - button (in right-bottom panel ```Page blocks```)
 6. Enter ```hellomvc:helloWorld``` to folder ```Content type```
 7. Save
 
