@@ -134,7 +134,7 @@ You can also use the model as REST-service in external apps: ```http://localhost
 4. Enter page name
 5. Select template
 5. Click [Add] - button (in right-bottom panel ```Page blocks```)
-6. Enter ```hellomvc:helloWorld``` to folder ```Content type```
+6. Enter ```hellomvc:helloWorld``` to field ```Content type```
 7. Save
 
 Now you can see your "Hello World" on the new page (the path is in the second column of pages tree in admin-panel)
