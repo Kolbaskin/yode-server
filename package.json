@@ -43,7 +43,6 @@
     "nodemailer": "*",
     "node-static": "*",
     "pagination": "*",
-    "request": "*",
     "stream-buffers": "*",
     "ncp": "*",
     "rmdir": "*",

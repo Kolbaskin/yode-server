@@ -4,7 +4,6 @@ var  static   = require('node-static')
     ,jqtpl = require('jqtpl')
     ,http_codes = require('http_codes')
     ,gc = require('gc')
-    ,request = require('request')
     ,util = require('util')
 
 
@@ -153,25 +152,14 @@ exports.Server.prototype.init = function(callback) {
         th.started = true
     }
 }
-
-/* for crush test
-
-var requestPerSecond;
-
-setInterval(function() {
-    console.log(requestPerSecond)  // requests per sec
-    console.log(parseInt(process.memoryUsage().rss/1024/1024) + '\n'); // memory used
-    requestPerSecond = 0;
-}, 1000)
-*/  
-  
+ 
 /**
  * Основной серверный метод
  * req -- http-запрос
  * res -- http-ответ
  * post -- POST-данные (если есть)
 **/
-exports.Server.prototype.serve = function(req, res, post) {
+exports.Server.prototype.serve = function(req, res, post, nohead) {
     var th = this 
     
     if(th.config.TIME_TO_CONSOLE_LOG) {
@@ -184,37 +172,27 @@ exports.Server.prototype.serve = function(req, res, post) {
         return;
     }
     
-    var mcallback = function(body, error, head) {  
-            
+    var mcallback = function(body, error, head) {            
         if(!body && error) {
             th.error(error, res)
-            return;
-        }  
-        
-          
-        
+            return;        
+        }            
         if(typeof body === "object" && (!head || (head.heads && ['text/plain','text/json'].indexOf(head.heads['Content-Type']) != -1))) {
             if(!head) head = 'JSON'
             body = JSON.stringify({status: 'OK', data: body})
         }        
-        if(head == null || head == 200) res.writeHead(200, "OK", {'Content-Type': 'text/html; charset=utf-8'});
+        if((head == null || head == 200) && !nohead) res.writeHead(200, "OK", {'Content-Type': 'text/html; charset=utf-8'});
         else if(head == "JSON") {
             res.writeHead(200, "OK", {'Content-Type': 'text/plain'});
             if(body == null && error != null) {
                 body = JSON.stringify({status: 'FAULT', data: error})
-            }/* else {
-                body = JSON.stringify({status: 'OK', data: body})
-            }*/
-        } else res.writeHead(head.code, head.status, head.heads);
+            }
+        } else if(!nohead) res.writeHead(head.code, head.status, head.heads);
         if(th.config.TIME_TO_CONSOLE_LOG) {
             Time_Log = new Date().getTime() - Time_Log; 
             console.log(req.url + ': ' +Time_Log+ ' ms');
-        }
-            
+        }            
         res.end(body); 
-        //requestPerSecond++; // for crush test
-        
-        
     }    
 
     var x = req.url.split("/")
@@ -224,29 +202,14 @@ exports.Server.prototype.serve = function(req, res, post) {
         //this.serveVirtualPages(req, res, post, mcallback)
         this.serveVirtualPages(req, res, post, function(result, e) {
             // если виртуальная страница не найдена
-            // поищем в подходящие плагины
+            // поищем подходящие плагины
             if(!result && !e) {   
                 mcallback(null, {code: 404})
             } else {
                 mcallback(result, e)
             }
         })
-    }
-
-/*
-    this.serveVirtualPages(req, res, post, function(result, e) {
-        // если виртуальная страница не найдена
-        // поищем в подходящие плагины
-        if(!result && !e) {
-            
-
-
-            th.servePlugins(req, res, post, mcallback)
-        } else {
-            mcallback(result, e)
-        }
-    })
- */   
+    } 
 }
 
 /**
@@ -254,7 +217,8 @@ exports.Server.prototype.serve = function(req, res, post) {
  **/
 exports.Server.prototype.error = function(error, res) {
 
-    var text = 'nternal Server Error'
+    var me = this 
+        ,text = 'nternal Server Error'
         ,headers = {'Content-Type': 'text/html; charset=urf-8'}
     
     if(error.redirect) headers = {'Location': error.redirect}
@@ -267,12 +231,7 @@ exports.Server.prototype.error = function(error, res) {
     
     if(this.config.ERRORPAGES && this.config.ERRORPAGES[error.code]) {
         // Если в конфиге указана страница для этой ошибки, подгрузим такую страницу
-        request({
-            url : this.config.ERRORPAGES[error.code]
-        },
-        function (error, response, body) {
-            res.end(body);
-        });    
+        me.serve({url: this.config.ERRORPAGES[error.code], headers:{cookie:''}}, res, null, true)
     } else res.end();    
 }
 
@@ -294,12 +253,9 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
             url.params[parts[0].trim()] = decodeURIComponent((parts[1] || '').trim());
         });
         if(url.query != null) for(var i in url.query) url.params[i] = url.query[i]
-        if(post != null) for(var i in post) url.params[i] = post[i]
+        if(post != null) for(var i in post) url.params[i] = post[i]       
         
-        
-        
-        var run = function(a) {
-            
+        var run = function(a) {            
             me.defaultPlugin.serve(url, function(result, e) {
                 callback(result,e)
             },a)

@@ -22,12 +22,6 @@ var  fs = require('fs')
     ,http = require('http')
     
 var projects = {}
-
-/**
- * Starting virtual hosts
- **/
-
-
         
 /**
  * Global congig options
@@ -166,6 +160,15 @@ var createServer = function(req, res) {
     }    
 }
 
+var memLimit = function(limit) {
+    if(limit) limit *= 1024*1024
+    setInterval(function() {
+        if(process.memoryUsage().rss > limit) {
+            process.exit(0)    
+        }
+    }, 1000)    
+}
+
 exports.start = function(conf, callback) {
     for(var i in conf) {
         config[i] = conf[i]    
@@ -173,6 +176,8 @@ exports.start = function(conf, callback) {
     if(!config.projects_dir) config.projects_dir = '/var/www'
     if(!config.tmp_dir) config.tmp_dir = './tmp'
     if(!config.gs_timeout) config.gs_timeout = 600000
+    
+    if(config.memLimit) memLimit(config.memLimit)
         
     startGC()   
     

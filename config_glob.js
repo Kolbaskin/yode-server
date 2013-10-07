@@ -2,6 +2,9 @@ exports.port = 8000
 
 exports.maxUploadSize = 2*1024*1024
 
+// memory limit for the process in Mb
+exports.memLimit = 400
+
 exports.staticParams = {serverInfo: 'x-server', cache: 36000}
 
 exports.formConfig = {
