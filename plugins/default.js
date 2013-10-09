@@ -212,6 +212,10 @@ exports.Plugin.prototype.html = function(req, callback, auth) {
 
     req.urlparams[0] = '.modules.' + req.urlparams[0].replace('-', '.model.')    
     dataFuncs.getmodel(req, me, function(model) {        
+        if(!model)  {
+            callback('')
+            return;
+        }
         var publicConf = model.public(req)
         if(req.page && publicConf.tpl_row) {
         // let show one record    
