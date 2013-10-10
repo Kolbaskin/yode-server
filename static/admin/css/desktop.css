@@ -518,8 +518,8 @@ div.ux-taskbar div.x-toolbar {
     background: url(../images/icons/page_magnifier.png) no-repeat center center !important;
 }
 .show-file {    
-    background: url(../images/icons/page_white_magnify.png) left center no-repeat;
+    background: url(../images/icons/page_white_magnify.png) center no-repeat;
 }
 .show-file-32 {    
-    background: url(../images/icons/32/page_white_magnify.png) left center no-repeat;
+    background: url(../images/icons/32/page_white_magnify.png) center no-repeat;
 }

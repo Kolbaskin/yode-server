@@ -22,6 +22,7 @@ exports.Plugin = function(server) {
 exports.Plugin.prototype.getAutorization = function(collectionName, find, pass, callback, exp) {
 
     var collection = this.db.collection(collectionName)
+        ,mail = this.server.inits.mail
         ,config = this.server.config
         ,mem = this.server.inits.mem
     

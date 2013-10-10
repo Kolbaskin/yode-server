@@ -3,7 +3,7 @@ var forms = require('forms')
 exports.getValue = function(data, name) {
     
     if(!data.value) return;
-        
+
     if(data.type && this[data.type]) {
         return this[data.type](data, name)    
     }
@@ -35,7 +35,6 @@ exports.getValue = function(data, name) {
 }
 
 exports.string = function(data, name) {
-    
     var o = {};
     if(data.operator == 'like') {
         try {

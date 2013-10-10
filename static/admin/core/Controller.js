@@ -382,21 +382,9 @@ Ext.define('MyDesktop.core.Controller', {
             saveF(d);
         } else {
             saveF(data);    
-        }     
+        }      
+    }
         
-    
-    }
-    
-    ,buildButtonsPinedDdetailForm: function() {
-        return [
-                            {
-                                text: D.t('Save'),
-                                action: 'formapply',
-                                iconCls: 'save'
-                            }
-                        ]
-    }
-    
     ,pinDetailForm: function(win, formCls) {
         var me = this
             ,form
@@ -415,7 +403,7 @@ Ext.define('MyDesktop.core.Controller', {
                 ],
                 buildButtons: function() {return null},
                 buildTbar: function(){
-                    return me.buildButtonsPinedDdetailForm()
+                    if(this.buildButtonsPined) return this.buildButtonsPined()
                 }                
             }
         

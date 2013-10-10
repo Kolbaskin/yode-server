@@ -34,6 +34,16 @@ Ext.define('MyDesktop.core.DetailForm', {
         ]    
     }
     
+    ,buildButtonsPined: function() {
+        return [
+            {
+                text: D.t('Save'),
+                action: 'formapply',
+                iconCls: 'save'
+            }
+        ]
+    }
+    
     ,setValues: function(row) {
         this.getForm().setValues(row)    
     }

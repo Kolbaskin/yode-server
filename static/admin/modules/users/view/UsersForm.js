@@ -3,6 +3,16 @@ Ext.define('MyDesktop.modules.users.view.UsersForm', {
     
     titleIndex: 'login',
     
+    defaults: {
+        labelWidth: 150,
+        anchor: '100%',
+        xtype: 'textfield'
+    },
+    layout: 'anchor',
+    height: 240,
+    width: 500,
+    bodyStyle: 'padding: 10px',
+    
     buildItems: function() {
         return [
         {
@@ -18,7 +28,12 @@ Ext.define('MyDesktop.modules.users.view.UsersForm', {
             inputType: 'password',
             fieldLabel: D.t('Password')
         },
-        this.buildGroupCombo()
+        this.buildGroupCombo(),
+        {
+            xtype: 'checkbox',
+            name: 'dblauth',
+            fieldLabel: D.t('Session password')
+        }
         ]
     }
     

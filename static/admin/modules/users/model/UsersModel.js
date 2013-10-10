@@ -46,6 +46,30 @@ exports.fields = [
         type: 'ObjectID',
         editable: true,
         visable: true
+    },{
+        name: 'inn',
+        type: 'string',
+        filterable: true,
+        editable: true,
+        visable: true
+    },{
+        name: 'contacter',
+        type: 'string',
+        filterable: true,
+        editable: true,
+        visable: true
+    },{
+        name: 'tel',
+        type: 'string',
+        filterable: true,
+        editable: true,
+        visable: true
+    },{
+        name: 'broker',
+        type: 'string',
+        filterable: true,
+        editable: true,
+        visable: true
     }
         
 ]

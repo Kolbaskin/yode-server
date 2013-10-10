@@ -45,7 +45,7 @@ exports.Plugin.prototype.add = function(params, callback) {
 exports.Plugin.prototype.enter2step = function(params, callback) {    
     login.enter2step(params, this.server.inits.mem, function(r, e) {
         callback(r, e);
-    }, this.config)
+    }, this.server.config)
 }
 
 // is user registrated
