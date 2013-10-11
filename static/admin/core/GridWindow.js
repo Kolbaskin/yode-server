@@ -24,9 +24,53 @@ Ext.define('MyDesktop.core.GridWindow', {
     
         this.store = this.createStore() //Ext.create(this.store)
         this.items = this.buildItems()
-                
+        
+                        
         
         this.callParent();
+    }
+    
+    ,buildViewConfig: function() {
+        var me = this
+        return {
+                trackOver: false,
+                plugins: {
+                    ptype: 'gridviewdragdrop'
+                },
+                listeners: {
+                    drop: function(node, data, dropRec, dropPosition) {
+                        
+                        var recs = []
+                        
+                        for(var i=0;i<data.records.length;i++) {
+                            recs.push({_id: data.records[i].data._id, indx: data.records[i].data.indx})    
+                        }
+                        
+                        var jData = {
+                            records:  recs,
+                            dropRec: {_id: dropRec.data._id, indx: dropRec.data.indx},
+                            position: dropPosition  
+                        }
+                            
+                        
+                        me.store.load({params:{reorder:JSON.stringify(jData)}})
+                        
+                        /*
+                        Core.Ajax.request({
+                            url: '',
+                            jsonData: {
+                                records:  recs,
+                                dropRec: {_id: dropRec.data._id, indx: dropRec.data.indx},
+                                position: dropPosition  
+                            }
+                            succ: function(r) {
+                                me.store.load()
+                            }
+                        }) 
+                        */
+                    }
+                }
+            }
     }
     
     ,createStore: function() {
@@ -55,12 +99,14 @@ Ext.define('MyDesktop.core.GridWindow', {
             multiSelect: true,
             tbar: me.buildTbar(),
             bbar: me.buildBbar(),
-            /*viewConfig: {
+            viewConfig: {
                 trackOver: false
-            },*/
+            },
             store: me.store
             
         }
+        
+        if(this.sortManually) grid.viewConfig = this.buildViewConfig()
         
         if(this.filterbar) {            
             grid.columns = {
@@ -79,7 +125,6 @@ Ext.define('MyDesktop.core.GridWindow', {
         } else {
             grid.columns = me.buildColumns()                
         }
-        
         return grid
         
     }

@@ -118,7 +118,13 @@ exports.Plugin.prototype.getdata = function(params, callback, auth) {
         
         me.server.getModel('admin.models.access').checkAccess2Model({urlparams:[null,params.urlparams[0]]}, function(access) {
             if(access && access.read) {
-                data.getdata(params, me, callback);
+                if(params.reorder && access.modify) {
+                    data.reorder(params, me, function(res) {
+                        data.getdata(params, me, callback);
+                    })
+                } else {
+                    data.getdata(params, me, callback);
+                }
             } else {
                 callback(null, {code: 403});
             }

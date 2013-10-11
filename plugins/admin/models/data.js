@@ -234,9 +234,8 @@ var buildSort = function(params, model) {
 * geting all data with paging
 *
 */
-exports.getdata = function(params, parent, callback, model) {    
-    var me = this
-        ,func = function(model) {
+exports.getdata = function(params, parent, callback, model) {        
+    var func = function(model) {
             if(!model) {
                 callback(null, {code:404});
                 return;
@@ -268,6 +267,50 @@ exports.getdata = function(params, parent, callback, model) {
         readmodel(params.urlparams[0], parent, function(model) {
             func(model)        
         })
+}
+
+exports.reorder = function(params, parent, callback) { 
+    var obj
+    try {
+        obj = JSON.parse(params.reorder)    
+    } catch(e) {
+        callback({})
+        return;
+    }
+    
+    readmodel(params.urlparams[0], parent, function(model) {
+        
+        if(!model) {
+             callback(null)
+             return;
+        }
+        
+        var indx = obj.dropRec.indx
+        
+        if(obj.position == 'before') {
+            //obj.dropRec.indx += obj.records.length
+        } else {
+            indx ++
+        }
+        parent.db.collection(model.collection).update({indx:{$gte: indx}},{$inc:{indx:obj.records.length}}, { multi: true }, function(e) {
+
+            var func = function(i) {                
+                if(i>=obj.records.length) {
+                    callback({ok:'ok'})  
+                    return;
+                }                
+                var o_id
+                if((o_id = forms.strToId(obj.records[i]._id)) === 0) {func(i+1)}
+                else {
+                    parent.db.collection(model.collection).update({_id:o_id}, {$set:{indx: (indx+i)}}, function() {
+                        func(i+1)
+                    })
+                }
+            }
+            func(0)
+        })
+                
+    })
 }
 
 var createDataRecord = function(data, cur_data, model, server, callback) {
