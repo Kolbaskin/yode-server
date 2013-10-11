@@ -55,9 +55,9 @@ Ext.define('MyDesktop.core.GridWindow', {
             multiSelect: true,
             tbar: me.buildTbar(),
             bbar: me.buildBbar(),
-            viewConfig: {
+            /*viewConfig: {
                 trackOver: false
-            },
+            },*/
             store: me.store
             
         }
