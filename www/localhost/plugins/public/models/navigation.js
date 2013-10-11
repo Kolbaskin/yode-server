@@ -3,32 +3,31 @@ exports.Plugin = function(server) {
 }
 
 exports.Plugin.prototype.mainMenus = function(req, callback) {
-    var me = this
-    
-    this.db.collection('mainmenu').find({removed:{$ne:true}}, {_id: 1, name:1, dir:1, pid:1, indx:1, root: 1}).sort({indx:1}).toArray(function(e,r) {
+    this.db.collection('mainmenu').find({removed:{$ne:true}}, {_id: 1, name:1, dir:1, pid:1, indx:1}).sort({indx:1}).toArray(function(e,r) {
 
         if(!r.length) {
             callback({})
             return;
         }
+
         var res = {}
             ,out = {}
-            ,root
-        for(var i=0;i<r.length;i++) {
-            if(r[i].root) {
-               root = r[i]._id + ''
-               break;
-            }
-        }
-        for(var i=0;i<r.length;i++) {
+            ,root = r[0]._id+''
+ 
+        for(var i=1;i<r.length;i++) {
             r[i].pid += '';
             r[i]._id += '';
+            if(req.path == r[i].dir) {
+               r[i].cur = true
+            }
             if(r[i].pid == root) {
                res[r[i]._id] = {indx: r[i].indx, items: []}     
             }
         }
         for(var i=1;i<r.length;i++) {
             if(res[r[i].pid]) {
+
+                
                res[r[i].pid].items.push(r[i])     
             }
         }

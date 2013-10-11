@@ -32,7 +32,7 @@ Ext.define('MyDesktop.core.GridWindow', {
     ,createStore: function() {
         if(this.store) return Ext.create(this.store)
         
-        var modelName = Object.getPrototypeOf(this).$className.replace('.view.','.model.').replace(/List$/,'Model')
+        var modelName = (this.model || Object.getPrototypeOf(this).$className.replace('.view.','.model.').replace(/List$/,'Model'))
         
         return Ext.create('MyDesktop.core.Store', {
             filterParam: 'q',

@@ -18,6 +18,10 @@ Ext.define('MyDesktop.core.Controller', {
             this.mainView = name + 'List'
         }
         
+        if(this.model && this.launcher) {
+            this.launcher.model = this.model
+        }
+        
         this.getAccessRights()
         
         
@@ -26,7 +30,7 @@ Ext.define('MyDesktop.core.Controller', {
     // Запросим данные о правах доступа пользователя на этот модуль
     getAccessRights: function() {        
         var me = this 
-            ,model = this.getControllerName().replace('.controller.', '.model.')        
+            ,model = (this.model || this.getControllerName().replace('.controller.', '.model.'))      
         
         Core.Ajax.request({
             url: 'models.access:checkAccess2Model//' + model + '/',

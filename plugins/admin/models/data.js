@@ -324,7 +324,7 @@ exports.save = function(params, parent, callback, access, auth) {
             }
             if(data) {
                 var allFunc = function(data) {                
-                    var func = function(cur_data, callback) {               
+                    var func = function(cur_data, callback) {  
                         createDataRecord(data, cur_data, model, parent, callback)
                     }
              
@@ -346,9 +346,12 @@ exports.save = function(params, parent, callback, access, auth) {
                     // Update
                         if(access && access.modify) {                        
                             var o_id; 
-                            if((o_id = forms.strToId(data._id, callback)) === 0) return;
-                            if(o_id) {
+                            if((o_id = forms.strToId(data._id, callback)) === 0) {
                                 
+                                return;
+                            }
+                            if(o_id) {
+               
                                 parent.db.collection(model.collection).findOne({_id: o_id}, function(e, r) {                        
                                     func(r, function(insdata) {
                                         globalLog.update(auth, parent, params.urlparams[0], r, function() {
@@ -365,11 +368,11 @@ exports.save = function(params, parent, callback, access, auth) {
                                 })                           
                             }
                         } else {
+
                             callback(null, {code:403}) 
                         }
                     }
                 }
-
                 if(!!model.beforeSave) {
                     model.beforeSave(data, auth, function(data, e) {
                         if(data) allFunc(data)

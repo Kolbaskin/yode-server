@@ -39,13 +39,17 @@ exports.boolean = function(s, callback) {
 // value, record, model, fieldName, server, oldData
 exports.file = function(s, callback, record, model, fieldName, server) {
     var path = server.server.dir + '/' + server.server.config.STATIC_DIR + '/tmp/'+s 
-    if(s != '' && fs.existsSync(path)) {
-        s = fs.readFileSync(path)
-        fs.unlink(path)
-        callback(s)
-        return;
-    }
-    callback(null)
+    fs.existsSync(path, function(e) {
+        if(e) {
+            fs.readFile(path, function(e, s) {
+                if(s) fs.unlink(path)
+                callback(s)
+            })
+        } else {
+            callback(null)
+        }
+    })
+    
 }
 
 // cur_data -- предыдущие значения поля
@@ -56,28 +60,44 @@ exports.images = function(arr, callback, record, model, fieldName, server, cur_d
         var res = []
             ,s, s1
             
-        
-        for(var i=0;i<arr.length;i++) {
+        var func = function(i) {
+            if(i >= arr.length) {
+                callback(res)
+                return;
+            }
+            
             if(arr[i].img) {
-                if(fs.existsSync(path + arr[i].img)) {
-                    s = fs.readFileSync(path + arr[i].img)
-                    fs.unlink(path + arr[i].img)
-                    arr[i].img += '_small'
-                    if(fs.existsSync(path + arr[i].img)) {
-                        s1 = fs.readFileSync(path + arr[i].img)
-                        fs.unlink(path + arr[i].img)
-                    }
-                    res.push({img: s, preview: s1})
-                }
+                fs.exists(path + arr[i].img, function(e) {
+                    if(e) {
+                        fs.readFile(path + arr[i].img, function(e,s) {
+                            fs.unlink(path + arr[i].img)
+                            arr[i].img += '_small'
+                            fs.exists(path + arr[i].img, function(e) {
+                                if(e) {
+                                    fs.readFile(path + arr[i].img, function(e,s1) {
+                                        fs.unlink(path + arr[i].img)
+                                        res.push({img: s, preview: s1})
+                                        func(i+1)
+                                    })
+                                } else {
+                                    res.push({img: s, preview: null})
+                                    func(i+1)
+                                }
+                            })
+                             
+                        })
+                    } else func(i+1)
+                })
+                return;
             } else if(cur_data && arr[i].num !== null) { // сохраним предыдущее значение картинки
                 var n = parseInt(arr[i].num)
                 if(!isNaN(n) && cur_data[n]) {
-//console.log('save num:', )                    
-                    res.push(cur_data[n])
+                    res.push(cur_data[n])                    
                 }
+                func(i+1)
             }
-        }
-        callback(res)
+        }    
+        func(0)
         return;
     }
     callback('');
