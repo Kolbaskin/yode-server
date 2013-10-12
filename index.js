@@ -188,7 +188,8 @@ exports.start = function(conf, callback) {
     } else {
     // work call
         startVH()
-        http.createServer(createServer).listen(config.port)
+        if(config.host) http.createServer(createServer).listen(config.port, config.host)
+        else http.createServer(createServer).listen(config.port)
         console.log('Server HTTP started on port ' + config.port)
     }
     
@@ -199,7 +200,8 @@ exports.start = function(conf, callback) {
           cert: fs.readFileSync(config.https.sert)
         };
         
-        https.createServer(options, createServer).listen(config.https.port);
+        if(config.https.host) https.createServer(options, createServer).listen(config.https.port, config.https.host);
+        else https.createServer(options, createServer).listen(config.https.port);
         console.log('Server HTTPS started on port ' + config.https.port)
     } 
     

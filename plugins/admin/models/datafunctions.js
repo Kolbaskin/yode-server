@@ -145,3 +145,28 @@ exports.parentpages = function(value, callback, record, model, key, server, oldD
     }
     callback(null);
 }
+
+// Тип поля используется для сортировки
+exports.sortfield = function(value, callback, record, model, key, server, oldData) {
+    
+console.log('Get sort field')    
+    
+    if(value) {
+        value = parseInt(value)
+        if(!isNaN(value)) {
+            callback(value)
+            return;
+        }
+    }
+    var sort = {}
+        ,fields = {}
+    sort[key] = -1
+    fields[key] = 1
+    server.db.collection(model.collection).find({removed:{$ne: true}}, fields).sort(sort).limit(1).toArray(function(e,d) {
+        if(d[0] && d[0][key]) {
+            callback((d[0][key] + 1))
+        } else {
+            callback(0)
+        }
+    })
+}
