@@ -148,9 +148,6 @@ exports.parentpages = function(value, callback, record, model, key, server, oldD
 
 // Тип поля используется для сортировки
 exports.sortfield = function(value, callback, record, model, key, server, oldData) {
-    
-console.log('Get sort field')    
-    
     if(value) {
         value = parseInt(value)
         if(!isNaN(value)) {

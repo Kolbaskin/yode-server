@@ -82,7 +82,10 @@ exports.Plugin.prototype.checkAccess2Model = function(req, callback, auth, user)
 
     this.getUserAccessRates(req, function(rights) {
       
-     
+        if(!rights) {
+            callback({read: false, add: false, modify: false, del: false})
+            return;
+        }
       
         if(rights.superuser) {
             // для суперюзера все пути открыты

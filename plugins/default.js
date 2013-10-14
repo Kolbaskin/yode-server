@@ -1,6 +1,7 @@
 var fs = require('fs')
     ,dataFuncs = require('./admin/models/data')
     ,pages = require('pages')
+    ,myutils = require('myutils')
 
 /**
  * Инициализация плагина
@@ -144,10 +145,12 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
       
             
             if(b.controller && b.controller != '') {
-                
+              
                 ctr = b.controller.split(':')
                 b.controller = ctr[0]
                 if(!ctr[1]) ctr[1] = 'run' // метод контролера по-умолчанию
+
+
 
                 if(!!(plg = me.server.getModel(ctr[0])) && !!plg[ctr[1]]) {
 
@@ -158,7 +161,7 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
                         for(var ii=2;ii<ctr.length;ii++) request.urlparams.push(ctr[ii])
                     }
                     plg[ctr[1]](request, function(bdata, error) {
-                        
+      
                         if(error) {
                             callback(null, error)
                             return;
@@ -207,12 +210,19 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
  * html generation using an admin module model
  */
  
-exports.Plugin.prototype.html = function(req, callback, auth) {    
+exports.Plugin.prototype.html = function(rq, callback, auth) {    
     var me = this   
-
-    req.urlparams[0] = '.modules.' + req.urlparams[0].replace('-', '.model.')    
+        ,req = {
+            pageData: rq.pageData,
+            params: rq.params,
+            urlparams: ['.modules.' + rq.urlparams[0].replace('-', '.model.')]
+        }
+        
+console.log(req.urlparams[0])
+    
     dataFuncs.getmodel(req, me, function(model) {        
         if(!model)  {
+console.log('no model')
             callback('')
             return;
         }

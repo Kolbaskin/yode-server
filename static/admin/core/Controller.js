@@ -273,7 +273,7 @@ Ext.define('MyDesktop.core.Controller', {
         if(sm.selected.length>0) {
             
             for(var i=0;i<sm.selected.length;i++) {
-                data.push(sm.selected.items[i].data) 
+                data.push(sm.selected.items[i].data._id) 
             }
             
             me.removeRows(data, store, function() {
@@ -294,6 +294,9 @@ Ext.define('MyDesktop.core.Controller', {
                 var modelName = me.getModelName(store)
                 
                 if(modelName) {
+                    
+console.log(data)
+                    
                     Core.Ajax.request({
                         url: 'model:del/' + modelName,
                         jsonData: data,

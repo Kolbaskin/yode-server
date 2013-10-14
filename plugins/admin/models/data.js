@@ -453,22 +453,35 @@ exports.del = function(params, parent, callback, auth) {
             }
             if(data && Object.prototype.toString.call(data)=='[object Array]') {
                 
-                var func = function(data) {
-                
-                    for(var i=0;i<data.length;i++) {
-                        if(data[i]._id) {
-                            if((o_id = forms.strToId(data[i]._id, callback)) === 0) return;
-                            if(model.remove_action && model.remove_action == 'mark') {
-                                parent.db.collection(model.collection).update({_id: o_id}, {$set:{removed: true}}, function(e, r) {})
-                                globalLog.delByMarking(auth, parent, params.urlparams[0], o_id)
-                            } else {
-                                globalLog.delByRemoving(auth, parent, params.urlparams[0], model.collection, o_id, function() {
-                                    parent.db.collection(model.collection).remove({_id: o_id}, function(e, r) {})
-                                })
-                            }
-                        }
+                var removeRow = function(i, callback) {
+                    if(!data[i]) {
+                        callback()
+                        return;    
                     }
-                    callback({success:true}, null);
+                    var o_id;
+                    if((o_id = forms.strToId(data[i], callback)) === 0) return;
+                    if(model.remove_action && model.remove_action == 'mark') {
+                        parent.db.collection(model.collection).update(
+                            {_id: o_id}, 
+                            {$set:{removed: true}}, 
+                            function(e, r) {
+                                removeRow(i+1,callback)
+                            })
+                        globalLog.delByMarking(auth, parent, params.urlparams[0], o_id)
+                    } else {
+                        globalLog.delByRemoving(auth, parent, params.urlparams[0], model.collection, o_id, function() {
+                            parent.db.collection(model.collection).remove({_id: o_id}, function(e, r) {
+                                removeRow(i+1,callback)
+                            })
+                        })
+                    }                
+                }
+                
+                var func = function(data) {
+                    
+                    removeRow(0, function() {
+                        callback({success:true}, null);
+                    })                    
                     return true;
                 }
                 if(!!model.beforeDelete) {
