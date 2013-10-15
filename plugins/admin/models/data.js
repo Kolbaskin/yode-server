@@ -320,7 +320,7 @@ var createDataRecord = function(data, cur_data, model, server, callback) {
                 callback(insdata)
                 return;
             }
-                                    
+            
             if(data[model.fields[i].name] !== undefined || model.fields[i].type == 'boolean' || model.fields[i].emptySave) {
                 if(model.fields[i].editable) {
                     if(!!model.fields[i].type && !!dataFunc[model.fields[i].type]) {
@@ -348,9 +348,9 @@ var createDataRecord = function(data, cur_data, model, server, callback) {
 *
 */
 exports.save = function(params, parent, callback, access, auth) {    
-    
+ 
     readmodel(params.urlparams[0], parent, function(model) {   
-        
+  
         if(!model) {
             callback(null)
             return;
@@ -366,17 +366,18 @@ exports.save = function(params, parent, callback, access, auth) {
                 data = null    
             }
             if(data) {
-                var allFunc = function(data) {                
+                var allFunc = function(data) {  
+ 
                     var func = function(cur_data, callback) {  
                         createDataRecord(data, cur_data, model, parent, callback)
                     }
-             
+            
                     if(!data._id || data._id == '') {
                     // Insert 
                         if(access && access.add) {
                             func(null, function(insdata) {
                                 parent.db.collection(model.collection).insert(insdata, {w:1}, function(e, r) {
-                                    
+                        
                                     globalLog.insert(auth, parent, params.urlparams[0], insdata)
                                     
                                     callback({success:true, record: insdata}, e); 

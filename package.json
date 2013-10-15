@@ -57,7 +57,8 @@
     "http_codes",
     "pages",
     "multipart",
-    "dateformat"
+    "dateformat",
+    "myutils"
   ],  
 
   "license": "LGPL-2"  

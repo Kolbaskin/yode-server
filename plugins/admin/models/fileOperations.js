@@ -27,12 +27,39 @@ var makeImg = function(path, callback, sizes) {
             x:0, 
             y:0
         }
+    
+    var resize = function() {    
+        easyimg.thumbnail(conf1, function(err, image) {
+            	if (err) {
+                    callback(null, {code: 500});
+                    return;
+                } 
+                if(w2 && h2) {
+                    easyimg.thumbnail(conf2, function(err, image_small) {
+                        if (err) {
+                            callback(null, {code: 500});
+                            return;
+                        }
+                        callback({img: image, img_s:image_small});
+                    });
+                } else {
+                    callback({img: null , img_s:image});
+                }
+        	}
+        );
+    }
+        
     if(sizes) {
         sizes = sizes.split('x')
-        if(sizes[0]) {w2 = parseInt(sizes[0]);if(isNaN(w2)) w2=null;}
-        if(sizes[1]) {h2 = parseInt(sizes[1]);if(isNaN(h2)) h2=null;}
-        if(sizes[2]) {w1 = parseInt(sizes[2]);if(isNaN(w1)) w1=null;}
-        if(sizes[3]) {h1 = parseInt(sizes[3]);if(isNaN(h1)) h1=null;}
+        if(sizes.length == 4) {        
+            if(sizes[0]) {w2 = parseInt(sizes[0]);if(isNaN(w2)) w2=null;}
+            if(sizes[1]) {h2 = parseInt(sizes[1]);if(isNaN(h2)) h2=null;}
+            if(sizes[2]) {w1 = parseInt(sizes[2]);if(isNaN(w1)) w1=null;}
+            if(sizes[3]) {h1 = parseInt(sizes[3]);if(isNaN(h1)) h1=null;}
+        } else {
+            if(sizes[0]) {w1 = parseInt(sizes[0]);if(isNaN(w1)) w1=null;}
+            if(sizes[1]) {h1 = parseInt(sizes[1]);if(isNaN(h1)) h1=null;}
+        }
     } else {
         w1 = 456
         h1 = 342
@@ -40,26 +67,36 @@ var makeImg = function(path, callback, sizes) {
         h2 = 150    
     }
     
-    if(w1) conf1.width = w1
-    if(h1) conf1.height = h1
-    
-    if(w2) conf2.width = w2
-    if(h2) conf2.height = h2   
-    
-    easyimg.thumbnail(conf1, function(err, image) {
-    		if (err) {
-                callback(null, {code: 500});
-                return;
-            }                                                
-            easyimg.thumbnail(conf2, function(err, image_small) {
-                if (err) {
-                    callback(null, {code: 500});
-                    return;
+    var getSizes = function(w,h, callback) {
+        easyimg.info(path, function(e, info) {
+
+            if(info && info.width) {
+                if(!h) {
+                    h = parseInt(info.height * w / info.width)    
+                } else if(!w) {
+                    w = parseInt(info.width * h / info.height)
                 }
-                callback({img: image, img_s:image_small});
-            });
-    	}
-    );
+                if(w > info.width) w = info.width
+                if(h > info.height) h = info.height
+            }
+            callback(w,h)
+        })        
+    }
+    
+    getSizes(w1, h1, function(w,h) {
+        conf1.width = w
+        conf1.height = h
+
+        if(w2 || h2) {
+            getSizes(w2, h2, function(w,h) {
+                conf2.width = w
+                conf2.height = h
+                resize()
+            })
+        } else {
+            resize()
+        }
+    })
 }
 
 exports.Plugin.prototype.upload = function(req, callback, auth) {
@@ -100,6 +137,10 @@ exports.Plugin.prototype.getimage = function(req, callback, auth) {
     
     if(isNaN(num)) num = 0 
     if((o_id = forms.strToId(o_id, callback)) === 0) return;
+    if(!collName) {
+        callback(null, {code: 404})
+        return;
+    }
      
     me.db.collection(collName).findOne({_id: o_id}, folder, function(e,data) {
         if(data && data[folderName]) {

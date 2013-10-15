@@ -145,7 +145,7 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
       
             
             if(b.controller && b.controller != '') {
-              
+         
                 ctr = b.controller.split(':')
                 b.controller = ctr[0]
                 if(!ctr[1]) ctr[1] = 'run' // метод контролера по-умолчанию
@@ -157,9 +157,11 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
                     request.pageData = data
                     
                     if(ctr.length>2) {
-                        if(!request.urlparams) request.urlparams = []
+                        //if(!request.urlparams) 
+                        request.urlparams = []
                         for(var ii=2;ii<ctr.length;ii++) request.urlparams.push(ctr[ii])
                     }
+                  
                     plg[ctr[1]](request, function(bdata, error) {
       
                         if(error) {
@@ -217,12 +219,9 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
             params: rq.params,
             urlparams: ['.modules.' + rq.urlparams[0].replace('-', '.model.')]
         }
-        
-console.log(req.urlparams[0])
-    
+
     dataFuncs.getmodel(req, me, function(model) {        
         if(!model)  {
-console.log('no model')
             callback('')
             return;
         }
@@ -259,6 +258,7 @@ console.log('no model')
             dataFuncs.getdata(req.params, me, function(data) {            
                 data.pages = pages.create({start:req.params.start, limit: limit, total: data.total, req: req})
                 if(data.pages.pageCount<=1) data.pages = null               
+                data.global = publicConf.global
                 me.server.tpl(publicConf.tpl_list, data, function(code) {                    
                     callback(code);
                 })                

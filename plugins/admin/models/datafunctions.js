@@ -39,7 +39,7 @@ exports.boolean = function(s, callback) {
 // value, record, model, fieldName, server, oldData
 exports.file = function(s, callback, record, model, fieldName, server) {
     var path = server.server.dir + '/' + server.server.config.STATIC_DIR + '/tmp/'+s 
-    fs.existsSync(path, function(e) {
+    fs.exists(path, function(e) {
         if(e) {
             fs.readFile(path, function(e, s) {
                 if(s) fs.unlink(path)
@@ -48,8 +48,40 @@ exports.file = function(s, callback, record, model, fieldName, server) {
         } else {
             callback(null)
         }
+    })    
+}
+
+exports.image = function(s, callback, record, model, fieldName, server) {
+    var path = server.server.dir + '/' + server.server.config.STATIC_DIR + '/tmp/'+s 
+        ,res = {}
+    fs.exists(path, function(e) {
+        if(e) {
+            fs.readFile(path, function(e, s) {
+                if(s) {
+                    fs.unlink(path)
+                    res.img = s
+                    path += '_small'
+                    fs.readFile(path, function(e, s) {
+                        if(s) {
+                            fs.unlink(path)
+                            res.preview = s    
+                        }
+                        callback([res])
+                    })
+                } else callback(null)
+            })
+        } else {
+            callback(null)
+        }
     })
-    
+}
+
+exports.image_l = function(arr, record, model, key, server, oldData) {
+
+    var id = record["_id"]    
+        ,collection = model.collection
+    return '/admin.models.fileOperations:getimage/' + collection + '/' + id + '/' + key + '/0/' + (arr[0].preview? 'preview':'img') + '/'
+
 }
 
 // cur_data -- предыдущие значения поля

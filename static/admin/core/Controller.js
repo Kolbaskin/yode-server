@@ -294,9 +294,6 @@ Ext.define('MyDesktop.core.Controller', {
                 var modelName = me.getModelName(store)
                 
                 if(modelName) {
-                    
-console.log(data)
-                    
                     Core.Ajax.request({
                         url: 'model:del/' + modelName,
                         jsonData: data,
@@ -335,7 +332,6 @@ console.log(data)
         if(form) {
             data = form.getForm().getValues()    
         }
-        
 
         var saveF = function(data) {
             if(me.store) store = Ext.create(me.store) 
@@ -362,7 +358,7 @@ console.log(data)
     
                     if(store) store.load(); 
     
-                    if(form.record) {
+                    if(form && form.record) {
                         form.record.data =  data.record;
                         if(!!form.record.commit) form.record.commit();
                     }
