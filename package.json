@@ -46,7 +46,8 @@
     "stream-buffers": "*",
     "ncp": "*",
     "rmdir": "*",
-    "rimraf": "*"
+    "rimraf": "*",
+    "node-v8-clone": "*"
   },
   "analyze": false,
 

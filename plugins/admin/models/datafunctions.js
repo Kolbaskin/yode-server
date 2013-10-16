@@ -36,6 +36,17 @@ exports.boolean = function(s, callback) {
     callback(!!s)
 }
 
+exports.arraystring  = function(s, callback) {
+    s = s.split(',')
+    for(var i=0;i<s.length;i++) s[i] = s[i].trim()
+    callback(s)
+}
+
+exports.arraystring_l  = function(s) {
+    s = s.join(',')
+    return s
+}
+
 // value, record, model, fieldName, server, oldData
 exports.file = function(s, callback, record, model, fieldName, server) {
     var path = server.server.dir + '/' + server.server.config.STATIC_DIR + '/tmp/'+s 

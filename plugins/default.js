@@ -2,6 +2,7 @@ var fs = require('fs')
     ,dataFuncs = require('./admin/models/data')
     ,pages = require('pages')
     ,myutils = require('myutils')
+    ,forms = require('forms')
 
 /**
  * Инициализация плагина
@@ -219,16 +220,19 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
             params: rq.params,
             urlparams: ['.modules.' + rq.urlparams[0].replace('-', '.model.')]
         }
-
     dataFuncs.getmodel(req, me, function(model) {        
         if(!model)  {
             callback('')
             return;
         }
-        var publicConf = model.public(req)
-        if(req.page && publicConf.tpl_row) {
+        var publicConf = model.public(rq)
+    
+        if(rq.page && publicConf.tpl_row) {
         // let show one record    
-            req.params.query = '[{"property":"_id", "value":"' + req.page + '"}]'
+            
+            if(forms.strToId(rq.page)) req.params.query = '[{"property":"_id", "value":"' + rq.page + '"}]'
+            else req.params.query = '[{"property":"alias", "value":"' + rq.page + '", "operator":"eq"}]'
+            
             dataFuncs.getdata(req.params, me, function(data) {            
                 if(data && data.list && data.list[0]) {                    
                     if(publicConf.crumbField !== null) {
@@ -236,7 +240,7 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
                         if(data.list[0][publicConf.crumbField])
                             req.pageData.crumbs.push({name: data.list[0][publicConf.crumbField], cur: true})
                     }
-                    
+                    data.list[0].global = publicConf.global
                     me.server.tpl(publicConf.tpl_row, data.list[0], function(code) {
                         callback(code);
                     })

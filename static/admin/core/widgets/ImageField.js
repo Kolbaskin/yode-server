@@ -19,10 +19,18 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
     
     ,buildItems: function() {
         var me = this
+        
+        var sz = me.tumbSizes.split('x')
+        if(sz[0]) sz[0] = parseInt(sz[0])
+        if(sz[1]) sz[1] = parseInt(sz[1])
+        if(!sz[0] || isNaN(sz[0])) sz[0] = 150
+        if(!sz[1] || isNaN(sz[1])) sz[1] = 150
+        
         return [
             {
                 xtype: 'image',
-                width: 150
+                width: sz[0],
+                height: sz[1]
             },{
     
                 xtype: 'filefield',
