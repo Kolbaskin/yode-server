@@ -119,7 +119,7 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
         
         me.server.tpl(me.tpls[data.tpl].tpl, data, function(code) {
             callback(code);
-        })
+        }, request.locale)
     }
     
     // Готовим данные по блокам
@@ -243,7 +243,7 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
                     data.list[0].global = publicConf.global
                     me.server.tpl(publicConf.tpl_row, data.list[0], function(code) {
                         callback(code);
-                    })
+                    }, rq.locale)
                 } else {
                     callback(null, {code: 404})
                 }
@@ -265,7 +265,7 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
                 data.global = publicConf.global
                 me.server.tpl(publicConf.tpl_list, data, function(code) {                    
                     callback(code);
-                })                
+                }, rq.locale)                
             }, model)
                         
         } else {

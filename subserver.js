@@ -36,6 +36,8 @@ exports.Server = function(projDir, statServParam, host, port) {
     setInterval(function() {
         gc.run(staticDir + '/tmp', 600)
     }, 60000);
+    
+    
 }
 
 /**
@@ -82,9 +84,25 @@ var tplIncludes = function(dir, htm, callback) {
     callback(htm)
 }
 
-exports.Server.prototype.tpl = function(tplname, data, callback) {     
-    var th = this;    
+var getLocaleText = function(text, lng, srv) {
+    if(srv.config.LOCALE[lng]) {
+        if(!srv.LOCALE) srv.LOCALE = {}
+        if(!srv.LOCALE[lng]) {
+            srv.LOCALE[lng] = require(srv.dir + '/' + srv.config.LOCALE[lng]);
+        }
+        if(srv.LOCALE[lng].replaces[text]) return srv.LOCALE[lng].replaces[text]            
+    }
+    return text
+}
+
+exports.Server.prototype.tpl = function(tplname, data, callback, lng) {     
+    var th = this;   
     
+    if(th.config.LOCALE && lng) {
+        data.L = function(text) {
+            return getLocaleText(text, lng, th)
+        }
+    }
     if(jqtpl.cache[tplname] == null) {
         fs.exists(th.dir+'/view/'+tplname, function(log) {
             if(log) fs.readFile(th.dir+'/view/'+tplname, 'utf8', function (err, htm) {
@@ -144,7 +162,7 @@ exports.Server.prototype.init = function(callback) {
             th.getDefaultController()
             callback();
             th.started = true
-        })
+        }, th)
     
     } else {
         th.getDefaultController()
@@ -161,7 +179,7 @@ exports.Server.prototype.init = function(callback) {
 **/
 exports.Server.prototype.serve = function(req, res, post, nohead) {
     var th = this 
-    
+        
     if(th.config.TIME_TO_CONSOLE_LOG) {
         var Time_Log = new Date().getTime();    
     }
@@ -247,6 +265,10 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
         var me = this,
             url = urlutils.parse(req.url, true)
         
+        if(me.config.LOCALE && !url.locale) {
+            url.locale = req.url.substr(1,2)
+        }
+        
         url.params = {}
         req.headers.cookie && req.headers.cookie.split(';').forEach(function( cookie ) {
             var parts = cookie.split('=');
@@ -318,6 +340,8 @@ exports.Server.prototype.servePlugins = function(req, res, post, mcallback) {
         
             var all = {urlparams:[]}
             
+            
+            
             for(var i=2;i<u.length;i++) all.urlparams.push(decodeURIComponent(u[i]));            
                
             req.headers.cookie && req.headers.cookie.split(';').forEach(function( cookie ) {
@@ -328,6 +352,10 @@ exports.Server.prototype.servePlugins = function(req, res, post, mcallback) {
             if(post != null) for(var i in post) all[i] = post[i]
             
             all._query = url.query
+            
+            if(me.config.LOCALE && !all.locale) {
+                all.locale = req.url.substr(1,2)
+            }
             
             var run = function(auth) { 
                 all.href = req.url  
