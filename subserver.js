@@ -267,6 +267,7 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
         
         if(me.config.LOCALE && !url.locale) {
             url.locale = req.url.substr(1,2)
+            if(!me.config.LOCALE[url.locale]) delete url.locale
         }
         
         url.params = {}
@@ -355,6 +356,7 @@ exports.Server.prototype.servePlugins = function(req, res, post, mcallback) {
             
             if(me.config.LOCALE && !all.locale) {
                 all.locale = req.url.substr(1,2)
+                if(!me.config.LOCALE[all.locale]) delete all.locale
             }
             
             var run = function(auth) { 
