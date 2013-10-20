@@ -97,28 +97,33 @@ var getLocaleText = function(text, lng, srv) {
 
 exports.Server.prototype.tpl = function(tplname, data, callback, lng) {     
     var th = this;   
-    
-    if(th.config.LOCALE && lng) {
+    if(th.config.LOCALE) {
+        if(!lng) lng = 'en'
         data.L = function(text) {
             return getLocaleText(text, lng, th)
         }
     }
     if(jqtpl.cache[tplname] == null) {
+    
         fs.exists(th.dir+'/view/'+tplname, function(log) {
-            if(log) fs.readFile(th.dir+'/view/'+tplname, 'utf8', function (err, htm) {
-                if (err) console.log(err);
-                else {
-                    
-                    tplIncludes(th.dir+'/view/', htm, function(htm) { // добавим инклуды
-                        if(th.config.DEBUG == null || !th.config.DEBUG) {
-                            jqtpl.compile(htm, tplname);
-                            callback(jqtpl.render(tplname, data))
-                        } else {
-                            callback(jqtpl.render(htm, data))
-                        }
-                    })
-                }
-            });  
+            if(log) {
+
+                fs.readFile(th.dir+'/view/'+tplname, 'utf8', function (err, htm) {
+                    if (err) console.log(err);
+                    else {
+                      
+                        tplIncludes(th.dir+'/view/', htm, function(htm) { // добавим инклуды                         
+            
+                            if(th.config.DEBUG == null || !th.config.DEBUG) {
+                                jqtpl.compile(htm, tplname);
+                                callback(jqtpl.render(tplname, data))
+                            } else {
+                                callback(jqtpl.render(htm, data))
+                            }
+                        })
+                    }
+                });  
+            }
         });
     } else {
         callback(jqtpl.render(tplname, data))
@@ -221,7 +226,7 @@ exports.Server.prototype.serve = function(req, res, post, nohead) {
         this.serveVirtualPages(req, res, post, function(result, e) {
             // если виртуальная страница не найдена
             // поищем подходящие плагины
-            if(!result && !e) {   
+            if(!result && !e) {                 
                 mcallback(null, {code: 404})
             } else {
                 mcallback(result, e)
@@ -249,7 +254,8 @@ exports.Server.prototype.error = function(error, res) {
     
     if(this.config.ERRORPAGES && this.config.ERRORPAGES[error.code]) {
         // Если в конфиге указана страница для этой ошибки, подгрузим такую страницу
-        me.serve({url: this.config.ERRORPAGES[error.code], headers:{cookie:''}}, res, null, true)
+   
+        me.serve({url: me.config.ERRORPAGES[error.code], headers:{cookie:''}}, res, null, true)
     } else res.end();    
 }
 
@@ -271,6 +277,7 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
         }
         
         url.params = {}
+        url.response = res
         req.headers.cookie && req.headers.cookie.split(';').forEach(function( cookie ) {
             var parts = cookie.split('=');
             url.params[parts[0].trim()] = decodeURIComponent((parts[1] || '').trim());
@@ -278,8 +285,8 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
         if(url.query != null) for(var i in url.query) url.params[i] = url.query[i]
         if(post != null) for(var i in post) url.params[i] = post[i]       
         
-        var run = function(a) {            
-            me.defaultPlugin.serve(url, function(result, e) {
+        var run = function(a) {   
+            me.defaultPlugin.serve(url, function(result, e) {            
                 callback(result,e)
             },a)
         }
@@ -341,6 +348,7 @@ exports.Server.prototype.servePlugins = function(req, res, post, mcallback) {
         
             var all = {urlparams:[]}
             
+            all.response = res
             
             
             for(var i=2;i<u.length;i++) all.urlparams.push(decodeURIComponent(u[i]));            

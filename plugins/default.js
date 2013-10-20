@@ -68,10 +68,10 @@ exports.Plugin.prototype.serve = function(request, callback, auth) {
     request.path = request.pathname.substr(0,i+1)
     request.page = request.pathname.substr(i+1)
 
+
+
     this.db.collection('pages').findOne({dir:request.path, removed:{$ne:true}}, function(e,data) {
-        
-       
-        
+
         if(data) {
             // Проверим страницу на приватность
             // и наличие авторизации
@@ -100,7 +100,7 @@ exports.Plugin.prototype.serve = function(request, callback, auth) {
 **/
 exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
     var me = this
-    
+
     data.breaker = false
     
     request.pageData = data
@@ -116,8 +116,8 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
         if(data.blocks) delete data.blocks
         
         data.request = request
-        
-        me.server.tpl(me.tpls[data.tpl].tpl, data, function(code) {
+       
+        me.server.tpl(me.tpls[data.tpl].tpl, data, function(code) {          
             callback(code);
         }, request.locale)
     }
@@ -138,7 +138,7 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
             var b = data.blocks[j],
                 plg, ctr;
 
-            if(!b) {   
+            if(!b) {  
                 push2tpl(data)
                 return;
             }
@@ -235,7 +235,7 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
             
             dataFuncs.getdata(req.params, me, function(data) {            
                 if(data && data.list && data.list[0]) {                    
-                    if(publicConf.crumbField !== null) {
+                    if(publicConf.crumbField !== null && req.pageData.crumbs) {
                         req.pageData.crumbs[req.pageData.crumbs.length-1].cur = null
                         if(data.list[0][publicConf.crumbField])
                             req.pageData.crumbs.push({name: data.list[0][publicConf.crumbField], cur: true})
@@ -250,20 +250,27 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
             }, model)
         } else if(publicConf.tpl_list) { 
         // showing all records whith pages
-        
-            if(publicConf.sort) req.params.sort = publicConf.sort 
+            
+            if(rq.params.sort) {
+                req.params.sort = rq.params.sort
+                if(rq.params.dir == 'DESC') req.params.dir = 'DESC'
+                else req.params.dir = 'ASC'
+            } else if(publicConf.sort) req.params.sort = publicConf.sort 
+            
+            //console.log();
+            
                         
             var limit = parseInt(req.params.limit)
             
             if(!limit || isNaN(limit) || limit>100) limit = 10;
                 
             req.params.start = pages.getstart((req.params && req.params.page? parseInt(req.params.page):1), limit);
-                    
+             
             dataFuncs.getdata(req.params, me, function(data) {            
                 data.pages = pages.create({start:req.params.start, limit: limit, total: data.total, req: req})
                 if(data.pages.pageCount<=1) data.pages = null               
                 data.global = publicConf.global
-                me.server.tpl(publicConf.tpl_list, data, function(code) {                    
+                me.server.tpl(publicConf.tpl_list, data, function(code) {       
                     callback(code);
                 }, rq.locale)                
             }, model)
