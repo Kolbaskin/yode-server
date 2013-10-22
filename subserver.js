@@ -32,12 +32,45 @@ exports.Server = function(projDir, statServParam, host, port) {
     var staticDir = projDir+'/'+(this.config.STATIC_DIR == null? 'static':this.config.STATIC_DIR)
     this.static = new(static.Server)(staticDir, statServParam); 
     
+    this.getValidModels()
+    
     // Раз в минуту запускаем сборщика мусора
     setInterval(function() {
         gc.run(staticDir + '/tmp', 600)
-    }, 60000);
+    }, 60000);   
     
+}
+
+/**
+ * 
+ * Поищем все доступные модели в каталогах 
+ * сервера и проекта
+ * 
+ * функция выполняется один при старте сервера,
+ * поэтому все синхронно
+ * 
+ */
+exports.Server.prototype.getValidModels = function(name) {
     
+    var me = this
+    
+    me.models = {}
+    
+    var recur = function(dir, path) {
+        var items = fs.readdirSync(dir)
+            ,stat
+        for(var i=0;i<items.length;i++) {
+            stat = fs.statSync(dir + '/' + items[i])
+            if(stat.isDirectory()) {
+                recur(dir + '/' + items[i], path + items[i] + '.')
+            } else {
+                me.models[(path + items[i].substr(0,items[i].length-3))] = true
+            }
+        }
+    }
+    
+    recur(this.dir+'/'+this.config.PLUGIN_DIR, '')
+    recur(__dirname + '/plugins', '')
 }
 
 /**
@@ -45,24 +78,26 @@ exports.Server = function(projDir, statServParam, host, port) {
  *
  */
  
-exports.Server.prototype.getModel = function(name) {
-    
-    if(this.models[name]) {
-        return this.models[name]
-    } else {
-        
-        var plg
-            ,path = name.replace(/\./g,'/');
-        
-        if(fs.existsSync(this.dir+'/'+this.config.PLUGIN_DIR+'/'+path+'.js')) {
-            plg = require(this.dir+'/'+this.config.PLUGIN_DIR+'/'+path);
-        } else
-        if(fs.existsSync(__dirname + '/plugins/'+path+'.js')) {
-            plg = require('./plugins/'+path);
-        }
-        
-        if(plg) {
-            this.models[name] = new(plg.Plugin)(this);
+exports.Server.prototype.getModel = function(name) {    
+    if(!this.models[name]) {
+        return null;
+    } else {        
+        if(this.models[name] === true) {
+            var plg
+                ,path = name.replace(/\./g,'/');
+            
+            if(fs.existsSync(this.dir+'/'+this.config.PLUGIN_DIR+'/'+path+'.js')) {
+                plg = require(this.dir+'/'+this.config.PLUGIN_DIR+'/'+path);
+            } else
+            if(fs.existsSync(__dirname + '/plugins/'+path+'.js')) {
+                plg = require('./plugins/'+path);
+            }
+            
+            if(plg) {
+                this.models[name] = new(plg.Plugin)(this);
+                return this.models[name]
+            }
+        } else {
             return this.models[name]
         }
     }
@@ -72,6 +107,10 @@ exports.Server.prototype.getModel = function(name) {
 
 /**
  * Вывод данных в шаблон
+ * шаблон собирается из инклудов один раз
+ * собранные шаблоны остаются в памяти
+ * 
+ * (синхронные файловые функции тут не влияют на общую производительность)
  *
 **/
 var tplIncludes = function(dir, htm, callback) {

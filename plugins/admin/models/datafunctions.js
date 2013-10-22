@@ -23,8 +23,10 @@ exports.int = function(s, callback) {
 }
 
 exports.float = function(s, callback) {
-    s = s.replace(',','.')
-    s = parseFloat(s);
+    if(s) {
+        s = s.replace(',','.')
+        s = parseFloat(s);
+    }
     callback(isNaN(s)? null:s);
 }
 

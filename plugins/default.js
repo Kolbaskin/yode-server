@@ -225,7 +225,7 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
             callback('')
             return;
         }
-        var publicConf = model.public(rq)
+        var publicConf = model.public(rq, me)
     
         if(rq.page && publicConf.tpl_row) {
         // let show one record    
@@ -233,20 +233,31 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
             if(forms.strToId(rq.page)) req.params.query = '[{"property":"_id", "value":"' + rq.page + '"}]'
             else req.params.query = '[{"property":"alias", "value":"' + rq.page + '", "operator":"eq"}]'
             
-            dataFuncs.getdata(req.params, me, function(data) {            
-                if(data && data.list && data.list[0]) {                    
-                    if(publicConf.crumbField !== null && req.pageData.crumbs) {
-                        req.pageData.crumbs[req.pageData.crumbs.length-1].cur = null
-                        if(data.list[0][publicConf.crumbField])
-                            req.pageData.crumbs.push({name: data.list[0][publicConf.crumbField], cur: true})
+            dataFuncs.getdata(req.params, me, function(data) {  
+                
+                var func = function() {                                 
+                    
+                    if(data && data.list && data.list[0]) {                    
+                        if(publicConf.crumbField !== null && req.pageData.crumbs) {
+                            req.pageData.crumbs[req.pageData.crumbs.length-1].cur = null
+                            if(data.list[0][publicConf.crumbField])
+                                req.pageData.crumbs.push({name: data.list[0][publicConf.crumbField], cur: true})
+                        }
+                        data.list[0].global = publicConf.global
+                        me.server.tpl(publicConf.tpl_row, data.list[0], function(code) {
+                            callback(code);
+                        }, rq.locale)
+                    } else {
+                        callback(null, {code: 404})
                     }
-                    data.list[0].global = publicConf.global
-                    me.server.tpl(publicConf.tpl_row, data.list[0], function(code) {
-                        callback(code);
-                    }, rq.locale)
-                } else {
-                    callback(null, {code: 404})
                 }
+                
+                if(!!publicConf.afterReadRow) {
+                    publicConf.afterReadRow(data, function() {
+                        func()
+                    })    
+                } else func()
+                
             }, model)
         } else if(publicConf.tpl_list) { 
         // showing all records whith pages

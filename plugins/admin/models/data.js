@@ -159,7 +159,6 @@ var buildWhere = function(params, model) {
                 query = new RegExp('^' + params.query,'i')
             } catch(e) {return {_id:0}}
         }
-
         find.$and = []
         
         var fname;
@@ -186,8 +185,7 @@ var buildWhere = function(params, model) {
 
     if($or.length>0) {find.$and.push({$or:$or})}
     if(!params.showRemoved) find.removed = {$ne:true}
- 
-//console.log('find:', find)  
+
     
     return find;
 }
