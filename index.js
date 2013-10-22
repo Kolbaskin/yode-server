@@ -22,6 +22,7 @@ var  fs = require('fs')
     ,http = require('http')
     
 var projects = {}
+    ,aliases = {}
         
 /**
  * Global congig options
@@ -39,10 +40,15 @@ var staticMain = new(static.Server)(__dirname + '/static', staticParams)
 var vHostStart = function(host) {
     
     projects[host] = new(subserv.Server)(config.projects_dir + '/' + host, staticParams, host, port);
-    projects[host].init(function() {
+    projects[host].init(function() {        
         console.log('Virtual host ' + host + ' [Ready]')  
     });
-    
+    if(projects[host].config.ALIASES) {
+        for(var i=0;i<projects[host].config.ALIASES.length;i++) {
+            aliases[projects[host].config.ALIASES[i]] = host
+        }
+    }
+
 }
 
 // GC starts
@@ -62,32 +68,41 @@ var startVH = function(test) {
 }
 
 var runMethod = function(req, res, post) {    
+
+    
     if(!req.headers.host || req.headers.host == '') {
         res.end('Host not found!');
         return;
     }
     
-    var host = req.headers.host.split(":")[0];
+    var hostPort = req.headers.host.split(":")
+        ,host = hostPort[0];
     
     if(host == '127.0.0.1') host = 'localhost'
-    
-    
+        
     if(!projects[host]) {
-        res.writeHead(404, "Not Found", {'Content-Type': 'text/plain'});
-        res.end('Host not found! (' + process.cwd() + ')');
-    } else {        
-        if(!post) {
-            // in get requests try to serve static files (first in prj dir, 
-            // next in global dir), if false, serve dynamic       
-            projects[host].statserve(req, res, function(e, r) {
-                if (e && (e.status === 404)) staticMain.serve(req, res, function(e, r) {
-                    if (e && (e.status === 404)) projects[host].serve(req, res, post);    
-                });    
-            });
+        if(aliases[host]) {
+            res.writeHead(301, "Moved Permanently", {'Location': 'http://' + aliases[host] + (hostPort[1]? ':' + hostPort[1]:'') + req.url});
+            res.end();
+            return;            
         } else {
-            projects[host].serve(req, res, post)
-        }          
-    } 
+            res.writeHead(404, "Not Found", {'Content-Type': 'text/plain'});
+            res.end('Host not found! (' + process.cwd() + ')');
+            return;
+        }
+    }        
+    if(!post) {
+        // in get requests try to serve static files (first in prj dir, 
+        // next in global dir), if false, serve dynamic       
+        projects[host].statserve(req, res, function(e, r) {
+            if (e && (e.status === 404)) staticMain.serve(req, res, function(e, r) {
+                if (e && (e.status === 404)) projects[host].serve(req, res, post);    
+            });    
+        });
+    } else {
+        projects[host].serve(req, res, post)
+    }      
+     
 }
 
 /**
