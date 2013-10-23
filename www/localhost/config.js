@@ -56,7 +56,7 @@ exports.params = {
             }
         },
         
-        from: '"',
+        from: '',
         loginAuthSubject: 'Session password',
         loginAuthBody: 'Session password: ${pass}'
         
@@ -65,6 +65,6 @@ exports.params = {
     GLOBAL_AUTH: true, // check authorisation globaly
     REDIRECT_401: '/',
     ERRORPAGES: {
-        //404: 'http://example.com/errors/404/'    
+        //404: '/errors/404/'    
     }
 }

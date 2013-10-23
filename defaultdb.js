@@ -14,7 +14,8 @@ var NumberInt = function(x) {
 }
 
 
-exports.dump = function(db) {
+
+exports.dump = function(db, user, pass) {
 /** admin_templates indexes **/
 db.collection("admin_templates").ensureIndex({
   "_id": 1
@@ -155,8 +156,8 @@ db.collection("admin_templates").insert({
 /** admin_users records **/
 db.collection("admin_users").insert({
   "_id": ObjectId("52474ba2ec861f270a000001"),
-  "login": "yeti",
-  "pass": "3d4f2bf07dc1be38b20cd6e46949a1071f9d0e3d",
+  "login": user,
+  "pass": pass,
   "sets": {
     "desktop": {
       "wallPaper": "wallpapers\/desktop.jpg",

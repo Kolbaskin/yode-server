@@ -3,7 +3,8 @@ var ncp = require("ncp")
     ,rmdir = require('rimraf')
     ,fs = require('fs')
     ,mongo = require('mongodb')
-    ,memcache = require('memcache');
+    ,memcache = require('memcache')
+    ,crypto = require('crypto');
 
 var rl = readline.createInterface({
   input: process.stdin,
@@ -12,6 +13,8 @@ var rl = readline.createInterface({
 
 var port = 80
     ,projectsDir = 'www'
+    ,rootuser = 'yeti'
+    ,rootuserpass = '111111'
 
 var config = {
     MONGO: {
@@ -44,6 +47,24 @@ var steps = [
             if(answer != '') {
                 var p = parseInt(answer)
                 if(!isNaN(p)) port = p
+            }
+            callback(true)          
+        })       
+    },
+    
+    function(callback) {    
+        rl.question("Root user name [" + rootuser + "]: ", function(answer) {
+            if(answer != '') {
+                rootuser = answer
+            }
+            callback(true)          
+        })       
+    },
+    
+    function(callback) {    
+        rl.question("Root user password [" + rootuserpass + "]: ", function(answer) {
+            if(answer != '') {
+                rootuserpass = answer                
             }
             callback(true)          
         })       
@@ -99,7 +120,9 @@ var steps = [
                  
                  var dump = require('./defaultdb')
                  
-                 dump.dump(db)
+                 rootuserpass = crypto.createHash('sha1').update(rootuserpass).digest('hex')
+                 
+                 dump.dump(db, rootuser, rootuserpass)
                  callback(true)
                  
                  

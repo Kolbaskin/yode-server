@@ -104,6 +104,13 @@ exports.images = function(arr, callback, record, model, fieldName, server, cur_d
     if(arr) {
         var res = []
             ,s, s1
+        
+        var addRes = function(im, ari) {
+            for(var i in ari) {
+                if(i != 'img' && i != 'preview' && i != 'num') im[i] = ari[i]                  
+            }
+            res.push(im)
+        }
             
         var func = function(i) {
             if(i >= arr.length) {
@@ -121,11 +128,11 @@ exports.images = function(arr, callback, record, model, fieldName, server, cur_d
                                 if(e) {
                                     fs.readFile(path + arr[i].img, function(e,s1) {
                                         fs.unlink(path + arr[i].img)
-                                        res.push({img: s, preview: s1})
+                                        addRes({img: s, preview: s1}, arr[i])
                                         func(i+1)
                                     })
                                 } else {
-                                    res.push({img: s, preview: null})
+                                    addRes({img: s, preview: null}, arr[i])
                                     func(i+1)
                                 }
                             })
@@ -137,7 +144,7 @@ exports.images = function(arr, callback, record, model, fieldName, server, cur_d
             } else if(cur_data && arr[i].num !== null) { // сохраним предыдущее значение картинки
                 var n = parseInt(arr[i].num)
                 if(!isNaN(n) && cur_data[n]) {
-                    res.push(cur_data[n])                    
+                    addRes(cur_data[n], arr[i])                    
                 }
                 func(i+1)
             }
