@@ -9,6 +9,8 @@ First, install MongoDB and Memcached and run both
 
 Yode-server also requires node.js version 0.10 and above
 
+Also we need Imagemagick for operations above images
+
 ```
 mkdir yode
 cd yode
