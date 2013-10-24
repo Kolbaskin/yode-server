@@ -277,7 +277,7 @@ Ext.define('MyDesktop.modules.pages.controller.Pages', {
             ,id = form.down("[name=_id]").getValue()
             ,store = me.mainWin.down("treepanel").getStore();
                 
-        me.removeRows([{_id:id}], store, function() {
+        me.removeRows([id], store, function() {
             form.getForm().reset()
             if(me.currentRow) me.currentRow.remove()
             

@@ -99,11 +99,11 @@ Ext.onReady(function () {
 });
 
 Sess = {            
-    url: function(url) {            
+    url: function(url, noslash) {            
         var id = localStorage.getItem('uid') || 0
             ,token = localStorage.getItem('token') || 0;
         
-        if(url.charAt(0) == '/') return url+'/?id='+id+'&token='+token;
+        if(url.charAt(0) == '/') return url + (noslash? '':'/') + '?id='+id+'&token='+token;
         
         return '/admin.'+url+'/?id='+id+'&token='+token;
     },

@@ -78,6 +78,11 @@ Ext.define('MyDesktop.core.GridWindow', {
         
         var modelName = (this.model || Object.getPrototypeOf(this).$className.replace('.view.','.model.').replace(/List$/,'Model'))
         
+        if(this.modelLocalePostfix) {
+            var l = localStorage.getItem('locale')
+            modelName +=  l
+        }
+        
         return Ext.create('MyDesktop.core.Store', {
             filterParam: 'q',
             remoteFilter: false,

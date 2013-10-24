@@ -9,9 +9,22 @@ Ext.define('MyDesktop.core.Controller', {
     extend: 'Ext.ux.desktop.Module',
     requires: ['MyDesktop.core.ExtraIcons'],
     
-    mainWin: null,
+    mainWin: null
     
-    init: function() {
+    ,constructor: function() {
+        if(!this.model) {            
+            this.model = this.getControllerName().replace('.controller.', '.model.') + 'Model'                    
+        }
+        
+        if(this.modelLocalePostfix) {
+            var l = localStorage.getItem('locale')
+            this.model +=  l
+        }
+        
+        this.callParent(arguments)
+    }
+    
+    ,init: function() {
         if(!this.mainView) {
             var name = this.getControllerName().replace('.controller.', '.view.')
             this.detailFormView = name + 'Form'

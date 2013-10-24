@@ -324,6 +324,7 @@ db.collection("mainmenu").insert({
   "pid": ObjectId("524d0dd0de3592ea4f000001"),
   "name": "About Us",
   "dir": "\/about\/",
+  "indx": NumberInt(0),
   "_id": ObjectId("524d0f7ade3592ea4f000003")
 },function(){});
 db.collection("mainmenu").insert({
@@ -331,6 +332,7 @@ db.collection("mainmenu").insert({
   "pid": ObjectId("524d0dd0de3592ea4f000001"),
   "name": "Sevices",
   "dir": "\/sevices\/",
+  "indx": NumberInt(1),
   "_id": ObjectId("524d0f7ede3592ea4f000005")
 },function(){});
 db.collection("mainmenu").insert({
@@ -346,6 +348,7 @@ db.collection("mainmenu").insert({
   "pid": ObjectId("524d0dd0de3592ea4f000001"),
   "name": "Downloads",
   "dir": "\/downloads\/",
+  "indx": NumberInt(2),
   "_id": ObjectId("524d1070946a630a59000004")
 },function(){});
 db.collection("mainmenu").insert({
@@ -353,6 +356,7 @@ db.collection("mainmenu").insert({
   "pid": ObjectId("524d0dd0de3592ea4f000001"),
   "name": "Articles",
   "dir": "\/articles\/",
+  "indx": NumberInt(3),
   "_id": ObjectId("524d1073946a630a59000006")
 },function(){});
 db.collection("mainmenu").insert({
@@ -360,6 +364,7 @@ db.collection("mainmenu").insert({
   "pid": ObjectId("524d0dd0de3592ea4f000001"),
   "name": "Contacts",
   "dir": "\/contacts\/",
+  "indx": NumberInt(4),
   "_id": ObjectId("524d1076946a630a59000008")
 },function(){});
 db.collection("mainmenu").insert({

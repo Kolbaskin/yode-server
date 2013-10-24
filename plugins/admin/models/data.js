@@ -367,6 +367,14 @@ exports.save = function(params, parent, callback, access, auth) {
             }
             if(data) {
                 var allFunc = function(data) {  
+                    
+                    var fin = function(insdata) {
+                        if(!!model.afterSave) {
+                            model.afterSave(insdata, auth, callback, parent, data)    
+                        } else {
+                            callback({success:true, record: insdata});
+                        }
+                    }
  
                     var func = function(cur_data, callback) {  
                         createDataRecord(data, cur_data, model, parent, callback)
@@ -377,10 +385,10 @@ exports.save = function(params, parent, callback, access, auth) {
                         if(access && access.add) {
                             func(null, function(insdata) {
                                 parent.db.collection(model.collection).insert(insdata, {w:1}, function(e, r) {
-                        
                                     globalLog.insert(auth, parent, params.urlparams[0], insdata)
-                                    
-                                    callback({success:true, record: insdata}, e); 
+                                    //insdata._id = r[0]
+                                    fin(r[0])
+                                     
                                 });
                             });
                         } else {
@@ -390,8 +398,7 @@ exports.save = function(params, parent, callback, access, auth) {
                     // Update
                         if(access && access.modify) {                        
                             var o_id; 
-                            if((o_id = forms.strToId(data._id, callback)) === 0) {
-                                
+                            if((o_id = forms.strToId(data._id, callback)) === 0) {                                
                                 return;
                             }
                             if(o_id) {
@@ -400,9 +407,10 @@ exports.save = function(params, parent, callback, access, auth) {
                                     func(r, function(insdata) {
                                         globalLog.update(auth, parent, params.urlparams[0], r, function() {
                                             parent.db.collection(model.collection).update({_id: o_id}, {$set:insdata, $unset:{removed:""}}, {w:1}, function(e, r) {          
+
                                                 if(r) {
-                                                    insdata._id = r._id
-                                                    callback({success:true, record: insdata}, e); 
+                                                    insdata._id = o_id; 
+                                                    fin(insdata)
                                                 } else {
                                                     callback({success:false}, e);
                                                 }
@@ -442,26 +450,36 @@ exports.save = function(params, parent, callback, access, auth) {
 *
 */
 exports.del = function(params, parent, callback, auth) {    
+
+
+
     readmodel(params.urlparams[0], parent, function(model) {    
-        var data = params.jsonData || null,
-            o_id
-            
+        var data = params.jsonData || null
+            ,o_id
+
+
         if(data) {
             try {
                 data = JSON.parse(data);
             } catch(e) {
                 data = null    
             }
+
             if(data && Object.prototype.toString.call(data)=='[object Array]') {
-                
+            
                 var removeRow = function(i, callback) {
+               
                     if(!data[i]) {
+                   
                         callback()
                         return;    
                     }
                     var o_id;
+
                     if((o_id = forms.strToId(data[i], callback)) === 0) return;
+                   
                     if(model.remove_action && model.remove_action == 'mark') {
+                      
                         parent.db.collection(model.collection).update(
                             {_id: o_id}, 
                             {$set:{removed: true}}, 

@@ -13,7 +13,15 @@ Ext.define('MyDesktop.core.widgets.CodeEditorField',{
         this.items = this.buildItems()
         me.listeners = {
             resize: function() {
-                me.editor.editor.resize()
+                if(!me.editor) {
+                    try {
+                        me.editor = me.down('[xtype=AceEditor]')
+                    } catch(e){}
+                }
+                if(me.editor && me.editor.editor) {
+                    
+                    me.editor.editor.resize()
+                }
             }
         }
         this.tbar = me.buildTbar()
@@ -48,7 +56,7 @@ Ext.define('MyDesktop.core.widgets.CodeEditorField',{
             }
             me.noChange = false;    
         }
-
+                        
         return [
             {
                 region: 'center',
@@ -100,6 +108,7 @@ Ext.define('MyDesktop.core.widgets.CodeEditorField',{
     
     ,insertFile: function() {
         var me = this
+        
         Ext.create('MyDesktop.modules.filemanager.controller.fm').openfile(function(files) {
             var s = []
             for(var i=0;i<files.length;i++) s.push(files[i].id)
