@@ -1,6 +1,7 @@
 var dataFuncs = require('../admin/models/data')
     ,authIndexer = require('./auth')
     ,exec = require('child_process').exec
+    ,fs = require('fs')
 
 exports.Plugin = function(server) {
     this.server = server
@@ -8,14 +9,26 @@ exports.Plugin = function(server) {
 }
 
 var runIndexer = function(config) {    
-    exec('cd ' + __dirname + ' && indexer --config ./sphinx.conf --rotate ' + config.SEARCH_ENGINE.index, function(e, stdout, stderr) {})        
+    exec('cd ' + __dirname
+        + ' && indexer --config ./sphinx.conf ' + config.SEARCH_ENGINE.index + '_upd'
+        + ' && indexer --config ./sphinx.conf --merge ' + config.SEARCH_ENGINE.index + ' ' + config.SEARCH_ENGINE.index + '_upd --rotate'
+    , function(e, stdout, stderr) {
+
+    })        
 }
 
 exports.Plugin.prototype.update_index = function(req, callback, auth, modelname, model, _id) {    
+    
     if(!modelname) {
         callback(null, {code: 500})
-        return;
-    }    
+        return; 
+    }
+    
+    if(!model.searchBuildDocUrl) {
+        callback({success: false})
+        return; 
+    }
+    
     var me = this
         ,fin = function() {
             if(!!callback) callback({success: true})
@@ -39,7 +52,7 @@ exports.Plugin.prototype.update_index = function(req, callback, auth, modelname,
                     
                 } else {
                     indx = rec.value + 1
-                    me.db.collection('search_key').update({key: 'cur_index'}, {value: indx}, function(){})
+                    me.db.collection('search_key').update({key: 'cur_index'}, {$set:{value: indx, key: 'cur_index'}}, function(){})
                 }
                 me.db.collection('search_index').insert({m: modelname, id:_id, a: 'u', i:indx}, function(e,r) {
                     fin()
@@ -56,6 +69,12 @@ exports.Plugin.prototype.remove_index = function(req, callback, auth, modelname,
         callback(null, {code: 500})
         return;
     }
+    
+    if(!model.searchBuildDocUrl) {
+        callback({success: false})
+        return; 
+    }
+    
     var me = this
     this.db.collection('search_index').remove({m: modelname, id:_id}, function(e,r) {
         if(!!callback) callback({success: true})
@@ -86,13 +105,13 @@ exports.Plugin.prototype.getXml = function(req, callback, auth) {
             + '<sphinx:attr name="published" type="timestamp"/>'
             + '<sphinx:attr name="module" type="string" />'
             + '<sphinx:attr name="title" type="string" />'
-            + '<sphinx:attr name="rid" />'
+            + '<sphinx:attr name="rid" type="string" />'
             + '</sphinx:schema>'        
             + (xml.length? xml.join('\n'):'')
             + (deleted.length? '<sphinx:killlist><id>' + deleted.join('</id><id>') + '</id></sphinx:killlist>':'')
             + '</sphinx:docset>') 
             
-        //updateIndexes()    
+        updateIndexes()    
         
     }
     
