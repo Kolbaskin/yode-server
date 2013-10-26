@@ -37,12 +37,16 @@ npm start yode-server
 ```
 or
 ```
-node server.js
+node server
 ```
 starts all virtual hosts located in project directory. If you need to start only one of them, specify it:
 
 ```
-node server.js www.example.com
+node server -p www.example.com
+```
+run yode-server as daemon:
+```
+node server -d
 ```
 
 ### Admin interface
