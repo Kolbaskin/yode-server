@@ -1,16 +1,19 @@
 var fs       = require('fs')
-    ,forms = require('forms')
-    ,modelsAll = {}
+    ,forms = require('forms')    
     ,dataFunc = require('./datafunctions')
     ,globalLog = require('./logs')
     ,valueTypes = require('./valueTypes')
+
 
 /*
 *
 * private function. Requires model file, saves it to cache and returns the model 
 *
 */
+
 var readmodel = function(urlparam, parent, callback, auth) {
+    
+    if(!parent.server.modelsAll) parent.server.modelsAll = {}
     
     var config = parent.server.config
        
@@ -20,8 +23,8 @@ var readmodel = function(urlparam, parent, callback, auth) {
     fn = fn.join("/")
     
     // doesn't get a model from cache in debug mode
-    if(!config.DEBUG && modelsAll[fn]) {
-         callback(modelsAll[fn]);
+    if(!config.DEBUG && parent.server.modelsAll[fn]) {
+         callback(parent.server.modelsAll[fn]);
          return;
     }
     
@@ -63,15 +66,15 @@ var readmodel = function(urlparam, parent, callback, auth) {
     }
     
     if(model) {
-        modelsAll[urlparam] = model
-        if(!!modelsAll[urlparam].init) {
+        parent.server.modelsAll[urlparam] = model
+        if(!!parent.server.modelsAll[urlparam].init) {
        
-            modelsAll[urlparam].init(parent, function() {
-                checkIndexes(modelsAll[urlparam])
+            parent.server.modelsAll[urlparam].init(parent, function() {
+                checkIndexes(parent.server.modelsAll[urlparam])
             }, auth)
         
         } else        
-            checkIndexes(modelsAll[urlparam])
+            checkIndexes(parent.server.modelsAll[urlparam])
     } else 
         callback(null)
 }
@@ -117,9 +120,7 @@ var getReadableFields = function(model, req) {
         if(queryFieldSet[model.fields[i].name] !== null && queryFieldSet[model.fields[i].name] === 0) {}
         else fields[model.fields[i].name] = 1
     }
-    
-
-    
+        
     return fields;
 }
 
@@ -369,6 +370,11 @@ exports.save = function(params, parent, callback, access, auth) {
                 var allFunc = function(data) {  
                     
                     var fin = function(insdata) {
+                        
+                        if(parent.server.config.SEARCH_ENGINE) {
+                            parent.server.getModel('search.engine').update_index(null, null, null, params.urlparams[0], model, o_id)
+                        }
+                        
                         if(!!model.afterSave) {
                             model.afterSave(insdata, auth, callback, parent, data)    
                         } else {
@@ -477,6 +483,12 @@ exports.del = function(params, parent, callback, auth) {
                     var o_id;
 
                     if((o_id = forms.strToId(data[i], callback)) === 0) return;
+                    
+                    if(parent.server.config.SEARCH_ENGINE) {  
+                        
+                        
+                          parent.server.getModel('search.engine').remove_index(null, null, null, params.urlparams[0], model, o_id)
+                    }
                    
                     if(model.remove_action && model.remove_action == 'mark') {
                       

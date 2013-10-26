@@ -20,7 +20,13 @@ var  fs = require('fs')
     ,extensions = {}
     ,domain = require('domain')
     ,http = require('http')
+    ,manifest = require('./package.json');
     
+console.log(manifest.name + ' ' + manifest.version)    
+console.log('Copyright (c) 2013 ' + manifest.author + '\n')   
+  
+
+ 
 var projects = {}
     ,aliases = {}
         
@@ -58,10 +64,12 @@ var startGC = function() {
     }, config.gs_timeout);    
 }
 
+
+
 var startVH = function(test) {   
     fs.readdir(config.projects_dir, function(e, files) {      
         for(var i=0;i<files.length;i++) {
-            if(test || !process.argv[2] || process.argv.indexOf(files[i]) != -1) 
+            if(test || process.argv.indexOf('-p') ==-1 || process.argv.indexOf(files[i]) != -1) 
                 vHostStart(files[i])
         }
     })
@@ -87,7 +95,7 @@ var runMethod = function(req, res, post) {
             return;            
         } else {
             res.writeHead(404, "Not Found", {'Content-Type': 'text/plain'});
-            res.end('Host not found! (' + process.cwd() + ')');
+            res.end('Host not found!');
             return;
         }
     }        
@@ -184,6 +192,8 @@ var memLimit = function(limit) {
     }, 1000)    
 }
 
+
+
 exports.start = function(conf, callback) {
     for(var i in conf) {
         config[i] = conf[i]    
@@ -217,7 +227,13 @@ exports.start = function(conf, callback) {
         
         if(config.https.host) https.createServer(options, createServer).listen(config.https.port, config.https.host);
         else https.createServer(options, createServer).listen(config.https.port);
-        console.log('Server HTTPS started on port ' + config.https.port)
+        console.log('Server HTTPS started on port ' + config.https.port)        
+    } 
+    
+    process.title = 'yode'
+    if(process.argv.indexOf('-d') != -1) {
+        require('daemon')();
+        
     } 
     
 }
