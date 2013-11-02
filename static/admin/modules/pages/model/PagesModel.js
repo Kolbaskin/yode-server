@@ -88,6 +88,7 @@ exports.fields = [
     ,
     {
         name: 'blocks',
+        search_index_fields: ['text'],
         editable: true,
         visable: true
     },
@@ -111,6 +112,10 @@ exports.fields = [
         visable: true
     } 
 ]
+
+exports.searchBuildDocUrl = function(data, callback) {
+    callback(data.dir)   
+}
 
 exports.init = function(parent, callback, auth) {
     var me = this,

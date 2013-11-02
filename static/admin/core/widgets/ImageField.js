@@ -8,10 +8,15 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
     
     ,tumbSizes: '220x130x460x330'
     
+    ,buttonAlign: 'left'
+    
     //style: 'padding:5px',
+
     
     ,initComponent: function() {     
-        
+        if(this.buttonAlign == 'top' || this.buttonAlign == 'bottom') {
+            this.layout = 'vbox'    
+        }
         this.items = this.buildItems()
         
         this.callParent();
@@ -26,12 +31,10 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
         if(!sz[0] || isNaN(sz[0])) sz[0] = 150
         if(!sz[1] || isNaN(sz[1])) sz[1] = 150
         
-        return [
-            {
-                xtype: 'image',
-                width: sz[0],
-                height: sz[1]
-            },{
+        var rec = []
+        
+        var func = function() {
+            rec.push({
     
                 xtype: 'filefield',
                 msgTarget: 'side',
@@ -46,15 +49,38 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
             },{
                 xtype: 'textfield',
                 inputType: 'hidden',
-                name: this.name,
+                name: me.name,
                 listeners: {
                     change: function(e,v) {
                         if(!me.noChange) me.down('[xtype=image]').setSrc(v)
                         me.noChange = false;
                     }
                 }
-            }
-        ]
+            })   
+        }
+        
+        var func1 = function() {
+            rec.push({
+                xtype: 'panel',
+                width: sz[0],
+                height: sz[1],
+                items: [
+                    {
+                        xtype: 'image'
+                    }                  
+                ]
+            })
+        }
+        
+        if(this.buttonAlign == 'left' || this.buttonAlign == 'bottom') {
+            func1()
+            func()
+        } else {
+            func()
+            func1()
+        }
+        
+        return rec
     }
     
     ,upload: function(inp) {        

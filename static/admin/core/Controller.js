@@ -49,7 +49,9 @@ Ext.define('MyDesktop.core.Controller', {
             url: 'models.access:checkAccess2Model//' + model + '/',
             succ: function(r) {
                 me.accessRights = r 
-                me.setAccessControls(r)    
+                me.setAccessControls(r)
+                
+                
             }
         })
     },
@@ -137,6 +139,9 @@ Ext.define('MyDesktop.core.Controller', {
                 }
             } 
         })
+        
+        me.setAccessControls(me.accessRights, win)
+        
     }
     
     ,addFormControls: function(win) {
@@ -149,6 +154,7 @@ Ext.define('MyDesktop.core.Controller', {
             "[action=formapply]": {click: function() {me.save(win, false)}},
             "[action=formclose]": {click: function() {win.close()}} 
         })
+        me.setAccessControls(me.accessRights, win)
     }
     
     ,logEdit: true
@@ -205,7 +211,37 @@ Ext.define('MyDesktop.core.Controller', {
         
     }
     
-    ,modifyInside: function(rec, innerCall) {        
+    ,getRecord: function(rec, callback) {
+        
+        var me = this
+        
+        if(me.LocalFormData || !rec.data || !rec.data._id) {
+            callback(rec)           
+        } else {
+            Core.Ajax.request({
+                url: '/admin.model:getdata/' + me.model + '/',
+                params: {
+                    query: '[{"property":"_id", "value":"' + rec.data._id + '"}]'    
+                },
+                succ: function(data) {                    
+                    if(data.list && data.list[0]) {
+                        rec.data = data.list[0]    
+                    }                    
+                    callback(rec) 
+                }
+            })                          
+        }
+        
+    }
+    
+    ,modifyInside: function(rec, innerCall) { 
+        var me = this
+        me.getRecord(rec, function(rec) {
+            me._modifyInside(rec, innerCall)
+        })
+    }   
+    
+    ,_modifyInside: function(rec, innerCall) { 
         
         if(!innerCall && this.accessRights && !this.accessRights.modify) return;
         
@@ -221,8 +257,15 @@ Ext.define('MyDesktop.core.Controller', {
         
     }
     
-    ,modify: function(rec, formClassName, innerCall) {
+    ,modify: function(rec, formClassName, innerCall) {        
+        var me = this
+        me.getRecord(rec, function(rec) {
+            me._modify(rec, formClassName, innerCall)
+        })
+    }
+    
         
+    ,_modify: function(rec, formClassName, innerCall) {    
         if(!innerCall && this.accessRights && !this.accessRights.modify) return;
         
         if(!rec.data) rec.data = {}
@@ -324,7 +367,9 @@ Ext.define('MyDesktop.core.Controller', {
     ,refresh: function() {
         var grid = this.mainWin.down('grid')
             
-        if(grid) grid.getStore().load();
+        if(grid) {
+            grid.getStore().load();
+        }
     }
     
     ,getModelName: function(store) {
@@ -341,7 +386,13 @@ Ext.define('MyDesktop.core.Controller', {
             form = win.down('form');
             data = {},
             store = null;
-       
+        
+        var sb1 = win.down('[action=formsave]')
+            ,sb2 = win.down('[action=formapply]')
+        
+        if(sb1 && !!sb1.setDisabled) sb1.setDisabled(true)
+        if(sb2 && !!sb2.setDisabled) sb2.setDisabled(true)
+        
         if(form) {
             data = form.getForm().getValues()    
         }
@@ -358,12 +409,15 @@ Ext.define('MyDesktop.core.Controller', {
             }
             
             var modelName = me.getModelName(store)
-     
+   
             Core.Ajax.request({
                 url: 'model:save/' + modelName,
                 jsonData: data,
                 succ: function(data) {               
-                
+                    
+                    if(sb1 && !!sb1.setDisabled) sb1.setDisabled(false)
+                    if(sb2 && !!sb2.setDisabled) sb2.setDisabled(false)
+                    
                     if(!! me.afterSave && me.afterSave(data.record) === false) {
                         if(callback) callback(data)
                         return;

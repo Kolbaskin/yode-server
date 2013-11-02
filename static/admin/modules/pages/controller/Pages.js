@@ -232,7 +232,7 @@ Ext.define('MyDesktop.modules.pages.controller.Pages', {
         var me = this
             ,form = me.mainWin.down("form")
             ,nameField = form.down('[name=name]')
-        
+    
         if(!newrec) {
             newrec = {
                 pid: record.raw._id,

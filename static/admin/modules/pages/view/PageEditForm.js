@@ -69,14 +69,11 @@ Ext.define('MyDesktop.modules.pages.view.PageEditForm', {
                     fieldLabel: D.t('Url alias')
                 },btnlock]
             },
-            /*{
-                items:[{
-                    name: 'indx',
-                    allowBlank: false,
-                    flex: 1,
-                    fieldLabel: D.t('Sort index')
-                },btnlock]
-            },*/
+            {
+                name: 'indx',
+                xtype: 'textfield',
+                inputType: 'hidden'    
+            },
             {
                 name: '_id',
                 xtype: 'textfield',

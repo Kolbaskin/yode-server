@@ -125,9 +125,6 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
     // Готовим данные по блокам
     var getBlocks = function(data) {
 
-        
-
-
         for(var i=1;i<=me.tpls[data.tpl].blocks;i++) {
             data['BLOCK_'+i] = []    
         }
@@ -135,6 +132,12 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
         // пройдем по всем блокам и выполним код в них
         // каждый последующий блок выполняется строго после предыдущего
         var recur = function(j) {
+           
+            if(!data || !data.blocks) {  // ToDo Why data.blocks is undefined sometime
+                push2tpl(data)
+                return;
+            }
+           
             var b = data.blocks[j],
                 plg, ctr;
 

@@ -23,7 +23,7 @@ var  fs = require('fs')
     ,manifest = require('./package.json');
     
 console.log(manifest.name + ' ' + manifest.version)    
-console.log('Copyright (c) 2013 ' + manifest.author + '\n')   
+console.log('Copyright (c) 2013 ' + manifest.author + '\n') 
   
 
  
@@ -192,7 +192,11 @@ var memLimit = function(limit) {
     }, 1000)    
 }
 
-
+/*
+setInterval(function() {
+   console.log(parseInt(process.memoryUsage().rss / 1024 / 1024))
+}, 3000)
+*/
 
 exports.start = function(conf, callback) {
     for(var i in conf) {

@@ -131,14 +131,28 @@ exports.Plugin.prototype.getimage = function(req, callback, auth) {
         ,folder = {}
         ,head = {code: 200, status: 'OK', heads: {'Content-Type': 'image/jpeg'}}        
         ,num = (req.urlparams[3]? parseInt(req.urlparams[3]) : 0)
-        ,size = (req.urlparams[4] == 'img'? 'img' : 'preview')
+        ,size = req.urlparams[4]
     
     folder[folderName]=1
+    
+    var func404 = function() {
+        if(me.server.config.DEFAULT_IMAGE) {
+            fs.readFile(me.server.dir + '/' + me.server.config.STATIC_DIR + '/' + me.server.config.DEFAULT_IMAGE, function(e, file) {
+                if(e) {
+                    callback(null, {code: 404})
+                    return;
+                }
+                head.heads = {'Content-Type': 'image/png'}
+                callback(file,null, head)
+            }) 
+        } else
+            callback(null, {code: 404})
+    }
     
     if(isNaN(num)) num = 0 
     if((o_id = forms.strToId(o_id, callback)) === 0) return;
     if(!collName) {
-        callback(null, {code: 404})
+        func404()
         return;
     }
      
@@ -146,15 +160,27 @@ exports.Plugin.prototype.getimage = function(req, callback, auth) {
         if(data && data[folderName]) {
             
             if(util.isArray(data[folderName])) {
-                if(data[folderName][num] && data[folderName][num][size]) {
-                    callback(data[folderName][num][size].buffer ,null, head)
-                } else {
-                    callback(null, {code: 404})
-                }
+                if(data[folderName][num]) {
+                    if(size == 'main') {
+                        if(data[folderName][num]['preview']) size = 'preview'
+                        else if(data[folderName][num]['img']) size = 'img'
+                    }                  
+                    if(data[folderName][num][size]) {
+                        callback(data[folderName][num][size].buffer ,null, head)
+                        return;
+                    }
+                }               
             } else {
-                callback(new Buffer(data[folderName][size]),null, head)
-            }
-        
-        } else callback(null, {code: 404})
+                if(size == 'main') {
+                    if(data[folderName]['preview']) size = 'preview'
+                    else if(data[folderName]['img']) size = 'img'
+                }
+                if(data[folderName][size]) {
+                    callback(new Buffer(data[folderName][size]),null, head)
+                    return;
+                }
+            }                
+        } 
+        func404()
     })    
 }

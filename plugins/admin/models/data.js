@@ -103,24 +103,27 @@ var getReadableFields = function(model, req) {
     
     if(!model) return {}
     
+    
+    
     var fields = {}
-        ,queryFieldSet = {}
-        
+        ,queryFieldSet   
+    if(req) {
+        if(req.fieldSet) {
+            queryFieldSet = {}
+            try {
+                queryFieldSet = JSON.parse(req.fieldSet)
+            } catch(e) {queryFieldSet = null}       
+        } else if(req.urlparams && req.urlparams[1]) {
+            queryFieldSet = {}
+            var x = req.urlparams[1].split(',')
+            for(var i=0;i<x.length;i++) queryFieldSet[x[i]] = 1    
+        }
+    }
 
-    
-    if(req && req.fieldSet) {
-        try {
-            queryFieldSet = JSON.parse(req.fieldSet)
-        } catch(e) {queryFieldSet = {}}
-        
-        
-    }
-    
+
     for(var i in model.fields) if(model.fields[i] && model.fields[i].visable) {
-        if(queryFieldSet[model.fields[i].name] !== null && queryFieldSet[model.fields[i].name] === 0) {}
-        else fields[model.fields[i].name] = 1
+        if(!queryFieldSet || queryFieldSet[model.fields[i].name]) fields[model.fields[i].name] = 1
     }
-        
     return fields;
 }
 
@@ -177,8 +180,17 @@ var buildWhere = function(params, model) {
                 // делаем запрос, если он от фильтров
                 if(filters[fname]) {
                     //find[model.fields[i].name] = 
-                    oo = valueTypes.getValue(filters[fname], fname)
-                    if(oo) find.$and.push(oo)
+                    if(model.fields[i].type == 'ObjectID') {
+                        filters[fname].value = forms.strToId(filters[fname].value)
+                        if(filters[fname].value) {
+                            var o1 = {}
+                            o1[fname] = filters[fname].value
+                            find.$and.push(o1)
+                        }
+                    } else {
+                        oo = valueTypes.getValue(filters[fname], fname)
+                        if(oo) find.$and.push(oo)
+                    }
                 }
             }
         }
@@ -194,14 +206,14 @@ var buildWhere = function(params, model) {
 var builData = function(data, model, server) {    
     if(!data) return data
     for(var i=0;i<data.length;i++) {
-        for(var j in model.fields) {
-            
-            if(data[i][model.fields[j].name] && model.fields[j].type && dataFunc[model.fields[j].type + '_l']) {    
+        for(var j in model.fields) if(data[i][model.fields[j].name] !== undefined) {            
+            if(model.fields[j].type && dataFunc[model.fields[j].type + '_l']) {    
                 // value, record, model, fieldName, server
                 data[i][model.fields[j].name] = dataFunc[model.fields[j].type + '_l'](data[i][model.fields[j].name], data[i], model, model.fields[j].name, server)                
             }
         }
-    }    
+    }   
+
     return data
 }
 
@@ -250,14 +262,12 @@ exports.getdata = function(params, parent, callback, model) {
             limit = parseInt(params.limit)
             if(isNaN(start)) start = 0;
             if(isNaN(limit)) limit = 25;
-
-
-
             var cursor = parent.db.collection(model.collection).find(find,fields)
                 
             cursor.count(function(e, cnt) {
                 if(cnt && cnt>0) {
                     cursor.sort(sort).limit(limit).skip(start).toArray(function(e,data) {
+
                         callback({total: cnt, list: builData(data, model, parent), success: true},null)
                     })
                 } else callback({total:0, list:[]})
@@ -481,7 +491,9 @@ exports.del = function(params, parent, callback, auth) {
                         return;    
                     }
                     var o_id;
-
+                    
+                    if(data[i]._id) data[i] = data[i]._id 
+                    
                     if((o_id = forms.strToId(data[i], callback)) === 0) return;
                     
                     if(parent.server.config.SEARCH_ENGINE) {  

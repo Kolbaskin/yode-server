@@ -5,7 +5,8 @@ Ext.define('MyDesktop.core.ComboColumn',{
     guide: null,
     guideKeyField: '_id',
     quideValueField: 'name',
-    
+
+
     defaultRenderer: function(v,x,y,z) {
         //console.log('def:',this)
         var me = this

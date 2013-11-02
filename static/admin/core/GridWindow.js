@@ -21,12 +21,12 @@ Ext.define('MyDesktop.core.GridWindow', {
     ],
         
     initComponent: function() {
-    
-        this.store = this.createStore() //Ext.create(this.store)
+        this.columns = this.buildColumns()
+        
+        this.store = this.createStore()
+        
         this.items = this.buildItems()
-        
-                        
-        
+                    
         this.callParent();
     }
     
@@ -74,13 +74,26 @@ Ext.define('MyDesktop.core.GridWindow', {
     }
     
     ,createStore: function() {
-        if(this.store) return Ext.create(this.store)
         
-        var modelName = (this.model || Object.getPrototypeOf(this).$className.replace('.view.','.model.').replace(/List$/,'Model'))
+        var me = this
         
-        if(this.modelLocalePostfix) {
+        if(me.store) return Ext.create(me.store)
+        
+        var modelName = (me.model || Object.getPrototypeOf(me).$className.replace('.view.','.model.').replace(/List$/,'Model'))
+        
+        if(me.modelLocalePostfix) {
             var l = localStorage.getItem('locale')
             modelName +=  l
+        }
+        
+        if(me.columns) {
+            var cols = []
+            for(var i=0;i<me.columns.length;i++) {
+                if(me.columns[i].dataIndex) {
+                    cols.push(me.columns[i].dataIndex)    
+                }
+            }
+            modelName += '/' + cols.join(',')
         }
         
         return Ext.create('MyDesktop.core.Store', {
@@ -118,7 +131,7 @@ Ext.define('MyDesktop.core.GridWindow', {
                 plugins: [{
         			ptype: 'gridautoresizer'
 				}],
-                items: me.buildColumns()
+                items: me.columns//me.buildColumns()
             }
             
             grid.plugins = [{

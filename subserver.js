@@ -47,7 +47,7 @@ exports.Server = function(projDir, statServParam, host, port) {
  * сервера и проекта
  * 
  * функция выполняется один при старте сервера,
- * поэтому все синхронно
+ * все синхронно
  * 
  */
 exports.Server.prototype.getValidModels = function(name) {

@@ -9,11 +9,17 @@ exports.Plugin = function(server) {
 }
 
 var runIndexer = function(config) {    
+    
     exec('cd ' + __dirname
-        + ' && indexer --config ./sphinx.conf ' + config.SEARCH_ENGINE.index + '_upd'
-        + ' && indexer --config ./sphinx.conf --merge ' + config.SEARCH_ENGINE.index + ' ' + config.SEARCH_ENGINE.index + '_upd --rotate'
+        + ' && indexer --config ./indexer.conf ' + config.SEARCH_ENGINE.index + '_upd'
+        + ' && indexer --config ./indexer.conf --merge ' + config.SEARCH_ENGINE.index + ' ' + config.SEARCH_ENGINE.index + '_upd --rotate'
     , function(e, stdout, stderr) {
 
+/*
+console.log(e)
+console.log(stdout)
+console.log(stderr)
+//*/
     })        
 }
 
@@ -23,9 +29,9 @@ exports.Plugin.prototype.update_index = function(req, callback, auth, modelname,
         callback(null, {code: 500})
         return; 
     }
-    
-    if(!model.searchBuildDocUrl) {
-        callback({success: false})
+  
+    if(!model.searchBuildDocUrl ) {
+        if(callback) callback({success: false})
         return; 
     }
     
@@ -70,7 +76,7 @@ exports.Plugin.prototype.remove_index = function(req, callback, auth, modelname,
         return;
     }
     
-    if(!model.searchBuildDocUrl) {
+    if(model.searchBuildDocUrl === null) {
         callback({success: false})
         return; 
     }
@@ -84,6 +90,7 @@ exports.Plugin.prototype.remove_index = function(req, callback, auth, modelname,
 
 
 exports.Plugin.prototype.getXml = function(req, callback, auth) {
+    
     if(!req.login || !req.pass || authIndexer.login != req.login || authIndexer.pass != req.pass) {
         callback(null, {code: 404})
         return;
@@ -97,6 +104,8 @@ exports.Plugin.prototype.getXml = function(req, callback, auth) {
         ,date = new Date().getTime()
     
     var finXml = function() {
+        
+        
         
         callback('<?xml version="1.0" encoding="utf-8"?>'
             + '<sphinx:docset>'            
@@ -134,26 +143,43 @@ exports.Plugin.prototype.getXml = function(req, callback, auth) {
                 return;
             }
             var item = {title: '', content: []}
+                ,log = ''
             for(var i=0;i<model.fields.length;i++) if(model.fields[i].visable && r[model.fields[i].name]) {
                 if(model.fields[i].name == 'name' || model.fields[i].name == 'title') {
                     item.title = r[model.fields[i].name]
                 }
                 if(model.fields[i].search_title) item.title = r[model.fields[i].name]
                 else if(model.fields[i].type == 'string') item.content.push(r[model.fields[i].name])
-            }            
-            xml.push('<sphinx:document id="' + index + '">'
+                else if(model.fields[i].search_index_fields) {
+                    for(var j=0;j<r[model.fields[i].name].length;j++) {
+                        for(var k in r[model.fields[i].name][j]) {
+                            if(model.fields[i].search_index_fields.indexOf(k) != -1) {
+                                if(r[model.fields[i].name][j][k])
+                                    item.content.push(r[model.fields[i].name][j][k])
+                            }
+                        }
+                    }
+                }
+            }   
+            
+            var s = '<sphinx:document id="' + index + '">'
             + '<content><![CDATA[' + item.content.join('\n') + ']]></content>'
             + '<published>' + date + '</published>'
             + '<title><![CDATA[' + item.title + ']]></title>'
             + '<module>' + modelName + '</module>'
             + '<rid>' + id + '</rid>'
-            + '</sphinx:document>');
+            + '</sphinx:document>'
+
+            //fs.appendFile(__dirname + '/xml.log', s, function(){})
+            
+            xml.push(s);
             
             callback()            
         })        
     }
-        
+        //
     me.db.collection('search_index').find({a:{$in:['u', 'd']}}, {m: 1, id: 1, i: 1, a: 1}).toArray(function(e, items) {        
+
         var func = function(i) {
             if(i == items.length) {
                 finXml()
@@ -161,6 +187,7 @@ exports.Plugin.prototype.getXml = function(req, callback, auth) {
             }            
             rq.urlparams[0] = items[i].m
             dataFuncs.getmodel(rq, me, function(model) {                
+
                 if(model) {
                     if(items[i].a == 'u') {
                         getItem(model, items[i].m, items[i].id, items[i].i, function() {

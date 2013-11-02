@@ -3,6 +3,7 @@ var crypto = require('crypto')
     ,BSON = mongo.BSONPure
     ,fs = require('fs')
     ,forms = require('forms')
+    ,util = require('util')
 //value, callback, record, model, fieldName, server, oldData
 exports.password = function(s, callback, a1, a2, a3, server) {
     var hash_alg = (server.server.config? server.server.config.HASH_ALG:'sha1')
@@ -38,6 +39,12 @@ exports.boolean = function(s, callback) {
     callback(!!s)
 }
 
+exports.array  = function(s, callback) {
+    if(!util.isArray(s)) s = [s]
+    callback(s)
+}
+
+
 exports.arraystring  = function(s, callback) {
     s = s.split(',')
     for(var i=0;i<s.length;i++) s[i] = s[i].trim()
@@ -45,7 +52,9 @@ exports.arraystring  = function(s, callback) {
 }
 
 exports.arraystring_l  = function(s) {
-    s = s.join(',')
+    if(s && !!s.join) {
+        s = s.join(',')
+    }
     return s
 }
 
@@ -93,7 +102,7 @@ exports.image_l = function(arr, record, model, key, server, oldData) {
 
     var id = record["_id"]    
         ,collection = model.collection
-    return '/admin.models.fileOperations:getimage/' + collection + '/' + id + '/' + key + '/0/' + (arr[0].preview? 'preview':'img') + '/'
+    return '/admin.models.fileOperations:getimage/' + collection + '/' + id + '/' + key + '/0/main/'
 
 }
 
@@ -158,7 +167,9 @@ exports.images = function(arr, callback, record, model, fieldName, server, cur_d
 // постфикс "_l" обозначает те функции, которые вызываются при отображении денных
 // в таблицах и формах в админке
 exports.images_l = function(arr, record, model, key, server, oldData) {
-
+    
+    if(!arr) return arr
+    
     var id = record["_id"]    
         ,collection = model.collection
 
