@@ -257,15 +257,16 @@ Ext.define('MyDesktop.core.Controller', {
         
     }
     
+    /*
     ,modify: function(rec, formClassName, innerCall) {        
         var me = this
         me.getRecord(rec, function(rec) {
             me._modify(rec, formClassName, innerCall)
         })
     }
-    
+    */
         
-    ,_modify: function(rec, formClassName, innerCall) {    
+    ,modify: function(rec, formClassName, innerCall) {    
         if(!innerCall && this.accessRights && !this.accessRights.modify) return;
         
         if(!rec.data) rec.data = {}
@@ -294,8 +295,7 @@ Ext.define('MyDesktop.core.Controller', {
                 //resizable: false,
                 //maximizable: false,
                 items: form,
-                tools:tools
-                ,
+                tools:tools,
                 layout: 'fit'
             }
             
@@ -305,13 +305,20 @@ Ext.define('MyDesktop.core.Controller', {
             
             me.addFormControls(win)
          
-            if(!!me.beforeModify && me.beforeModify(form, rec.data) === false) return false;
             
-            if(!!form.setValues) form.setValues(rec.data);
-            else {
-                var inForm = form.down('form')
-                if(inForm && !!inForm.setValues) inForm.setValues(rec.data);
-            }
+            
+            me.getRecord(rec, function(rec) {
+                
+                if(!!me.beforeModify && me.beforeModify(form, rec.data) === false) return false;
+                
+                if(!!form.setValues) form.setValues(rec.data);
+                else {
+                    var inForm = form.down('form')
+                    if(inForm && !!inForm.setValues) inForm.setValues(rec.data);
+                }
+            })
+            
+            
             
         } else {
             win.show()  

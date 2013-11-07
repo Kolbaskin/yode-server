@@ -20,13 +20,12 @@ var  fs = require('fs')
     ,extensions = {}
     ,domain = require('domain')
     ,http = require('http')
-    ,manifest = require('./package.json');
-    
+    ,manifest = require('./package.json')
+
+
 console.log(manifest.name + ' ' + manifest.version)    
 console.log('Copyright (c) 2013 ' + manifest.author + '\n') 
-  
 
- 
 var projects = {}
     ,aliases = {}
         
@@ -121,7 +120,7 @@ var serveMultipartForm = function(req, res, runMethod) {
         ,files = {}
         ,fields = {}
         ,size = 0                
-    
+
     for(var i in formConfig) {
         form[i] = formConfig[i]
     }
@@ -192,11 +191,36 @@ var memLimit = function(limit) {
     }, 1000)    
 }
 
+setInterval(function() {
+   global.gc()
+}, 5000)
+
 /*
 setInterval(function() {
    console.log(parseInt(process.memoryUsage().rss / 1024 / 1024))
 }, 3000)
 */
+
+var createHttpServer = function(serv, conf) {
+    
+    if(conf.auth) {
+        var basicAuth = require('http-auth');
+    
+        var basic = basicAuth.basic({
+                realm: "Closed Area."
+            }, function (username, password, callback) { // Custom authentication method.
+                callback(username === conf.auth.user && password === conf.auth.pass);
+            }
+        );
+        
+        return http.createServer(basic, createServer)
+        
+    } else {
+    
+        return http.createServer(createServer)
+    
+    }
+}
 
 exports.start = function(conf, callback) {
     for(var i in conf) {
@@ -210,15 +234,18 @@ exports.start = function(conf, callback) {
         
     startGC()   
     
+
+    
+    
     if(callback) {
     // for test call
         startVH(true)
-        callback(http.createServer(createServer))
+        callback(createHttpServer(createServer, config))
     } else {
     // work call
         startVH()
-        if(config.host) http.createServer(createServer).listen(config.port, config.host)
-        else http.createServer(createServer).listen(config.port)
+        if(config.host) createHttpServer(createServer,config).listen(config.port, config.host)
+        else createHttpServer(createServer, config).listen(config.port)
         console.log('Server HTTP started on port ' + config.port)
     }
     
@@ -236,7 +263,7 @@ exports.start = function(conf, callback) {
     
     process.title = 'yode'
     if(process.argv.indexOf('-d') != -1) {
-        require('daemon')();
+        //require('daemon')();
         
     } 
     

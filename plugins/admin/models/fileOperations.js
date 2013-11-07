@@ -142,7 +142,9 @@ exports.Plugin.prototype.getimage = function(req, callback, auth) {
                     callback(null, {code: 404})
                     return;
                 }
-                head.heads = {'Content-Type': 'image/png'}
+                head.heads = {
+                    'Content-Type': 'image/png'
+                }
                 callback(file,null, head)
             }) 
         } else
@@ -155,9 +157,12 @@ exports.Plugin.prototype.getimage = function(req, callback, auth) {
         func404()
         return;
     }
-     
+    folder.mtime = 1 
     me.db.collection(collName).findOne({_id: o_id}, folder, function(e,data) {
         if(data && data[folderName]) {
+            
+            head.heads['Last-Modified'] = data.mtime
+            head.heads['Cache-Control'] = 'private'
             
             if(util.isArray(data[folderName])) {
                 if(data[folderName][num]) {
@@ -166,6 +171,7 @@ exports.Plugin.prototype.getimage = function(req, callback, auth) {
                         else if(data[folderName][num]['img']) size = 'img'
                     }                  
                     if(data[folderName][num][size]) {
+                        head.heads['Content-Length'] = data[folderName][num][size].buffer.length
                         callback(data[folderName][num][size].buffer ,null, head)
                         return;
                     }
@@ -176,6 +182,7 @@ exports.Plugin.prototype.getimage = function(req, callback, auth) {
                     else if(data[folderName]['img']) size = 'img'
                 }
                 if(data[folderName][size]) {
+                    head.heads['Content-Length'] = data[folderName][size].length
                     callback(new Buffer(data[folderName][size]),null, head)
                     return;
                 }

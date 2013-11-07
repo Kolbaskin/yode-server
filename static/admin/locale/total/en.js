@@ -13,5 +13,5 @@ TEXTS = {
 "users-GroupsModel": "Access groups",
 "users-PublUsersModel": "Users",
 "users-UsersModel": "Admin users",
-
+'pages-RestartServer': 'Restart server'
 }

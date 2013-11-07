@@ -60,6 +60,7 @@ exports.Plugin.prototype.readTemplates = function() {
  * если находим, передаем дальше
 **/
 exports.Plugin.prototype.serve = function(request, callback, auth) {
+    
     var me = this
         ,i = request.pathname.length-1
 

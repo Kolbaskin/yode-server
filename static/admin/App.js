@@ -144,7 +144,7 @@ Ext.define('MyDesktop.App', {
             Core.Ajax.request({
                 url:'model:test',
                 callback: function(a1, a2, a3) {
-                    if(a3.status == 401) {
+                    if(a3.status == 401 || a3.status == 0) {
                         location = '/admin.controller:login/';    
                     }
                 }

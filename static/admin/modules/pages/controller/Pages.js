@@ -140,7 +140,9 @@ Ext.define('MyDesktop.modules.pages.controller.Pages', {
             else me.dirAutoComplite = true    
         }
         
-        if(me.mainWin.down('[action=formsave]').isDisabled()) {
+        var sb = me.mainWin.down('[action=formsave]')
+        
+        if(!sb || sb.isDisabled()) {
             opn()
         } else {
             Ext.MessageBox.show({

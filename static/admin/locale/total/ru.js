@@ -89,6 +89,8 @@ TEXTS = {
 'Reduce': 'Уменьшить',
 'Original': 'Оригинальный размер',
 'File manager': 'Менеджер файлов',
+'Restart server': 'Рестарт сервера',
+'Site tools': 'Панель управления',
 
 // Список моделей данных
 "ads-RentFlatsModel": "Объявления: Аренда квартир и комнат",
@@ -156,6 +158,7 @@ TEXTS = {
 "users-PublUsersModel": "Пользователи сайта",
 "users-UsersModel": "Пользователи админки",
 "villages-VillagesModel":"Коттеджные поселки",
-"users-Users": "Пользователи системы (админ. раздел)"
+"users-Users": "Пользователи системы (админ. раздел)",
+'pages-RestartServer': 'Рестарт сервера'
 
 }

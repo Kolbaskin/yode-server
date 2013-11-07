@@ -248,3 +248,21 @@ exports.Plugin.prototype.checklogin = function(req, callback, auth) {
     }
 }
 
+exports.Plugin.prototype.restartServer = function(req, callback, auth) {
+    if(auth) {
+        var rq = {
+            urlparams: ['', 'pages-RestartServer']    
+        }        
+        this.checkAccess2Model(rq, function(data) {
+            if(data.read && data.add && data.modify && data.del) {
+                callback({})
+                process.exit(0)
+            }
+            
+        }, auth)
+    } else {
+        callback(null, {code: 401})
+    }
+}
+
+

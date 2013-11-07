@@ -29,6 +29,20 @@ Ext.define('MyDesktop.modules.pages.controller.Main', {
                 text: D.t('File manager'),
                 iconCls:'filemanager',
                 controller: 'MyDesktop.modules.filemanager.controller.fm'
+            },'-',{
+                text: D.t('Restart server'),
+                iconCls:'refresh',   
+                model: 'pages-RestartServer',
+                handler: function() {
+                    D.c('Server restarting', 'Are You sure?', [], function() {
+                        Core.Ajax.request({
+                            url:'/admin.models.access:restartServer',
+                            callback: function(a1, a2, a3) {
+                                
+                            }
+                        })
+                    })
+                }
             }]
         }
     }

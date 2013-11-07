@@ -30,7 +30,9 @@ Ext.define('MyDesktop.core.MenuController', {
                 }
                 obj.handler = function() {return false;}
             } else {
-                obj.handler = function(el) {me.showDir(el)}     
+                if(!obj.handler) {
+                    obj.handler = function(el) {me.showDir(el)}    
+                }     
             }
             return obj
         }        
