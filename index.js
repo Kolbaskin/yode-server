@@ -24,7 +24,7 @@ var  fs = require('fs')
 
 
 console.log(manifest.name + ' ' + manifest.version)    
-console.log('Copyright (c) 2013 ' + manifest.author + '\n') 
+console.log('Copyright (c) 2013 ' + manifest.contributors.name + ' <' + manifest.contributors.email + '>' + '\n') 
 
 var projects = {}
     ,aliases = {}
@@ -191,11 +191,13 @@ var memLimit = function(limit) {
     }, 1000)    
 }
 
-/*
-setInterval(function() {
-   global.gc()
-}, 5000)
-*/
+// Чистим принудительно мусор каждые 5сек
+// если нода запущена с парамтром --expose-gc
+if(!!global.gc)
+    setInterval(function() {
+       global.gc()
+    }, 5000)
+
 /*
 setInterval(function() {
    console.log(parseInt(process.memoryUsage().rss / 1024 / 1024))

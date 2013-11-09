@@ -215,7 +215,7 @@ Ext.define('MyDesktop.core.Controller', {
         
         var me = this
         
-        if(me.LocalFormData || !rec.data || !rec.data._id) {
+        if(me.LocalFormData || !rec || !rec.data || !rec.data._id) {
             callback(rec)           
         } else {
             Core.Ajax.request({
@@ -416,7 +416,6 @@ Ext.define('MyDesktop.core.Controller', {
             }
             
             var modelName = me.getModelName(store)
-   
             Core.Ajax.request({
                 url: 'model:save/' + modelName,
                 jsonData: data,
@@ -424,8 +423,8 @@ Ext.define('MyDesktop.core.Controller', {
                     
                     if(sb1 && !!sb1.setDisabled) sb1.setDisabled(false)
                     if(sb2 && !!sb2.setDisabled) sb2.setDisabled(false)
-                    
-                    if(!! me.afterSave && me.afterSave(data.record) === false) {
+          
+                    if(!!me.afterSave && me.afterSave(data.record) === false) {
                         if(callback) callback(data)
                         return;
                     }

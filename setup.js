@@ -189,6 +189,23 @@ var steps = [
     
     function(callback) {
         
+        var data = "require('daemon')();\n"
+            + "var cp = require('child_process')\n"
+            + "    ,n = cp.fork('server.js');\n"            
+            + "setInterval(function() {\n"
+            + "    if(n._channel === null) {\n"
+            + "       n = cp.fork('server.js');\n"
+            + "    }\n"
+            + "}, 1000))\n\n"
+        
+        fs.writeFile("../../daemon.js", data, function() {
+            callback(true)
+        })
+        
+    },
+        
+    function(callback) {
+        
         ncp(__dirname + "/www", __dirname + "/../../" + projectsDir, function (err) {
             var fn = __dirname + "/../../" + projectsDir + '/localhost/config.js'
             
