@@ -46,7 +46,7 @@ node server -p www.example.com
 ```
 run yode-server as daemon:
 ```
-node server -d
+node daemon
 ```
 
 ### Admin interface
