@@ -196,7 +196,7 @@ var steps = [
             + "    if(n._channel === null) {\n"
             + "       n = cp.fork('server.js');\n"
             + "    }\n"
-            + "}, 1000))\n\n"
+            + "}, 1000)\n\n"
         
         fs.writeFile("../../daemon.js", data, function() {
             callback(true)
