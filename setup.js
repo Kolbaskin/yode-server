@@ -239,7 +239,7 @@ var steps = [
 var runs = function(i) {
     if(i == steps.length) {
         
-        console.log('Setup is success!')
+        console.log('Installation completed successfully!')
         require('../../server')
         
         rl.close();
