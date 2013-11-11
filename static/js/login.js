@@ -43,7 +43,7 @@ $(document).ready(function() {
                 login: l,
                 pass: p
             }, function(r) {
-                if(r.status && r.status == 'OK') {
+                if(r.status && r.status == 'OK' && r.data) {
                     if(r.data && r.data.dblauth) {
                         $("#step1").css("display","none")
                         $("#step2").css("display","block")

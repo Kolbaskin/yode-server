@@ -27,14 +27,14 @@ var makeImg = function(path, callback, sizes) {
             x:0, 
             y:0
         }
-    
+
     var resize = function() {    
         easyimg.thumbnail(conf1, function(err, image) {
             	if (err) {
                     callback(null, {code: 500});
                     return;
                 } 
-                if(w2 && h2) {
+                if(conf2.width && conf2.height) {
                     easyimg.thumbnail(conf2, function(err, image_small) {
                         if (err) {
                             callback(null, {code: 500});
@@ -67,6 +67,8 @@ var makeImg = function(path, callback, sizes) {
         h2 = 150    
     }
     
+ 
+    
     var getSizes = function(w,h, callback) {
         easyimg.info(path, function(e, info) {
 
@@ -79,6 +81,9 @@ var makeImg = function(path, callback, sizes) {
                 if(w > info.width) w = info.width
                 if(h > info.height) h = info.height
             }
+            
+        
+            
             callback(w,h)
         })        
     }
@@ -89,6 +94,7 @@ var makeImg = function(path, callback, sizes) {
 
         if(w2 || h2) {
             getSizes(w2, h2, function(w,h) {
+
                 conf2.width = w
                 conf2.height = h
                 resize()

@@ -22,9 +22,8 @@ var  fs = require('fs')
     ,http = require('http')
     ,manifest = require('./package.json')
 
-
 console.log(manifest.name + ' ' + manifest.version)    
-console.log('Copyright (c) 2013 ' + manifest.contributors.name + ' <' + manifest.contributors.email + '>' + '\n') 
+console.log('Copyright (c) 2013 ' + manifest.contributors[0].name + ' <' + manifest.contributors[0].email + '>' + '\n') 
 
 var projects = {}
     ,aliases = {}

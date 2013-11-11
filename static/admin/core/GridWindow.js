@@ -88,6 +88,7 @@ Ext.define('MyDesktop.core.GridWindow', {
         
         if(me.columns) {
             var cols = []
+            if(me.sortManually) cols.push("indx")
             for(var i=0;i<me.columns.length;i++) {
                 if(me.columns[i].dataIndex) {
                     cols.push(me.columns[i].dataIndex)    

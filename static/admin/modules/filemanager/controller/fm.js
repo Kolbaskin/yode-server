@@ -270,7 +270,7 @@ Ext.define('MyDesktop.modules.filemanager.controller.fm', {
         ob.ondrop = function(event) {
             event.stopPropagation(); 
             event.preventDefault();
-            target_id = target_id.split('-record-')
+            if(!!target_id.split) target_id = target_id.split('-record-')
             if(ob1.svCls) {
                 ob1.className = ob.svCls
                 ob1.svCls = null

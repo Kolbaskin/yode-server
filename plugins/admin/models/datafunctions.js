@@ -131,6 +131,7 @@ exports.images = function(arr, callback, record, model, fieldName, server, cur_d
                 fs.exists(path + arr[i].img, function(e) {
                     if(e) {
                         fs.readFile(path + arr[i].img, function(e,s) {
+            
                             fs.unlink(path + arr[i].img)
                             arr[i].img += '_small'
                             fs.exists(path + arr[i].img, function(e) {
@@ -212,9 +213,9 @@ exports.parentpages = function(value, callback, record, model, key, server, oldD
 // Тип поля используется для сортировки
 exports.sortfield = function(value, callback, record, model, key, server, oldData) {
     if(value) {
-        value = parseInt(value)
-        if(!isNaN(value)) {
-            callback(value)
+        var x = parseInt(value)
+        if(!isNaN(x) && x) {
+            callback(x)
             return;
         }
     }
@@ -224,9 +225,9 @@ exports.sortfield = function(value, callback, record, model, key, server, oldDat
     fields[key] = 1
     server.db.collection(model.collection).find({removed:{$ne: true}}, fields).sort(sort).limit(1).toArray(function(e,d) {
         if(d[0] && d[0][key]) {
-            callback((d[0][key] + 1))
+            callback((parseInt(d[0][key]) + 1))
         } else {
-            callback(0)
+            callback(1)
         }
     })
 }

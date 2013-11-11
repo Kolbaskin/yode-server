@@ -10,7 +10,8 @@ Ext.define('MyDesktop.core.widgets.CodeEditorField',{
     
     ,initComponent: function() {     
         var me = this
-        this.items = this.buildItems()
+        
+        me.items = this.buildItems()
         me.listeners = {
             resize: function() {
                 if(!me.editor) {
@@ -66,7 +67,7 @@ Ext.define('MyDesktop.core.widgets.CodeEditorField',{
     			printMargin: false,
     			useWrapMode: true,
                 fontSize: '13px',
-    			//sourceCode: '123',
+    			sourceCode: me.sourceCode || '',
     			parser: me.parser
                 ,listeners: {
                     change: function(x) {

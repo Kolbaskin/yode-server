@@ -29,7 +29,32 @@
                     layout: 'border',
                     title: 'editor',
                     bodyStyle: 'padding:0;',
-                    items: [{
+                    
+                    items: [Ext.create('MyDesktop.core.widgets.CodeEditorField', {
+                        region: 'center',
+                        margin:0,
+                		parser: 'html',
+                        name: 'html',
+                        printMargin: false,
+                		useWrapMode: true,
+                        fontSize: '13px',
+            			sourceCode: ed.contentDocument.body.innerHTML,
+                        buildTbar: function() {
+                            var me = this
+                            return [
+                                {
+                                    text: D.t('Insert file'),
+                                    iconCls: 'dlg-openfile',
+                                    handler: function() {
+                                        me.insertFile()
+                                    }
+                                }    
+                            ]
+                        }
+                    })
+                    
+                    
+                    /*{
                         region: 'center',
             			xtype: 'AceEditor',
                         margin:0,
@@ -39,7 +64,7 @@
                         fontSize: '13px',
             			sourceCode: ed.contentDocument.body.innerHTML,
             			parser: 'html'
-            		}],
+            		}*/],
                     buttons: [
                         {
                             text: D.t('Update'),
