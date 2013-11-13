@@ -120,10 +120,10 @@ exports.Plugin.prototype.getdata = function(params, callback, auth) {
             if(access && access.read) {
                 if(params.reorder && access.modify) {
                     data.reorder(params, me, function(res) {
-                        data.getdata(params, me, callback);
+                        data.getdata(params, me, callback, null, auth);
                     })
                 } else {
-                    data.getdata(params, me, callback);
+                    data.getdata(params, me, callback, null, auth);
                 }
             } else {
                 callback(null, {code: 403});
@@ -199,7 +199,7 @@ exports.Plugin.prototype.getdatatree = function(params, callback, auth) {
                     }
                 }, auth, auth)
             }
-        });
+        }, auth);
     } else {
         callback(null, {code: 401});    
     }    

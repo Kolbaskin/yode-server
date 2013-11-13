@@ -3,7 +3,7 @@ var fs       = require('fs')
     ,dataFunc = require('./datafunctions')
     ,globalLog = require('./logs')
     ,valueTypes = require('./valueTypes')
-
+    ,myutils = require('myutils')
 
 /*
 *
@@ -127,80 +127,93 @@ var getReadableFields = function(model, req) {
     return fields;
 }
 
-var buildWhere = function(params, model) {
-    var re
-        ,query
-        ,$or = [] 
-        ,find = (model && model.find?  model.find:{})
-        ,cond
-        ,filters = {}
-        ,oo;
+var buildWhere = function(params, model, auth, server, callback) {
         
-    if(params.query) {       
-        
-        // Проверим, не объект-ли в запросе
-        
-        try {
-            re = JSON.parse(params.query)
-        } catch(e) {
-            re = null    
-        }
-        
-        // если там объект, он должен быть массивом
-        if(re && re.length) {            
-            for(var i=0;i<re.length;i++) if(re[i].property && re[i].value) {
-                if(re[i].property == 'query') {
-                    try {
-                        query = new RegExp('^' + re[0].value,'i')
-                    } catch(e) {return {_id:0}}
-                } else {
-                // Добавляем фильтры
-                    filters[re[i].property] = re[i]
-                }
-            } 
-        } else {        
-            try {
-                query = new RegExp('^' + params.query,'i')
-            } catch(e) {return {_id:0}}
-        }
-        find.$and = []
-        
-        var fname;
+    var func1 = function(find) {    
+    
+        var re
+            ,query
+            ,$or = [] 
+            ,cond
+            ,filters = {}
+            ,oo;
             
-        for(var i in model.fields) {
-            if(model.fields[i].mapping) fname = model.fields[i].mapping
-            else fname = model.fields[i].name
-            if(fname == '_id' || model.fields[i].filterable) {
-                // Делаем запрос по поисковой строке
-                if(query && model.fields[i].type == 'string') {
-                    cond = {}                
-                    cond[fname] = query
-                    $or.push(cond)
-                }
-                // делаем запрос, если он от фильтров
-                if(filters[fname]) {
-                    //find[model.fields[i].name] = 
-                    if(model.fields[i].type == 'ObjectID') {
-                        filters[fname].value = forms.strToId(filters[fname].value)
-                        if(filters[fname].value) {
-                            var o1 = {}
-                            o1[fname] = filters[fname].value
-                            find.$and.push(o1)
-                        }
+        if(params.query) {       
+            
+            // Проверим, не объект-ли в запросе
+            
+            try {
+                re = JSON.parse(params.query)
+            } catch(e) {
+                re = null    
+            }
+            
+            // если там объект, он должен быть массивом
+            if(re && re.length) {            
+                for(var i=0;i<re.length;i++) if(re[i].property && re[i].value) {
+                    if(re[i].property == 'query') {
+                        try {
+                            query = new RegExp('^' + re[0].value,'i')
+                        } catch(e) {return {_id:0}}
                     } else {
-                        oo = valueTypes.getValue(filters[fname], fname)
-                        if(oo) find.$and.push(oo)
+                    // Добавляем фильтры
+                        filters[re[i].property] = re[i]
+                    }
+                } 
+            } else {        
+                try {
+                    query = new RegExp('^' + params.query,'i')
+                } catch(e) {return {_id:0}}
+            }
+            find.$and = []
+            
+            var fname;
+                
+            for(var i in model.fields) {
+                if(model.fields[i].mapping) fname = model.fields[i].mapping
+                else fname = model.fields[i].name
+                if(fname == '_id' || model.fields[i].filterable) {
+                    // Делаем запрос по поисковой строке
+                    if(query && model.fields[i].type == 'string') {
+                        cond = {}                
+                        cond[fname] = query
+                        $or.push(cond)
+                    }
+                    // делаем запрос, если он от фильтров
+                    if(filters[fname]) {
+                        //find[model.fields[i].name] = 
+                        if(model.fields[i].type == 'ObjectID') {
+                            filters[fname].value = forms.strToId(filters[fname].value)
+                            if(filters[fname].value) {
+                                var o1 = {}
+                                o1[fname] = filters[fname].value
+                                find.$and.push(o1)
+                            }
+                        } else {
+                            oo = valueTypes.getValue(filters[fname], fname)
+                            if(oo) find.$and.push(oo)
+                        }
                     }
                 }
             }
         }
-    }
-
-    if($or.length>0) {find.$and.push({$or:$or})}
-    if(!params.showRemoved) find.removed = {$ne:true}
-
     
-    return find;
+        if($or.length>0) {find.$and.push({$or:$or})}
+        if(!params.showRemoved) find.removed = {$ne:true}   
+        
+        return find;
+    }    
+    var func = function(find) {
+        callback(func1(find))
+    }
+    
+    if(model && !!model.find && typeof(model.find) == 'function') {
+        model.find(params, auth, server, function(find) {
+            func(find)
+        })
+    } else {
+        func((model && model.find? myutils.inherit(model.find,{}):{}))
+    }   
 }
 
 var builData = function(data, model, server) {    
@@ -245,17 +258,19 @@ var buildSort = function(params, model) {
 * geting all data with paging
 *
 */
-exports.getdata = function(params, parent, callback, model) {        
+exports.getdata = function(params, parent, callback, model, auth) {        
+    
+    
     var func = function(model) {
-            if(!model) {
-                callback(null, {code:404});
-                return;
-            }
-            
+        if(!model) {
+            callback(null, {code:404});
+            return;
+        }
+        buildWhere(params, model, auth, parent, function(find) {
             var fields = getReadableFields(model, params),
                 start = params.start || 0,
                 limit = params.limit || 25,
-                find = buildWhere(params, model),
+                //find = buildWhere(params, model, auth),
                 sort = buildSort(params, model)
                                       
             start = parseInt(params.start)
@@ -272,7 +287,8 @@ exports.getdata = function(params, parent, callback, model) {
                     })
                 } else callback({total:0, list:[]})
             })    
-        }
+        })
+    }
     if(model) func(model)
     else
         readmodel(params.urlparams[0], parent, function(model) {
@@ -462,7 +478,7 @@ exports.save = function(params, parent, callback, access, auth) {
 
 /*
 *
-* saving data
+* removing data
 *
 */
 exports.del = function(params, parent, callback, auth) {    
@@ -496,8 +512,7 @@ exports.del = function(params, parent, callback, auth) {
                     
                     if((o_id = forms.strToId(data[i], callback)) === 0) return;
                     
-                    if(parent.server.config.SEARCH_ENGINE) {  
-                        
+                    if(parent.server.config.SEARCH_ENGINE) {              
                         
                           parent.server.getModel('search.engine').remove_index(null, null, null, params.urlparams[0], model, o_id)
                     }
@@ -547,34 +562,35 @@ exports.del = function(params, parent, callback, auth) {
 * getting model details
 *
 */
-exports.getdatatree = function(params, parent, callback) {
+exports.getdatatree = function(params, parent, callback, auth) {
     readmodel(params.urlparams[0], parent, function(model) {
         if(model) {  
             
-            var find = buildWhere(params),
-                fields = getReadableFields(model)
+            buildWhere(params, model, auth, parent, function(find) {
             
-            fields.leaf = 1
-            
-            var findLayer = function() {
+                var fields = getReadableFields(model)
                 
-                parent.db.collection(model.collection).find(find,fields).toArray(function(e,data) {
-                    callback(data,null)
-                })
-            }
-            
-            if(!params.node || params.node == 'root') {
-                parent.db.collection(model.collection).findOne({root:true},{w:1}, function(e,data) {
-                    if(data) {
-                        find.pid = data._id
-                        findLayer();
-                    } else callback(null, {code: 500, mess: 'Root node not found'})
-                })
-            } else {
-                if((find.pid = forms.strToId(params.node, callback)) === 0) return;
-                findLayer();
-            }
-
+                fields.leaf = 1
+                
+                var findLayer = function() {
+                    
+                    parent.db.collection(model.collection).find(find,fields).toArray(function(e,data) {
+                        callback(data,null)
+                    })
+                }
+                
+                if(!params.node || params.node == 'root') {
+                    parent.db.collection(model.collection).findOne({root:true},{w:1}, function(e,data) {
+                        if(data) {
+                            find.pid = data._id
+                            findLayer();
+                        } else callback(null, {code: 500, mess: 'Root node not found'})
+                    })
+                } else {
+                    if((find.pid = forms.strToId(params.node, callback)) === 0) return;
+                    findLayer();
+                }
+            })
               
         } else {
             callback(null, {code: 500})
