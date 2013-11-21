@@ -114,13 +114,18 @@ exports.Server.prototype.getModel = function(name) {
  *
 **/
 var tplIncludes = function(dir, htm, callback) {
-    htm = htm.replace(/\{\{include[\s]{1,}[\'\"]([\w\.\/]{1,})[\'\"]\}\}/gi, function(p1,path) {
-        if(fs.existsSync(dir + path)) {
-            return fs.readFileSync(dir + path, 'utf8');
-        }
-        return "";
-    })    
-    callback(htm)
+    
+    var recur = function(str) {
+        return s = str.replace(/\{\{include[\s]{1,}[\'\"]([\w\.\/]{1,})[\'\"]\}\}/gi, function(p1,path) {
+            if(fs.existsSync(dir + path)) {
+                return recur(fs.readFileSync(dir + path, 'utf8'));
+            }
+            return "";
+        })
+    }
+    
+    
+    callback(recur(htm))
 }
 
 var getLocaleText = function(text, lng, srv) {

@@ -523,3 +523,11 @@ div.ux-taskbar div.x-toolbar {
 .show-file-32 {    
     background: url(../images/icons/32/page_white_magnify.png) center no-repeat;
 }
+
+.x-form-itemselector-add {
+    background-image: url(../images/icons/arrow_right.png) !important;
+}
+
+.x-form-itemselector-remove {
+    background-image: url(../images/icons/arrow_left.png) !important;
+}
