@@ -1,6 +1,6 @@
 {
   "name": "yode-server",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "author": "Max Tushev <maximtushev@gmail.com>",
   "description": "a simple command-line http server with web-framework and cms",
   "contributors": [ 
