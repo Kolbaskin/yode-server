@@ -11,10 +11,7 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
     ,imageDefaultValue: 'images/image_icon.png'
     
     ,buttonAlign: 'left'
-    
-    //style: 'padding:5px',
 
-    
     ,initComponent: function() {     
         if(this.buttonAlign == 'top' || this.buttonAlign == 'bottom') {
             this.layout = 'vbox'    
@@ -78,14 +75,6 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
         var rec = []
         
         var func = function() {
-            
-            //var fBtn = Ext.create('Ext.form.field.FileView', )
-            
-
-            //if(fBtn.button) {                                
-             //   fBtn.button.getEl().setStyle('background','background:url(images/image_icon.png) center center no-repeat!important;')                                
-            //}
-            
             rec.push({
     
                 xtype: 'filefield',
@@ -98,7 +87,6 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
                 buttonConfig: {
                     tooltip: D.t('Select file'),
                     text: '',
-                    //style: 'background:url(images/image_icon.png) center center no-repeat!important;',
                     width: sz[0],
                     height: sz[1]
                 },
@@ -121,33 +109,13 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
                             else me.imageValue = me.imageDefaultValue
                             me.showImage()
                         }
-                            //me.down('[xtype=image]').setSrc(v)
                         me.noChange = false;
                     }
                 }
             })   
         }
         
-        var func1 = function() {
-            rec.push({
-                xtype: 'panel',
-                width: sz[0],
-                height: sz[1],
-                items: [
-                    {
-                        xtype: 'image'
-                    }                  
-                ]
-            })
-        }
-        
-        //if(this.buttonAlign == 'left' || this.buttonAlign == 'bottom') {
-        //    func1()
-        //    func()
-        //} else {
-            func()
-            //func1()
-        //}
+        func()
         
         return rec
     }
@@ -157,18 +125,14 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
         if(inp.fileInputEl.dom.files.length>0) {
             Core.Ajax.upload(inp.fileInputEl.dom.files[0], '/admin.models.fileOperations:upload/' + me.tumbSizes + '/', function(data) {
                 if(data.data && data.data.name) {
-                     //img = me.down('[xtype=image]')
                     var    img_inp = me.down('[xtype=textfield]')
                     
-                        me.noChange = true
-                        
-                        me.imageValue = '/tmp/'+data.data.name
-                        me.showImage()
-                        //img.setSrc('/tmp/'+data.data.name) 
-                        //img.setWidth(data.data.width)
-                        //img.setHeight(data.data.height)
-                        img_inp.setValue(data.data.name);
-                    //}
+                    me.noChange = true
+                    
+                    me.imageValue = '/tmp/'+data.data.name
+                    me.showImage()
+                    img_inp.setValue(data.data.name);
+
                 }
             })                    
         }

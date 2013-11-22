@@ -195,7 +195,7 @@ D={
             '1086':'o',
             '1087':'p',
             '1088':'r',
-            '1089':'c',
+            '1089':'s',
             '1090':'t',
             '1091':'u',
             '1092':'f',
@@ -227,6 +227,10 @@ D={
     },
     
     translate: function(s, callback) {
+        
+        callback(D.translit(s))
+        return;
+        
         Ext.Ajax.request({
             url: ['https://translate.yandex.net/api/v1.5/tr.json/translate?',
                   'key=trnsl.1.1.20130506T105223Z.fb8448be3498cdae.cc08a93c29a57ba3ea1a7a641e9af39821d017ae&',
