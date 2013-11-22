@@ -531,3 +531,7 @@ div.ux-taskbar div.x-toolbar {
 .x-form-itemselector-remove {
     background-image: url(../images/icons/arrow_left.png) !important;
 }
+
+.x-form-file-input {
+    height: 100%!important;    
+}

@@ -74,6 +74,14 @@ exports.file = function(s, callback, record, model, fieldName, server) {
 }
 
 exports.image = function(s, callback, record, model, fieldName, server) {
+
+
+    
+    if(s === '-') {
+        callback(null, true)
+        return;
+    }
+    
     var path = server.server.dir + '/' + server.server.config.STATIC_DIR + '/tmp/'+s 
         ,res = {}
     fs.exists(path, function(e) {
@@ -100,6 +108,7 @@ exports.image = function(s, callback, record, model, fieldName, server) {
 
 exports.image_l = function(arr, record, model, key, server, oldData) {
 
+    if(arr == null) return '';
     var id = record["_id"]    
         ,collection = model.collection
     return '/admin.models.fileOperations:getimage/' + collection + '/' + id + '/' + key + '/0/main/'

@@ -353,8 +353,11 @@ var createDataRecord = function(data, cur_data, model, server, callback) {
                     if(!!model.fields[i].type && !!dataFunc[model.fields[i].type]) {
                         // calling data type specific functions
                         // value, record, model, fieldName, server, oldData
-                        dataFunc[model.fields[i].type](data[model.fields[i].name], function(x) {
-                            if(x !== null) insdata[model.fields[i].name] = x
+                        dataFunc[model.fields[i].type](data[model.fields[i].name], function(x, rmv) {
+                            if(rmv) insdata[model.fields[i].name] = null
+                            else if(x !== null) {
+                                insdata[model.fields[i].name] = x
+                            }
                             f(i+1)
                         }, data, model, model.fields[i].name, server, (cur_data && cur_data[model.fields[i].name]? cur_data[model.fields[i].name]:null)) 
                         return;

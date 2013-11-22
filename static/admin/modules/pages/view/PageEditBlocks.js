@@ -15,12 +15,22 @@ Ext.define('MyDesktop.modules.pages.view.PageEditBlocks', {
     }),
         
     initComponent: function() {
-        
+        this.viewConfig = this.buildViewConfig()
         this.title = D.t('Page blocks')
         this.columns = this.buildColumns()  
         this.tbar = this.buildButtons()
         this.callParent();
     }    
+    
+    ,buildViewConfig: function() {
+        var me = this
+        return {
+                trackOver: false,
+                plugins: {
+                    ptype: 'gridviewdragdrop'
+                }
+            }
+    }
     
     ,buildColumns: function() {
         return [

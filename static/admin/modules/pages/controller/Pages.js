@@ -32,7 +32,9 @@ Ext.define('MyDesktop.modules.pages.controller.Pages', {
             'actioncolumn': {click: function(g, ri, ci, aitm, event, record, raw) {
                 me.addPage(record);return false;
             }},
-            '[name=blocks-grid]': {cellclick: function(th, td, cInd, rec) {me.modifyBlock(rec)}},
+            '[name=blocks-grid]': {
+                cellclick: function(th, td, cInd, rec) {me.modifyBlock(rec)}
+            },
             'treepanel': {
                 'cellclick': function(c, t, ci, r) {me.cellClick(c, t, ci, r);},
                 'celldblclick': function(c, t, ci, r) {me.view(r.raw.dir);}
@@ -40,6 +42,8 @@ Ext.define('MyDesktop.modules.pages.controller.Pages', {
         })
         win.down('treepanel').getView().on('drop', function (m, d, o, p, e) {return me.dropPage(m, d, o, p, e)})
         win.down('treepanel').getView().on('beforedrop', me.beforeDropPage)
+        
+        win.down('[name=blocks-grid]').getView().on('drop', function() {me.setButtonsDisabled('edit')})
         
         me.populateModels(win)
         
