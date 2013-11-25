@@ -30,6 +30,20 @@ Ext.define('MyDesktop.modules.pages.controller.Main', {
                 iconCls:'filemanager',
                 controller: 'MyDesktop.modules.filemanager.controller.fm'
             },'-',{
+                text: D.t('Rebuilding of search index'),
+                iconCls:'refresh',   
+                model: 'pages-SearchReindex',
+                handler: function() {
+                    D.c('Rebuilding of search index', 'Old indexes will be removed. Are You sure?', [], function() {
+                        Core.Ajax.request({
+                            url:'/search.engine:rebuildAll',
+                            callback: function(a1, a2, a3) {
+                                D.a('Search index was rebuilt.')
+                            }
+                        })
+                    })
+                }
+            },{
                 text: D.t('Restart server'),
                 iconCls:'refresh',   
                 model: 'pages-RestartServer',

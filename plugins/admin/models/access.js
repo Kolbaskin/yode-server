@@ -114,6 +114,11 @@ exports.Plugin.prototype.getAllModels = function(req, callback, auth) {
         return;
     }
     
+    if(this.server.manifests) {
+        callback({list:this.server.manifests},null)
+        return;
+    }
+    
     var me = this, md = me.server.dir + '/' + me.server.config.ADMIN_MODULES_DIR + '/modules'
         ,manifests = [];
     
@@ -138,7 +143,7 @@ exports.Plugin.prototype.getAllModels = function(req, callback, auth) {
                     }
                     if(ll) {
                         var model = require(dr + s[j].substr(0,s[j].length-3))
-                        if(model) manifests.push({name: mn, publ: (model.publicContriller? model.publicContriller:(!!model.public? 'default:html:' + mn: false))})
+                        if(model) manifests.push({name: mn, collection: model.collection, search: (!!model.searchBuildDocUrl? model.searchBuildDocUrl: null) , publ: (model.publicContriller? model.publicContriller:(!!model.public? 'default:html:' + mn: false))})
                     }
                 }
             }
@@ -150,6 +155,7 @@ exports.Plugin.prototype.getAllModels = function(req, callback, auth) {
         readF(md, e, files) 
         fs.readdir(me.server.serverDir + '/static/admin/modules', function(e, files) {
             readF(me.server.serverDir + '/static/admin/modules', e, files)
+            me.server.manifests = manifests
             callback({list:manifests},null)
         })
     })

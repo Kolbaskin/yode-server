@@ -15,7 +15,7 @@ var runIndexer = function(config) {
         + ' && indexer --config ./indexer.conf --merge ' + config.SEARCH_ENGINE.index + ' ' + config.SEARCH_ENGINE.index + '_upd --rotate'
     , function(e, stdout, stderr) {
 
-/*
+//*
 console.log(e)
 console.log(stdout)
 console.log(stderr)
@@ -23,8 +23,8 @@ console.log(stderr)
     })        
 }
 
-exports.Plugin.prototype.update_index = function(req, callback, auth, modelname, model, _id) {    
-    
+exports.Plugin.prototype.update_index = function(req, callback, auth, modelname, model, _id, noRunIndexer) {    
+console.log(modelname)    
     if(!modelname) {
         callback(null, {code: 500})
         return; 
@@ -34,12 +34,12 @@ exports.Plugin.prototype.update_index = function(req, callback, auth, modelname,
         if(callback) callback({success: false})
         return; 
     }
-    
+  
     var me = this
         ,fin = function() {
             if(!!callback) callback({success: true})
             
-            runIndexer(me.server.config)
+            if(!noRunIndexer) runIndexer(me.server.config)
             
         }       
     me.db.collection('search_index').update({m: modelname, id:_id}, {$set: {a: 'u'}}, function(e,r) {
@@ -204,4 +204,60 @@ exports.Plugin.prototype.getXml = function(req, callback, auth) {
         }        
         func(0)        
     })    
+}
+
+exports.Plugin.prototype.rebuildAll = function(req, callback, auth) {
+    
+    var me = this
+    
+    var rebuildModuleIndex = function(model, callback) {
+        
+        var modelname = 'MyDesktop.modules.' + model.name.replace('-','.model.')
+ 
+        me.db.collection(model.collection).find({removed:{$ne:true}},{_id:1}).toArray(function(e,d) {
+            if(e || d.length==0) {
+                callback()
+                return;
+            }
+            
+            var func = function(i) {
+                if(i>=d.length) {
+                    callback()
+                    return;
+                }
+                me.update_index(req, function() {
+                    func(i+1)
+                }, 
+                auth, 
+                modelname, 
+                {
+                    searchBuildDocUrl:model.search
+                }, 
+                d[i]._id, 
+                true)
+            }
+            func(0)
+        })
+    }
+    
+    
+    me.server.getModel('admin.models.access').getAllModels(req, function(data, e) {
+        
+        var func = function(i) {            
+            if(i>=data.list.length) {
+                runIndexer(me.server.config)
+                callback({ok:1})
+                return;
+            }         
+     
+            if(data.list[i].search) {
+                rebuildModuleIndex(data.list[i], function() {func(i+1)})
+                return;
+            } 
+            func(i+1)
+        }
+        func(0)
+    }, auth)
+    
+    
 }
