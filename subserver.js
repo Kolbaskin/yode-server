@@ -143,8 +143,13 @@ exports.Server.prototype.tpl = function(tplname, data, callback, lng) {
     var th = this;   
     if(th.config.LOCALE) {
         if(!lng) lng = 'en'
-        data.L = function(text) {
-            return getLocaleText(text, lng, th)
+        data.L = function(text, aliases, leng) {
+            if(!leng) leng = lng
+            if(aliases) {
+                eval('aliases = {' + aliases + '}')
+                if(aliases[leng]) return aliases[leng]
+            }
+            return getLocaleText(text, leng, th)
         }
     }
     if(jqtpl.cache[tplname] == null) {
@@ -317,7 +322,13 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
         
         if(me.config.LOCALE && !url.locale) {
             url.locale = req.url.substr(1,2)
-            if(!me.config.LOCALE[url.locale]) delete url.locale
+            
+            if(!me.config.LOCALE[url.locale]) {
+                for(var i in me.config.LOCALE) {
+                    url.locale = i
+                    break;
+                }
+            }
         }
         
         url.params = {}

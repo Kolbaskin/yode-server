@@ -15,7 +15,7 @@ var runIndexer = function(config) {
         + ' && indexer --config ./indexer.conf --merge ' + config.SEARCH_ENGINE.index + ' ' + config.SEARCH_ENGINE.index + '_upd --rotate'
     , function(e, stdout, stderr) {
 
-//*
+/*
 console.log(e)
 console.log(stdout)
 console.log(stderr)
@@ -24,7 +24,7 @@ console.log(stderr)
 }
 
 exports.Plugin.prototype.update_index = function(req, callback, auth, modelname, model, _id, noRunIndexer) {    
-console.log(modelname)    
+ 
     if(!modelname) {
         callback(null, {code: 500})
         return; 
@@ -210,16 +210,13 @@ exports.Plugin.prototype.rebuildAll = function(req, callback, auth) {
     
     var me = this
     
-    var rebuildModuleIndex = function(model, callback) {
-        
-        var modelname = 'MyDesktop.modules.' + model.name.replace('-','.model.')
- 
+    var rebuildModuleIndex = function(model, callback) {        
+        var modelname = 'MyDesktop.modules.' + model.name.replace('-','.model.') 
         me.db.collection(model.collection).find({removed:{$ne:true}},{_id:1}).toArray(function(e,d) {
             if(e || d.length==0) {
                 callback()
                 return;
-            }
-            
+            }            
             var func = function(i) {
                 if(i>=d.length) {
                     callback()
