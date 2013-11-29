@@ -43,7 +43,7 @@ exports.Plugin.prototype.add = function(params, callback) {
 
 // two step login
 exports.Plugin.prototype.enter2step = function(params, callback) {    
-    login.enter2step(params, this.server.inits.mem, function(r, e) {
+    login.enter2step({token: params.token, id:params.id, pass:params.pass}, this.server.inits.mem, function(r, e) {
         callback(r, e);
     }, this.server.config)
 }

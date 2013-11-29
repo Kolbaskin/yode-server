@@ -44,13 +44,11 @@ Ext.define('MyDesktop.core.Controller', {
     getAccessRights: function() {        
         var me = this 
             ,model = (this.model || this.getControllerName().replace('.controller.', '.model.'))      
-        
         Core.Ajax.request({
             url: 'models.access:checkAccess2Model//' + model + '/',
             succ: function(r) {
                 me.accessRights = r 
-                me.setAccessControls(r)
-                
+                me.setAccessControls(r, me.mainWin)            
                 
             }
         })

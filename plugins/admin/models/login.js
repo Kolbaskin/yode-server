@@ -40,8 +40,9 @@ exports.enter2step = function(data, mem, callback, config) {
     mem.get(data.token, function(e, r){
         if(r == data.pass) {      
             mem.set(data.token, data.id,  function(e, r){
-                if(r == 'STORED') callback(data, null);
-                else callback(null, {mess: 'Internal server error'}); // if memcache error
+                if(r == 'STORED') {                 
+                    callback(data, null);
+                } else callback(null, {mess: 'Internal server error'}); // if memcache error
             }, config.TOKEN.lifetime);
         }
     });
