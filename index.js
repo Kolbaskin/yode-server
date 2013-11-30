@@ -255,7 +255,7 @@ exports.start = function(conf, callback) {
         var https = require('https')
         var options = {
           key: fs.readFileSync(config.https.key),
-          cert: fs.readFileSync(config.https.sert)
+          cert: fs.readFileSync(config.https.cert)
         };
         
         if(config.https.host) https.createServer(options, createServer).listen(config.https.port, config.https.host);

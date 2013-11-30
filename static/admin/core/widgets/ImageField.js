@@ -2,14 +2,12 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
     extend: 'Ext.form.FieldContainer'
     ,alias: 'widget.imagefield'
 
-    ,layout: 'hbox'
-    ,width: 500
-    ,height:100
-    
+    //,layout: 'hbox'
+
     ,tumbSizes: '220x130x460x330'
     
     ,imageDefaultValue: 'images/image_icon.png'
-    
+    ,width: 200
     ,buttonAlign: 'left'
 
     ,initComponent: function() {     
@@ -17,8 +15,10 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
             this.layout = 'vbox'    
         }
         this.items = this.buildItems()
+
         this.imageValue = this.imageDefaultValue
         this.createContextMenu()
+        
         
         this.callParent();
     }
@@ -38,6 +38,7 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
         var me = this
             ,btn = me.down('[xtype=filefield]').button
             ,bsz
+        
         if(btn) {
             var bt = btn.getEl()
             bt.setStyle('background','url(' + me.imageValue + ') center center no-repeat')  
@@ -66,29 +67,37 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
     ,buildItems: function() {
         var me = this
         
-        var sz = me.tumbSizes.split('x')
-        if(sz[0]) sz[0] = parseInt(sz[0])
-        if(sz[1]) sz[1] = parseInt(sz[1])
-        if(!sz[0] || isNaN(sz[0])) sz[0] = 150
-        if(!sz[1] || isNaN(sz[1])) sz[1] = 150
+        
+        if(!me.width || !me.height) {
+            var sz = me.tumbSizes.split('x')
+            if(sz[0]) sz[0] = parseInt(sz[0])
+            if(sz[1]) sz[1] = parseInt(sz[1])
+            if(!sz[0] || isNaN(sz[0])) sz[0] = 150
+            if(!sz[1] || isNaN(sz[1])) sz[1] = 150
+            
+            if(!me.width) me.width = sz[0]
+            if(!me.height) me.height = sz[1]
+        }
         
         var rec = []
         
+        
         var func = function() {
+            
             rec.push({
     
                 xtype: 'filefield',
                 msgTarget: 'side',
                 allowBlank: true,
                 buttonOnly: true,
-                width: sz[0],
-                height: sz[1],
-                fieldStyle: 'width:'+ sz[0] +'px;height:' + sz[1]+'px;',
+                width: me.width,
+                height: me.height,
+                fieldStyle: 'width:'+ me.width +'px;height:' + me.height+'px;',
                 buttonConfig: {
                     tooltip: D.t('Select file'),
                     text: '',
-                    width: sz[0],
-                    height: sz[1]
+                    width: me.width,
+                    height: me.height
                 },
                 listeners: {
                     change: function(el) {
@@ -105,7 +114,7 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
                     },
                     change: function(e,v) {
                         if(!me.noChange ) {
-                            if(v && v != '-') me.imageValue = v
+                            if(v && v != '-') me.imageValue = v + 'nocached'
                             else me.imageValue = me.imageDefaultValue
                             me.showImage()
                         }
@@ -132,7 +141,7 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
                     me.imageValue = '/tmp/'+data.data.name
                     me.showImage()
                     img_inp.setValue(data.data.name);
-
+                    inp.fileInputEl.dom.value = ''
                 }
             })                    
         }

@@ -138,7 +138,7 @@ exports.Plugin.prototype.getimage = function(req, callback, auth) {
         ,head = {code: 200, status: 'OK', heads: {'Content-Type': 'image/jpeg'}}        
         ,num = (req.urlparams[3]? parseInt(req.urlparams[3]) : 0)
         ,size = req.urlparams[4]
-    
+
     folder[folderName]=1
     
     var func404 = function() {
@@ -168,7 +168,7 @@ exports.Plugin.prototype.getimage = function(req, callback, auth) {
         if(data && data[folderName]) {
             
             head.heads['Last-Modified'] = data.mtime
-            head.heads['Cache-Control'] = 'private'
+            head.heads['Cache-Control'] = (req.urlparams[5] && req.urlparams[5] == 'nocached'? 'no-cache':'private')
             
             if(util.isArray(data[folderName])) {
                 if(data[folderName][num]) {

@@ -103,14 +103,28 @@ exports.fields = [
         type: 'boolean',
         editable: true,
         visable: true
-    },
-    {
+    },{
         name: 'indx',
         type: 'int',
         sort: 'ASC',
         editable: true,
         visable: true
-    } 
+    },{
+        name: 'og_img',
+        type: 'image',
+        editable: true,
+        visable: true
+    },{
+        name: 'og_desctiption',
+        type: 'string',
+        editable: true,
+        visable: true
+    },{
+        name: 'og_title',
+        type: 'string',
+        editable: true,
+        visable: true
+    }
 ]
 
 exports.searchBuildDocUrl = function(data, callback) {

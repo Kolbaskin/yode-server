@@ -404,14 +404,19 @@ exports.save = function(params, parent, callback, access, auth) {
                             parent.server.getModel('search.engine').update_index(null, null, null, params.urlparams[0], model, o_id)
                         }
                         
+                        var calbk = function(out) {
+                            out.record = builData([out.record], model, parent)[0]
+                            callback(out);
+                        }
+                        
                         if(!!model.afterSave) {
-                            model.afterSave(insdata, auth, callback, parent, data)    
+                            model.afterSave(insdata, auth, calbk, parent, data)    
                         } else {
-                            callback({success:true, record: insdata});
+                            calbk({success:true, record: insdata});
                         }
                     }
  
-                    var func = function(cur_data, callback) {  
+                    var func = function(cur_data, callback) {                         
                         createDataRecord(data, cur_data, model, parent, callback)
                     }
             
@@ -578,7 +583,8 @@ exports.getdatatree = function(params, parent, callback, auth) {
                 var findLayer = function() {
                     
                     parent.db.collection(model.collection).find(find,fields).toArray(function(e,data) {
-                        callback(data,null)
+                        
+                        callback(builData(data, model, parent),null)
                     })
                 }
                 

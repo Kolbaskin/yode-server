@@ -1,10 +1,18 @@
 Ext.define('MyDesktop.modules.pages.view.PageEditForm', {
+    
     extend: 'Ext.form.Panel',
+    
+    requires: [
+        'MyDesktop.core.widgets.ImageField'
+    ],
+    
     bodyStyle: 'padding: 5px;',
     autoScroll: true,
     defaults: {
         labelWidth: 120,
         xtype: 'fieldset',
+        collapsible: true,
+        collapsed: true,
         layout: 'anchor',
         defaults: {
             xtype: 'fieldcontainer',
@@ -35,8 +43,16 @@ Ext.define('MyDesktop.modules.pages.view.PageEditForm', {
         }
         
         return [
-        {
+            this.buildPageSetsForm(btnlock)
+            ,this.buildMetaForm(btnlock)
+            ,this.buildOGForm(btnlock)
+        ]
+    }
+    
+    ,buildPageSetsForm: function(btnlock) {
+        return {
             title: D.t('Page settings'),
+            collapsed: false,
             items: [{
                 items:[{   
                     xtype: 'combo',
@@ -84,9 +100,14 @@ Ext.define('MyDesktop.modules.pages.view.PageEditForm', {
                 xtype: 'textfield',
                 inputType: 'hidden'
             }]
-        },
-        {
+        }    
+    }
+    
+    ,buildMetaForm: function(btnlock) {
+        return  {
             title: D.t('Meta data'),
+            closable: true,
+            closed: true,
             items: [{
                 items:[{
                     name: 'metatitle',
@@ -109,8 +130,41 @@ Ext.define('MyDesktop.modules.pages.view.PageEditForm', {
                 },btnlock]
             }
             ]
-        }
-        ]
+        }   
+    }
+    
+    ,buildOGForm: function(btnlock) {
+        return {
+            title: D.t('Open Graph properties'),
+            closable: true,
+            closed: true,
+            items: [{
+                items:[{
+                    name: 'og_title',
+                    flex: 1,
+                    fieldLabel: D.t('Title')
+                },btnlock]
+            },
+            {
+                items:[{
+                    name: 'og_desctiption',
+                    flex: 1,
+                    fieldLabel: D.t('Description')
+                },btnlock]
+            },
+            {   
+                width:170,
+                items:[{      
+                    xtype: 'imagefield',
+                    fieldLabel: D.t('Image'),
+                    tumbSizes: '500x',
+                    width: 150,
+                    height: 115,
+                    name: 'og_img'
+                }]
+            }
+            ]
+        }    
     }
     
     ,buildFormButtons: function() {

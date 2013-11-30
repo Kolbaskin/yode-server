@@ -84,8 +84,10 @@ exports.image = function(s, callback, record, model, fieldName, server) {
     
     var path = server.server.dir + '/' + server.server.config.STATIC_DIR + '/tmp/'+s 
         ,res = {}
+        
     fs.exists(path, function(e) {
         if(e) {
+ 
             fs.readFile(path, function(e, s) {
                 if(s) {
                     fs.unlink(path)

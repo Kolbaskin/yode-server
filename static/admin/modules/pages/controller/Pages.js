@@ -204,7 +204,6 @@ Ext.define('MyDesktop.modules.pages.controller.Pages', {
             form = me.mainWin.down('form')
 
         if(me.currentRow) {
-            
             if(me.currentAct == 'new') {
                 rec.id = rec._id
                 rec.aAccess = me.currentRow.data.aAccess
