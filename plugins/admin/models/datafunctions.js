@@ -59,7 +59,13 @@ exports.arraystring_l  = function(s) {
 }
 
 // value, record, model, fieldName, server, oldData
-exports.file = function(s, callback, record, model, fieldName, server) {
+exports.file = function(s, callback, record, model, fieldName, server, cur_data) {
+    
+    if(!s) {
+        callback(cur_data)        
+        return;
+    }
+        
     var path = server.server.dir + '/' + server.server.config.STATIC_DIR + '/tmp/'+s 
     fs.exists(path, function(e) {
         if(e) {

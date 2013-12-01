@@ -6,7 +6,7 @@
 var fs = require('fs')
     ,exec = require('child_process').exec    
     ,arch_types = ['tar', 'zip', '7z', 'rar', 'arj']
-    ,convert = require('./convertor')
+    ,convert// = require('./convertor')
     ,crypto = require('crypto')
 
 exports.Plugin = function(server) {
@@ -279,7 +279,7 @@ exports.Plugin.prototype.upload1 = function(req, callback, auth, UPLOAD_DIR) {
                         size: req.fullData.length
                     })
                 
-                    convert.makePreview(path, me.server, auth)
+                    if(convert) convert.makePreview(path, me.server, auth)
                 }                
             });                   
             return;      
