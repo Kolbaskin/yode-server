@@ -21,6 +21,8 @@ var  fs = require('fs')
     ,domain = require('domain')
     ,http = require('http')
     ,manifest = require('./package.json')
+    
+require('proto_correct')
 
 console.log(manifest.name + ' ' + manifest.version)    
 console.log('Copyright (c) 2013 ' + manifest.contributors[0].name + ' <' + manifest.contributors[0].email + '>' + '\n') 
