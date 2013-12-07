@@ -40,22 +40,38 @@ Ext.define('MyDesktop.core.ControllerImages', {
     }
     
     ,beforeSave: function(form, data) {             
-        var stor = form.down("[name=photos]").getStore()
-        data.photos = []
-        stor.each(function(r) {
-            data.photos.push(r.data)
-        })
+        var grids = form.query("grid");//.getStore()
+        
+        for(var i=0;i<grids.length;i++) {
+            if(grids[i].name) {
+                data[grids[i].name] = []
+                grids[i].getStore().each(function(r) {
+                    data[grids[i].name].push(r.data)
+                })
+            }
+        }
         return data        
     }
     
     ,beforeModify: function(form, data) {
-        var store = form.down('[name=photos]').getStore()
-        store.removeAll();
-        if(data.photos) {
-            for(var i=0;i<data.photos.length;i++) {
-                store.add({preview:data.photos[i].preview, img: null, num: i})    
+        var grids = form.query("grid")//.getStore()
+            ,stor
+        for(var i=0;i<grids.length;i++) {
+            if(grids[i].name) {
+                stor = grids[i].getStore()
+                stor.removeAll();
+                if(data[grids[i].name]) {
+                    for(var j=0;j<data[grids[i].name].length;j++) {
+                        if(data[grids[i].name][j].preview) {
+                            data[grids[i].name][j].img = null
+                            data[grids[i].name][j].num = j
+                        }
+                        stor.add(data[grids[i].name][j])    
+                    }
+                }
             }
-        }       
+        }
+ 
     }
     
     ,detailFormReconfig: function(cnf) {

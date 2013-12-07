@@ -174,6 +174,9 @@ exports.images = function(arr, callback, record, model, fieldName, server, cur_d
                     addRes(cur_data[n], arr[i])                    
                 }
                 func(i+1)
+            } else { // Сохраним остальные данные если нет картинки
+                addRes({}, arr[i])
+                func(i+1)
             }
         }    
         func(0)
