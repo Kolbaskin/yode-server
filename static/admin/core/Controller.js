@@ -95,6 +95,7 @@ Ext.define('MyDesktop.core.Controller', {
                 title: me.launcher.text, 
                 maximized: (sets && sets.maximize),
                 iconCls: me.launcher.iconCls
+                
             }, me.mainView);
 
             me.addControls(win)
@@ -110,10 +111,7 @@ Ext.define('MyDesktop.core.Controller', {
             if(sets && sets.formPin && me.detailFormView) {
                 me.pinDetailForm(null, me.detailFormView)  
             }
-        }
-        
-        
-        
+        }       
         return win;
     }
    

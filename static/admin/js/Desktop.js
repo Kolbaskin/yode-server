@@ -267,6 +267,8 @@ Ext.define('Ext.ux.desktop.Desktop', {
         items[0].setDisabled(win.maximized !== true && win.hidden !== true); // Restore
         items[1].setDisabled(win.minimized === true); // Minimize
         items[2].setDisabled(win.maximized === true || win.hidden === true); // Maximize
+        items[4].setDisabled(!!win.noShortcut);
+        items[5].setDisabled(!!win.noShortcut);
     },
 
     onWindowMenuClose: function () {
