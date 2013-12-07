@@ -1,0 +1,68 @@
+{
+  "name": "yode-server",
+  "version": "0.1.03",
+  "author": "Max Tushev <maximtushev@gmail.com>",
+  "description": "a simple command-line http server with web-framework and cms",
+  "contributors": [ 
+    {
+      "name": "Max Tushev",
+      "email": "maximtushev@gmail.com"
+    } 
+  ],
+  "scripts": {
+    "start": "node ./setup",
+    "test": "./node_modules/.bin/mocha --timeout 15000 --require should --reporter spec tests/tests.js"
+  },
+  "devDependencies": {
+      "mocha": "1.7.0"
+    , "should": "1.2.1"
+    , "supertest": "0.4.0"
+  },
+  "main": "./index",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kolbaskin/yode-server"
+  },
+  "keywords": [
+    "cli",
+    "http",
+    "server",
+    "node.js",
+    "cms",
+    "extjs"
+  ],
+  "dependencies" : {
+    "easyimage" :  "*",
+    "formidable"    :  "*",
+    "iconv" :  "*",
+    "jqtpl" :  "*",
+    "memcache": "*",
+    "mongodb": "*",
+    "node-cryptojs-aes": "*",
+    "node-html-encoder": "*",
+    "nodemailer": "*",
+    "node-static": "*",
+    "pagination": "*",
+    "stream-buffers": "*",
+    "ncp": "*",
+    "rmdir": "*",
+    "rimraf": "*",
+    "node-v8-clone": "*",
+    "daemon": "*"
+  },
+  "analyze": false,
+
+  "bundledDependencies": [
+    "captcha",
+    "forms",
+    "gc",
+    "http_codes",
+    "pages",
+    "multipart",
+    "dateformat",
+    "myutils",
+    "proto_correct"
+  ],  
+
+  "license": "LGPL-2"  
+}
