@@ -1,6 +1,6 @@
 {
   "name": "yode-server",
-  "version": "0.1.03",
+  "version": "0.1.04",
   "author": "Max Tushev <maximtushev@gmail.com>",
   "description": "a simple command-line http server with web-framework and cms",
   "contributors": [ 
@@ -48,7 +48,8 @@
     "rmdir": "*",
     "rimraf": "*",
     "node-v8-clone": "*",
-    "daemon": "*"
+    "daemon": "*",
+    "cluster": "*"
   },
   "analyze": false,
 

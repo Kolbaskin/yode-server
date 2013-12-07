@@ -262,7 +262,9 @@ exports.Plugin.prototype.restartServer = function(req, callback, auth) {
         this.checkAccess2Model(rq, function(data) {
             if(data.read && data.add && data.modify && data.del) {
                 callback({})
-                process.exit(0)
+                process.send({action: 'restart'});
+                //fs.writeFile("restart","",function(){})
+                //process.exit(0)
             }
             
         }, auth)
