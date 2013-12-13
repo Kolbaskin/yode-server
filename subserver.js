@@ -39,6 +39,11 @@ exports.Server = function(projDir, statServParam, host, port) {
         gc.run(staticDir + '/tmp', 600)
     }, 60000);   
     
+    if(this.config.PROCESS && this.config.PROCESS.user && this.config.PROCESS.group) {
+        process.setgid(this.config.PROCESS.group);
+        process.setuid(this.config.PROCESS.user);
+    }
+    
 }
 
 /**
@@ -232,6 +237,7 @@ exports.Server.prototype.init = function(callback) {
  * post -- POST-данные (если есть)
 **/
 exports.Server.prototype.serve = function(req, res, post, nohead) {
+
     var th = this 
         
     if(th.config.TIME_TO_CONSOLE_LOG) {
@@ -266,6 +272,8 @@ exports.Server.prototype.serve = function(req, res, post, nohead) {
         }            
         res.end(body); 
     }    
+
+
 
     var x = req.url.split("/")
     if(x[1].indexOf(':') != -1) {
@@ -314,6 +322,7 @@ exports.Server.prototype.error = function(error, res) {
  * 
 **/
 exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) {       
+
     if(!this.defaultPlugin) {
         callback()
     } else {
@@ -332,6 +341,7 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
         }
         
         url.params = {}
+        url.headers = req.headers
         url.response = res
         req.headers.cookie && req.headers.cookie.split(';').forEach(function( cookie ) {
             var parts = cookie.split('=');
@@ -340,7 +350,7 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
         if(url.query != null) for(var i in url.query) url.params[i] = url.query[i]
         if(post != null) for(var i in post) url.params[i] = post[i]       
         
-        var run = function(a) {   
+        var run = function(a) {            
             me.defaultPlugin.serve(url, function(result, e) {            
                 callback(result,e)
             },a)

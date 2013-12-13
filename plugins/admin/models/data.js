@@ -4,6 +4,7 @@ var fs       = require('fs')
     ,globalLog = require('./logs')
     ,valueTypes = require('./valueTypes')
     ,myutils = require('myutils')
+    ,csv = require('csv')
 
 /*
 *
@@ -99,14 +100,12 @@ exports.getmodel = function(params, parent, callback, auth, getfull) {
 }
 
 // Private get readable fields fom model
-var getReadableFields = function(model, req) {
-    
+var getReadableFields = function(model, req) {    
     if(!model) return {}
-    
-    
     
     var fields = {}
         ,queryFieldSet   
+        
     if(req) {
         if(req.fieldSet) {
             queryFieldSet = {}
@@ -120,11 +119,14 @@ var getReadableFields = function(model, req) {
         }
     }
 
-
     for(var i in model.fields) if(model.fields[i] && model.fields[i].visable) {
         if(!queryFieldSet || queryFieldSet[model.fields[i].name]) fields[model.fields[i].name] = 1
     }
     return fields;
+}
+
+var bldQueryRegExp = function(str) { 
+    return valueTypes.string({operator: 'like', value: str}, 'str').str    
 }
 
 var buildWhere = function(params, model, auth, server, callback) {
@@ -140,8 +142,7 @@ var buildWhere = function(params, model, auth, server, callback) {
             
         if(params.query) {       
             
-            // Проверим, не объект-ли в запросе
-            
+            // Проверим, не объект-ли в запросе            
             try {
                 re = JSON.parse(params.query)
             } catch(e) {
@@ -153,7 +154,7 @@ var buildWhere = function(params, model, auth, server, callback) {
                 for(var i=0;i<re.length;i++) if(re[i].property && re[i].value) {
                     if(re[i].property == 'query') {
                         try {
-                            query = new RegExp('^' + re[0].value,'i')
+                            query = bldQueryRegExp(re[0].value)
                         } catch(e) {return {_id:0}}
                     } else {
                     // Добавляем фильтры
@@ -162,7 +163,7 @@ var buildWhere = function(params, model, auth, server, callback) {
                 } 
             } else {        
                 try {
-                    query = new RegExp('^' + params.query,'i')
+                    query = bldQueryRegExp(params.query)
                 } catch(e) {return {_id:0}}
             }
             find.$and = []
@@ -200,7 +201,7 @@ var buildWhere = function(params, model, auth, server, callback) {
     
         if($or.length>0) {find.$and.push({$or:$or})}
         if(!params.showRemoved) find.removed = {$ne:true}   
-        
+
         return find;
     }    
     var func = function(find) {
@@ -221,7 +222,6 @@ var builData = function(data, model, server) {
     for(var i=0;i<data.length;i++) {
         for(var j in model.fields) if(data[i][model.fields[j].name] !== undefined) {            
             if(model.fields[j].type && dataFunc[model.fields[j].type + '_l']) {    
-                // value, record, model, fieldName, server
                 data[i][model.fields[j].name] = dataFunc[model.fields[j].type + '_l'](data[i][model.fields[j].name], data[i], model, model.fields[j].name, server)                
             }
         }
@@ -258,8 +258,7 @@ var buildSort = function(params, model) {
 * geting all data with paging
 *
 */
-exports.getdata = function(params, parent, callback, model, auth) {        
-    
+exports.getdata = function(params, parent, callback, model, auth) {            
     
     var func = function(model) {
         if(!model) {
@@ -277,15 +276,17 @@ exports.getdata = function(params, parent, callback, model, auth) {
             limit = parseInt(params.limit)
             if(isNaN(start)) start = 0;
             if(isNaN(limit)) limit = 25;
+
             var cursor = parent.db.collection(model.collection).find(find,fields)
                 
-            cursor.count(function(e, cnt) {
+            cursor.count(function(e, cnt) {         
                 if(cnt && cnt>0) {
                     cursor.sort(sort).limit(limit).skip(start).toArray(function(e,data) {
-
                         callback({total: cnt, list: builData(data, model, parent), success: true},null)
                     })
-                } else callback({total:0, list:[]})
+                } else {
+                    callback({total:0, list:[]})
+                }
             })    
         })
     }
@@ -621,39 +622,47 @@ exports.exportdir = function(params, parent, callback) {
                 
             //for(var i=0;i<model.fields.length;i++) if(model.fields[i].editable) insdata[model.fields[i].name] = model.fields[i].type
         
-            file = file.split('\n');
+            //file.split('\n');
             
             
             
             parent.db.collection(model.collection).remove({}, function(e,r) {
-                var prev = {}
                 
-                var func = function(i) {
-                    if(i>=file.length) return;
-                    file[i] = file[i].replace(/^\s+|\s+$/g, '')
-                    if(file[i] != '') {
-                        var data = {};
-                        file[i] = file[i].split(';');
-                        
-                        for(var j=0;j<model.fields.length;j++) if(model.fields[j].editable) {
-                            data[model.fields[j].name] = file[i][j] || null
-                        }
-                                                
-                        createDataRecord(data, null, model, parent, function(data) {
-                            // добавляем остальные данные, если в модели есть соответствующая настройка
-                            if(model.importAll && j<file[i].length) {
-                                data.ext_data = []
-                                while(j<file[i].length) {
-                                    if(file[i][j]) data.ext_data.push(file[i][j]);
-                                    j++;
-                                }
+                var csv_options = (model.csv_options? model.csv_options:{delimiter: ';', escape: '"'})
+        
+                csv().from.string(file, csv_options).to.array(function(file) {
+        
+                    var prev = {}
+                    
+                    var func = function(i) {
+                        if(i>=file.length) return;
+                        //file[i] = file[i].replace(/^\s+|\s+$/g, '')
+                        if(file[i]) {
+                            var data = {};
+                            //file[i] = file[i].split(';');
+                            
+                            for(var j=0;j<model.fields.length;j++) if(model.fields[j].editable) {
+                                if(!!model.fields[j].impRender) data[model.fields[j].name] = model.fields[j].impRender(file[i][j] || null)
+                                else data[model.fields[j].name] = file[i][j] || null
                             }
-                            parent.db.collection(model.collection).insert(data, {w:1}, function(e, r) {})
-                            func(i+1)
-                        })                       
-                    } else func(i+1)
-                }
-                func(0)               
+                                         
+                            createDataRecord(data, null, model, parent, function(data) {
+                                // добавляем остальные данные, если в модели есть соответствующая настройка
+                                if(model.importAll && j<file[i].length) {
+                                    data.ext_data = []
+                                    while(j<file[i].length) {
+                                        if(file[i][j]) data.ext_data.push(file[i][j]);
+                                        j++;
+                                    }
+                                }
+                                
+                                parent.db.collection(model.collection).insert(data, {w:1}, function(e, r) {})
+                                func(i+1)
+                            })                       
+                        } else func(i+1)
+                    }
+                    func(0)      
+                })
                 
                 callback({success:true})
             })

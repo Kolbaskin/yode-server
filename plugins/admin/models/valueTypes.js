@@ -35,10 +35,14 @@ exports.getValue = function(data, name) {
 }
 
 exports.string = function(data, name) {
-    var o = {};
-    if(data.operator == 'like') {
-        try {
-            o[name] = new RegExp('^' + data.value,'i')
+    var o = {}
+        ,str =  data.value
+                .replace(/\(/g, '\\(')
+                .replace(/\)/g, '\\)')
+     
+    if(data.operator == 'like') {        
+        try {            
+            o[name] = new RegExp('^' + str,'i')
         } catch(e) {return {}}
     }     
     return o

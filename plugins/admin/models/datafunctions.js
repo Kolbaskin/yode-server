@@ -15,7 +15,10 @@ exports.password_l = function(s) {
 }
 
 exports.number = function(s, callback) {
-    s = parseInt(s);
+    if(s) {
+        s = (s+'').replace(/\s/g,'')
+        s = parseInt(s);
+    }
     callback(isNaN(s)? null:s);
 }
 
@@ -25,7 +28,7 @@ exports.int = function(s, callback) {
 
 exports.float = function(s, callback) {
     if(s) {
-        s = s.replace(',','.')
+        s = s.replace(',','.').replace(/\s/g,'')
         s = parseFloat(s);
     }
     callback(isNaN(s)? null:s);
@@ -46,7 +49,8 @@ exports.array  = function(s, callback) {
 
 
 exports.arraystring  = function(s, callback) {
-    s = s.split(',')
+    s = s.split('\n')
+    if(s.length == 1) s = s[0].split(',')
     for(var i=0;i<s.length;i++) s[i] = s[i].trim()
     callback(s)
 }

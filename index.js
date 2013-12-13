@@ -47,7 +47,10 @@ var vHostStart = function(host) {
     
     projects[host] = new(subserv.Server)(config.projects_dir + '/' + host, staticParams, host, port);
     projects[host].init(function() {        
-        console.log('Virtual host ' + host + ' [Ready]')  
+        
+        runPlugins("onSubserverStart", projects[host], function() {        
+            console.log('Virtual host ' + host + ' [Ready]')  
+        })
     });
     if(projects[host].config.ALIASES) {
         for(var i=0;i<projects[host].config.ALIASES.length;i++) {
@@ -75,6 +78,33 @@ var startVH = function(test) {
     })
 }
 
+var _PLUGINS = []
+
+var getPlugins = function() {
+    if(config.plugins) {
+        for(var i=0;i<config.plugins.length;i++) {
+            _PLUGINS[i] = require(config.plugins[i])
+        }
+    }
+}
+
+var runPlugins = function(req, res, eventName, projectsrver, callback) {
+    var func = function(i) {
+        if(!_PLUGINS[i]) {
+            if(callback)  callback()
+            return;
+        }
+        if(_PLUGINS[i][eventName]) {
+            _PLUGINS[i][eventName](req, res, projectsrver, function() {
+                func(i+1)   
+            })
+        } else {
+            func(i+1)
+        }
+    }
+    func(0)
+}
+
 var runMethod = function(req, res, post) {    
 
     
@@ -98,18 +128,22 @@ var runMethod = function(req, res, post) {
             res.end('Host not found!');
             return;
         }
-    }        
-    if(!post) {
-        // in get requests try to serve static files (first in prj dir, 
-        // next in global dir), if false, serve dynamic       
-        projects[host].statserve(req, res, function(e, r) {
-            if (e && (e.status === 404)) staticMain.serve(req, res, function(e, r) {
-                if (e && (e.status === 404)) projects[host].serve(req, res, post);    
-            });    
-        });
-    } else {
-        projects[host].serve(req, res, post)
-    }      
+    }    
+    
+    runPlugins(req, res, 'onGetRequest', projects[host], function() { 
+    
+        if(!post) {
+            // in get requests try to serve static files (first in prj dir, 
+            // next in global dir), if false, serve dynamic       
+            projects[host].statserve(req, res, function(e, r) {
+                if (e && (e.status === 404)) staticMain.serve(req, res, function(e, r) {
+                    if (e && (e.status === 404)) projects[host].serve(req, res, post);    
+                });    
+            });
+        } else {
+            projects[host].serve(req, res, post)
+        }
+    })
      
 }
 
@@ -156,6 +190,9 @@ var serveMultipartForm = function(req, res, runMethod) {
 
 
 var createServer = function(req, res) {      
+    
+    
+    
     if (req.method == 'POST') {        
         if(req.headers['content-type'] && req.headers['content-type'].substr(0,19) == 'multipart/form-data') {
         // Multipart form-data post    
@@ -238,8 +275,7 @@ exports.start = function(conf, callback) {
         
     startGC()   
     
-
-    
+    getPlugins()    
     
     if(callback) {
     // for test call

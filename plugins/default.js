@@ -235,20 +235,23 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
         // let show one record    
             
             if(forms.strToId(rq.page)) req.params.query = '[{"property":"_id", "value":"' + rq.page + '"}]'
-            else req.params.query = '[{"property":"alias", "value":"' + rq.page + '", "operator":"eq"}]'
-            
+            else req.params.query = '[{"property":"' + (publicConf.aliasField? publicConf.aliasField:'alias') + '", "value":"' + decodeURIComponent(rq.page) + '", "operator":"eq"}]'
             dataFuncs.getdata(req.params, me, function(data) {  
-                
+         
                 var func = function() {                                 
-                    
+               
                     if(data && data.list && data.list[0]) {                    
                         if(publicConf.crumbField !== null && req.pageData.crumbs) {
                             req.pageData.crumbs[req.pageData.crumbs.length-1].cur = null
                             if(data.list[0][publicConf.crumbField])
                                 req.pageData.crumbs.push({name: data.list[0][publicConf.crumbField], cur: true})
                         }
+                        
+                        if(publicConf.pageTitleField && data.list[0][publicConf.pageTitleField]) 
+                            req.pageData.name = data.list[0][publicConf.pageTitleField]
+
                         data.list[0].global = publicConf.global
-                        me.server.tpl(publicConf.tpl_row, data.list[0], function(code) {
+                        me.server.tpl(publicConf.tpl_row, data.list[0], function(code) {                
                             callback(code);
                         }, rq.locale)
                     } else {
@@ -259,7 +262,7 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
                 if(!!publicConf.afterReadRow) {
                     publicConf.afterReadRow(data, function() {
                         func()
-                    })    
+                    },rq)    
                 } else func()
                 
             }, model)
