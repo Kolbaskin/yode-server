@@ -49,7 +49,9 @@
     "rimraf": "*",
     "node-v8-clone": "*",
     "daemon": "*",
-    "cluster": "*"
+    "cluster": "*",
+    "winston": "*",
+    "yode-rewrite": "*"
   },
   "analyze": false,
 
