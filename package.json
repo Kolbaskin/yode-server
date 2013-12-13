@@ -51,6 +51,7 @@
     "daemon": "*",
     "cluster": "*",
     "winston": "*",
+    "csv": "*",
     "yode-rewrite": "*"
   },
   "analyze": false,
