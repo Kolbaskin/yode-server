@@ -9,6 +9,8 @@ var winston = require('winston')
         exec: "server.js"        
     }
 
+if(config.main_process_name) process.title = config.main_process_name
+
 if(config.logs_file) {
     winston.add(winston.transports.File, { filename: config.logs_file});
     clusterConfig.silent = true
