@@ -6,6 +6,9 @@ exports.params = {
     gc_timeout       : 300000,
 
     numWorkers       : ${numWorkers},
+    
+    main_process_name: "yode-server",
+    
     checkerTimeout   : 1000,
     
     maxUploadSize    : 20000000, // in bytes
