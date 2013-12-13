@@ -1,9 +1,9 @@
 /**
  * 
- * HTTP Server for Wpier project
+ * HTTP Server for yode project
  * version 0.1
  * 
- * Author MrKolbaskin
+ * Author Maxim Tushev
  * 
 **/
 
@@ -16,7 +16,7 @@ var  fs = require('fs')
     ,formidable = require('formidable')
     ,util = require('util')
     ,gc = require('gc')
-    ,config = require('./config_glob')
+    ,config = require('../../config_global.js').params
     ,extensions = {}
     ,domain = require('domain')
     ,http = require('http')
@@ -64,7 +64,7 @@ var vHostStart = function(host) {
 var startGC = function() {    
     setInterval(function() {
         gc.run(config.tmp_dir, 600)
-    }, config.gs_timeout);    
+    }, config.gc_timeout);    
 }
 
 
@@ -88,21 +88,33 @@ var getPlugins = function() {
     }
 }
 
-var runPlugins = function(req, res, eventName, projectsrver, callback) {
-    var func = function(i) {
-        if(!_PLUGINS[i]) {
-            if(callback)  callback()
+var runPlugins = function() {
+    var callback = arguments[arguments.length-1]
+        ,eventName = arguments[0]
+        ,args = []
+        ,num = 0 
+    
+    for(var i = 1;i < arguments.length-1; i++) args.push(arguments[i])
+        
+    var func = function() {
+        if(!_PLUGINS[num]) {
+            callback()
             return;
         }
-        if(_PLUGINS[i][eventName]) {
-            _PLUGINS[i][eventName](req, res, projectsrver, function() {
-                func(i+1)   
-            })
+        if(_PLUGINS[num][eventName]) {
+            _PLUGINS[num][eventName].apply(null, args)   
         } else {
-            func(i+1)
+            num++
+            func()
         }
     }
-    func(0)
+    
+    args.push(function() {
+        num++  
+        func()
+    })
+    
+    func()
 }
 
 var runMethod = function(req, res, post) {    
@@ -130,7 +142,7 @@ var runMethod = function(req, res, post) {
         }
     }    
     
-    runPlugins(req, res, 'onGetRequest', projects[host], function() { 
+    runPlugins('onGetRequest', req, res, projects[host], function() { 
     
         if(!post) {
             // in get requests try to serve static files (first in prj dir, 
@@ -264,12 +276,12 @@ var createHttpServer = function(serv, conf) {
 }
 
 exports.start = function(conf, callback) {
-    for(var i in conf) {
-        config[i] = conf[i]    
-    }    
-    if(!config.projects_dir) config.projects_dir = '/var/www'
-    if(!config.tmp_dir) config.tmp_dir = './tmp'
-    if(!config.gs_timeout) config.gs_timeout = 600000
+    //for(var i in conf) {
+    //    config[i] = conf[i]    
+    //}    
+    //if(!config.projects_dir) config.projects_dir = '/var/www'
+    //if(!config.tmp_dir) config.tmp_dir = './tmp'
+    //if(!config.gc_timeout) config.gc_timeout = 600000
     
     if(config.memLimit) memLimit(config.memLimit)
         

@@ -49,7 +49,7 @@ exports.params = {
         pass: '${MONGO.pass}'
     },
     
-    PLUGIN_DIR: 'plugins',
+    MODULES_DIR: 'modules',
     
     /**
      * 
@@ -123,10 +123,11 @@ exports.params = {
      * Redirections section
      * 
      */
+    /* 
     REWRITE_RULES: {
         "^(\/[a-z\.^\/^\/]{1,})\.([a-z^\/]{1,})\/":"$1:$2"
     },
-    
+    */
     //REDIRECT_401: '/',                      
     ERRORPAGES: {
         //404: '/errors/404/'    

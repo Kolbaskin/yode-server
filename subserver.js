@@ -74,8 +74,8 @@ exports.Server.prototype.getValidModels = function(name) {
         }
     }
     
-    recur(this.dir+'/'+this.config.PLUGIN_DIR, '')
-    recur(__dirname + '/plugins', '')
+    recur(this.dir+'/'+this.config.MODULES_DIR, '')
+    recur(__dirname + '/modules', '')
 }
 
 /**
@@ -91,11 +91,11 @@ exports.Server.prototype.getModel = function(name) {
             var plg
                 ,path = name.replace(/\./g,'/');
             
-            if(fs.existsSync(this.dir+'/'+this.config.PLUGIN_DIR+'/'+path+'.js')) {
-                plg = require(this.dir+'/'+this.config.PLUGIN_DIR+'/'+path);
+            if(fs.existsSync(this.dir+'/'+this.config.MODULES_DIR+'/'+path+'.js')) {
+                plg = require(this.dir+'/'+this.config.MODULES_DIR+'/'+path);
             } else
-            if(fs.existsSync(__dirname + '/plugins/'+path+'.js')) {
-                plg = require('./plugins/'+path);
+            if(fs.existsSync(__dirname + '/modules/'+path+'.js')) {
+                plg = require('./modules/'+path);
             }
             
             if(plg) {
@@ -194,11 +194,12 @@ exports.Server.prototype.tpl = function(tplname, data, callback, lng) {
 exports.Server.prototype.getDefaultController = function() {
     var plg
     
-    if(fs.existsSync(this.dir+'/'+this.config.PLUGIN_DIR+'/default.js')) {
-        plg = require(this.dir+'/'+this.config.PLUGIN_DIR+'/default');
+    if(fs.existsSync(this.dir+'/'+this.config.MODULES_DIR+'/default.js')) {
+console.log(this.dir+'/'+this.config.MODULES_DIR+'/default.js')        
+        plg = require(this.dir+'/'+this.config.MODULES_DIR+'/default');
     } else
-    if(fs.existsSync(__dirname + '/'+this.config.PLUGIN_DIR+'/default.js')) {
-        plg = require('./'+this.config.PLUGIN_DIR+'/default');
+    if(fs.existsSync(__dirname + '/modules/default.js')) {
+        plg = require('./modules/default');
     }
     
     if(plg) this.defaultPlugin = new(plg.Plugin)(this);

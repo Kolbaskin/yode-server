@@ -1,23 +1,34 @@
 require('daemon')();
 
-var cluster = require('cluster')
+var winston = require('winston')
+    ,cluster = require('cluster')
     ,workers = []
     ,stopLog = false
+    ,config = require("./config_global.js").params
+    ,clusterConfig = {
+        exec: "server.js"        
+    }
 
-var config = {
-    numWorkers: require('os').cpus().length,
-    checkerTimeout: 1000
-};
+if(config.logs_file) {
+    winston.add(winston.transports.File, { filename: config.logs_file});
+    clusterConfig.silent = true
+}
 
-cluster.setupMaster({
-    exec: "server.js"
-});
+cluster.setupMaster(clusterConfig)
 
 var startWorker = function() {
     var w = cluster.fork()
     w.on('message', function(data) {
         if(data.action && actions[data.action]) actions[data.action]();
     })
+    if(config.logs_file) {        
+        w.process.stdout.on('data', function(chunk) {
+            winston.info(chunk.toString());            
+        });
+        w.process.stderr.on('data', function(chunk) {
+            winston.warn(chunk.toString());
+        });       
+    }
     return w
 }
 

@@ -34,6 +34,7 @@ var steps = [
     
 
     // Step 1
+    
     function(callback) {
         ncp(__dirname + "/node_modules", __dirname + "/../../node_modules", function (err) {
             rmdir(__dirname + "/node_modules", function(error){
@@ -173,13 +174,30 @@ var steps = [
     
     function(callback) {
         
+        fs.readFile("./config_global.js", {encoding: 'UTF-8'},function(e, data) {
+          
+            var dir = '', d = __dirname.split('/')
+            
+            for(var i=1;i<d.length-2;i++) dir += '/' + d[i]
+
+            data = data.replace("${port}", port)
+            data = data.replace("${projects_dir}", dir + "/" + projectsDir)
+            data = data.replace("${tmp_dir}", dir + "/tmp")
+            data = data.replace("${logs_file}", dir + "/yode-server.log")
+            data = data.replace("${numWorkers}", require('os').cpus().length)
+            
+            fs.writeFile("../../config_global.js", data, function() {
+                callback(true)
+            })
+        })
+        
+       
+    },
+    
+    function(callback) {
+        
         var data = 'var server = require("yode-server")\n'
-            + 'server.start({\n'
-            + '    port: ' + port + ',\n'
-            + '    projects_dir: __dirname + "/' + projectsDir + '",\n'
-            + '    tmp_dir: __dirname + "/tmp",\n' 
-            + '    gs_timeout: 300000\n'
-            + '})\n\n'
+            + 'server.start({})\n\n'
         
         fs.writeFile("../../server.js", data, function() {
             callback(true)
