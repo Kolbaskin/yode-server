@@ -23,7 +23,7 @@ npm start yode-server
 The installer creates ```www``` directory. Or you can choose another name during installation.
 This is where your projects to be placed. In ```www/localhost``` you’ll find a sample project.
 
-All backend files are located in ```www/localhost/plugins```,
+All backend files are located in ```www/localhost/modules```,
 
 all static files (css, images, browser-js) are in ```www/localhost/static```,
 
@@ -62,7 +62,7 @@ pass: 111111
 ### Hello world (easy)
 
 ```javascript
-// file: www/localhost/plugins/hello.js
+// file: www/localhost/modules/hello.js
 
 // the pattern of a yode-module
 // object "server" contents connections to mongodb, memcached and has more useful properties 
@@ -82,7 +82,7 @@ in the browser ```http://localhost/hello:helloWorld/```
 #### Model code 
 
 ```javascript
-// file: www/localhost/plugins/models/hello.js
+// file: www/localhost/modules/models/hello.js
 
 exports.Plugin = function(server) {
     this.server = server;
@@ -110,7 +110,7 @@ uses jqtpl engine
 #### Controller code 
 
 ```javascript
-// file: www/localhost/plugins/hellomvc.js
+// file: www/localhost/modules/hellomvc.js
 
 exports.Plugin = function(server) {
     this.server = server;
