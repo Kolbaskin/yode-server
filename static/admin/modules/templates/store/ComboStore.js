@@ -8,9 +8,9 @@ Ext.define('MyDesktop.modules.templates.store.ComboStore', {
         simpleSortMode: true,
         reader: {
              type: 'json',
-             root: 'data.list',
-             totalProperty: 'data.total'
-             ,successProperty: 'data.success'
+             root: 'response.list',
+             totalProperty: 'response.total'
+             ,successProperty: 'response.success'
          }
     },
     autoLoad: true

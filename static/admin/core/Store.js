@@ -45,9 +45,9 @@ Ext.define('MyDesktop.core.Store', {
             remoteFilter: true,
             reader: {
                  type: 'json',
-                 root: 'data.list',
-                 totalProperty: 'data.total'
-                 ,successProperty: 'data.success'
+                 root: 'response.list',
+                 totalProperty: 'response.total'
+                 ,successProperty: 'response.success'
              }
         }
         

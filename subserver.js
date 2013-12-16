@@ -36,8 +36,8 @@ exports.Server = function(projDir, statServParam, host, port) {
     
     // Раз в минуту запускаем сборщика мусора
     setInterval(function() {
-        gc.run(staticDir + '/tmp', 600)
-    }, 60000);   
+        gc.run(staticDir + '/tmp', 3600)
+    }, 600000);   
     
     if(this.config.PROCESS && this.config.PROCESS.user && this.config.PROCESS.group) {
         process.setgid(this.config.PROCESS.group);
@@ -195,7 +195,6 @@ exports.Server.prototype.getDefaultController = function() {
     var plg
     
     if(fs.existsSync(this.dir+'/'+this.config.MODULES_DIR+'/default.js')) {
-console.log(this.dir+'/'+this.config.MODULES_DIR+'/default.js')        
         plg = require(this.dir+'/'+this.config.MODULES_DIR+'/default');
     } else
     if(fs.existsSync(__dirname + '/modules/default.js')) {
@@ -258,13 +257,13 @@ exports.Server.prototype.serve = function(req, res, post, nohead) {
         }            
         if(typeof body === "object" && (!head || (head.heads && ['text/plain','text/json'].indexOf(head.heads['Content-Type']) != -1))) {
             if(!head) head = 'JSON'
-            body = JSON.stringify({status: 'OK', data: body})
+            body = JSON.stringify({response: body})
         }        
         if((head == null || head == 200) && !nohead) res.writeHead(200, "OK", {'Content-Type': 'text/html; charset=utf-8'});
         else if(head == "JSON") {
             res.writeHead(200, "OK", {'Content-Type': 'text/plain'});
             if(body == null && error != null) {
-                body = JSON.stringify({status: 'FAULT', data: error})
+                body = JSON.stringify({error: error})
             }
         } else if(!nohead) res.writeHead(head.code, head.status, head.heads);
         if(th.config.TIME_TO_CONSOLE_LOG) {

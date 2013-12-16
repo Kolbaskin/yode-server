@@ -30,7 +30,7 @@ Ext.define('MyDesktop.core.StoreTree', {
                     //simpleSortMode: true,                    
                     reader: {
                          type: 'json',
-                         root: 'data'
+                         root: 'response'
                      }
                 })
                 me.setRootNode(data.root)

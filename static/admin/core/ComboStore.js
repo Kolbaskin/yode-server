@@ -12,9 +12,9 @@ Ext.define('MyDesktop.core.ComboStore', {
             url: (options.url? Sess.url(options.url):''),
             reader: {
                  type: 'json'
-                 ,root: 'data.list'
-                 ,totalProperty: 'data.total'
-                 ,successProperty: 'data.success'
+                 ,root: 'response.list'
+                 ,totalProperty: 'response.total'
+                 ,successProperty: 'response.success'
              }
         }
         

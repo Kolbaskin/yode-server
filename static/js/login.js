@@ -25,8 +25,8 @@ $(document).ready(function() {
                 id: data.id,
                 pass: p
             }, function(r) {
-                if(r.data != null) {
-                    success(r.data);    
+                if(r && r.response) {
+                    success(r.response);    
                 } else {
                     alert('Session password error!');    
                 }
@@ -43,15 +43,15 @@ $(document).ready(function() {
                 login: l,
                 pass: p
             }, function(r) {
-                if(r.status && r.status == 'OK' && r.data) {
-                    if(r.data && r.data.dblauth) {
+                if(r && r.response) {
+                    if(r.response && r.response.dblauth) {
                         $("#step1").css("display","none")
                         $("#step2").css("display","block")
                         $("#submit2").click(function() {
-                            step2(r.data);    
+                            step2(r.response);    
                         });                         
                     } else {
-                        success(r.data);
+                        success(r.response);
                     }
                 } else {
                     $("#login").val('');

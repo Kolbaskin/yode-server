@@ -63,7 +63,7 @@ Ext.define('MyDesktop.core.Ajax', {
             else if(files[i].fileName!=null) name=files[i].fileName;
       
             me.upload(files[i], url+encodeURIComponent(name)+'/', function(data) {
-               out.push(data.data) 
+               out.push(data.response) 
                              
                if(noClose) {
                    curpos += files[i].size
@@ -178,16 +178,19 @@ Ext.define('MyDesktop.core.Ajax', {
         var o, me = this;
         try {
             o = Ext.decode(response.responseText);
-        } catch(e) {}
-        if(!!o && !!o.status) {
-            if(o.status == 'OK') {
+        } catch(e) {o = null}
+        if(o) {
+            if(o.response) {
                 if(!!options.succ) {
-                    options.succ(o.data);
+                    options.succ(o.response);
                 }
-            } else {
+            } else {                
+                var data
+                if(o.error) data = o.error
+                
                 if(!!options.faul) {
-                    options.faul(o.data);
-                } else me.ErrorMess(o.data)
+                    options.faul(data);
+                } else me.ErrorMess(data)
             }
         } else {
              me.ErrorMess()

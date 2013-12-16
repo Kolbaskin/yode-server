@@ -63,8 +63,8 @@ var vHostStart = function(host) {
 // GC starts
 var startGC = function() {    
     setInterval(function() {
-        gc.run(config.tmp_dir, 600)
-    }, config.gc_timeout);    
+        gc.run(config.tmp_dir, 3600)
+    }, 600000);    
 }
 
 

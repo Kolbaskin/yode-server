@@ -19,7 +19,7 @@ Ext.define('MyDesktop.modules.filemanager.store.Store', {
         //simpleSortMode: true,                    
         reader: {
              type: 'json',
-             root: 'data'
+             root: 'response'
          }
     }
     
