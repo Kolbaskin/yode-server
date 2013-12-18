@@ -130,15 +130,19 @@ exports.image_l = function(arr, record, model, key, server, oldData) {
 // cur_data -- предыдущие значения поля
 exports.images = function(arr, callback, record, model, fieldName, server, cur_data) {
     var path = server.server.dir + '/' + server.server.config.STATIC_DIR + '/tmp/'
-    
+
+//console.log('arr:', arr)
+  
     if(arr) {
         var res = []
             ,s, s1
         
         var addRes = function(im, ari) {
+            
             for(var i in ari) {
                 if(i != 'img' && i != 'preview' && i != 'num') im[i] = ari[i]                  
             }
+          
             res.push(im)
         }
             
@@ -147,7 +151,6 @@ exports.images = function(arr, callback, record, model, fieldName, server, cur_d
                 callback(res)
                 return;
             }
-            
             if(arr[i].img) {
                 fs.exists(path + arr[i].img, function(e) {
                     if(e) {
@@ -172,7 +175,7 @@ exports.images = function(arr, callback, record, model, fieldName, server, cur_d
                     } else func(i+1)
                 })
                 return;
-            } else if(cur_data && arr[i].num !== null) { // сохраним предыдущее значение картинки
+            } else if(cur_data && arr[i].num !== null && arr[i].num !== '') { // сохраним предыдущее значение картинки
                 var n = parseInt(arr[i].num)
                 if(!isNaN(n) && cur_data[n]) {
                     addRes(cur_data[n], arr[i])                    

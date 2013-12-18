@@ -380,6 +380,7 @@ var createDataRecord = function(data, cur_data, model, server, callback) {
 */
 exports.save = function(params, parent, callback, access, auth) {    
  
+
     readmodel(params.urlparams[0], parent, function(model) {   
   
         if(!model) {
@@ -396,6 +397,7 @@ exports.save = function(params, parent, callback, access, auth) {
             } catch(e) {
                 data = null    
             }
+           
             if(data) {
                 var allFunc = function(data) {  
                     
@@ -447,6 +449,7 @@ exports.save = function(params, parent, callback, access, auth) {
                                 parent.db.collection(model.collection).findOne({_id: o_id}, function(e, r) {                        
                                     func(r, function(insdata) {
                                         globalLog.update(auth, parent, params.urlparams[0], r, function() {
+console.log(insdata)                                            
                                             parent.db.collection(model.collection).update({_id: o_id}, {$set:insdata, $unset:{removed:""}}, {w:1}, function(e, r) {          
 
                                                 if(r) {

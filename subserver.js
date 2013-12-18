@@ -393,9 +393,7 @@ exports.Server.prototype.servePlugins = function(req, res, post, mcallback) {
         u = url.pathname.split("/"),    
         par = [],
         plg = null;         
-
-
-    
+   
     if(u[1] && u[1] != '') {
         u[1] = u[1].split(":");       
         if(!u[1][1]) {
@@ -407,7 +405,7 @@ exports.Server.prototype.servePlugins = function(req, res, post, mcallback) {
             ,plugin = u[1][0]
             ,method = u[1][1]
             ,module = this.getModel(plugin)
-    
+     
         // Try to run model method
         var runModelPlugin = function(module, method) {
         
@@ -434,10 +432,11 @@ exports.Server.prototype.servePlugins = function(req, res, post, mcallback) {
             
             var run = function(auth) { 
                 all.href = req.url  
-                
-                //console.log(req.url)
-                
-                module[method](all, mcallback, auth);
+                if(all.about !== null && all.about !== undefined && module[method].aboutObject !== null) {                
+                    mcallback(module[method].aboutObject)
+                } else {
+                    module[method](all, mcallback, auth);
+                }
             }            
       
             if(me.inits.checkauth != null) {  // if isser user checkauth function                
@@ -450,7 +449,17 @@ exports.Server.prototype.servePlugins = function(req, res, post, mcallback) {
         if(module && !!module[method]) {
             runModelPlugin(module, method)
             return;
-        }         
+        } else if(url.query.about!== null && url.query.about !== undefined) {
+            module = this.getModel(plugin + '.' + method)
+            if(!!module) {
+                var res = []
+                for(var i in module) {
+                    if(module[i].aboutObject) res.push({name: i, info: module[i].aboutObject.info})
+                }
+                mcallback(res)
+                return;
+            }
+        }
         
         // End Try to run model method        
     } 

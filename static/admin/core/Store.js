@@ -25,7 +25,7 @@ Ext.define('MyDesktop.core.Store', {
                //console.log(me)
        }
     },
-     
+                     
     constructor: function(options) {        
         var me = this
             ,modelPath
@@ -40,7 +40,6 @@ Ext.define('MyDesktop.core.Store', {
             type: 'ajax', 
             url: Sess.url('model:getdata/'+modelPath),
             simpleSortMode: true,
-            
             filterParam: 'query',
             remoteFilter: true,
             reader: {
@@ -71,6 +70,7 @@ Ext.define('MyDesktop.core.Store', {
         this.callParent(arguments);
 
     }
+    
     
     
 });
