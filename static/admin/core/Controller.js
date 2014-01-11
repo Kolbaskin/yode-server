@@ -188,7 +188,10 @@ Ext.define('MyDesktop.core.Controller', {
         if(form) {
             this.logEdit = false;
             this.setButtonsDisabled('open')
-            form.getForm().setValues(data)  
+            
+            var f = form.getForm();
+            f.reset()
+            f.setValues(data)  
             this.logEdit = true;
         }
     }
@@ -299,8 +302,7 @@ Ext.define('MyDesktop.core.Controller', {
                                     
             win = desktop.createWindow(wcnf).show();
             
-            me.addFormControls(win)
-         
+            me.addFormControls(win)    
             
             
             me.getRecord(rec, function(rec) {

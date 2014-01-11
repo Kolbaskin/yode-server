@@ -283,7 +283,8 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
             if(!limit || isNaN(limit) || limit>100) limit = 10;
                 
             req.params.start = pages.getstart((req.params && req.params.page? parseInt(req.params.page):1), limit);
-             
+            req.params.limit = limit
+            
             dataFuncs.getdata(req.params, me, function(data) {            
                 data.pages = pages.create({start:req.params.start, limit: limit, total: data.total, req: req})
                 if(data.pages.pageCount<=1) data.pages = null               

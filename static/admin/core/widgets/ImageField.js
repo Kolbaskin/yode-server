@@ -133,14 +133,14 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
         var me = this       
         if(inp.fileInputEl.dom.files.length>0) {
             Core.Ajax.upload(inp.fileInputEl.dom.files[0], '/admin.models.fileOperations:upload/' + me.tumbSizes + '/', function(data) {
-                if(data.data && data.data.name) {
+                if(data.response && data.response.name) {
                     var    img_inp = me.down('[xtype=textfield]')
                     
                     me.noChange = true
                     
-                    me.imageValue = '/tmp/'+data.data.name
+                    me.imageValue = '/tmp/'+data.response.name
                     me.showImage()
-                    img_inp.setValue(data.data.name);
+                    img_inp.setValue(data.response.name);
                     inp.fileInputEl.dom.value = ''
                 }
             })                    

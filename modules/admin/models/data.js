@@ -217,16 +217,23 @@ var buildWhere = function(params, model, auth, server, callback) {
     }   
 }
 
-var builData = function(data, model, server) {    
+var builData = function(data, model, server, is_save) {    
     if(!data) return data
+    var fname
     for(var i=0;i<data.length;i++) {
-        for(var j in model.fields) if(data[i][model.fields[j].name] !== undefined) {            
-            if(model.fields[j].type && dataFunc[model.fields[j].type + '_l']) {    
-                data[i][model.fields[j].name] = dataFunc[model.fields[j].type + '_l'](data[i][model.fields[j].name], data[i], model, model.fields[j].name, server)                
+        for(var j in model.fields) {
+            fname = model.fields[j].mapping || model.fields[j].name
+            if(data[i][fname] !== undefined) {            
+                if(model.fields[j].type && dataFunc[model.fields[j].type + '_l']) {    
+                    data[i][fname] = dataFunc[model.fields[j].type + '_l'](data[i][fname], data[i], model, model.fields[j].name, server)                
+                }                
+            }
+            if(model.fields[j].renderer) {
+                data[i][fname] = model.fields[j].renderer(data[i][fname],data[i])
             }
         }
     }   
-
+    if(model.afterGettingData) data = model.afterGettingData(data)
     return data
 }
 
@@ -276,12 +283,13 @@ exports.getdata = function(params, parent, callback, model, auth) {
             limit = parseInt(params.limit)
             if(isNaN(start)) start = 0;
             if(isNaN(limit)) limit = 25;
-
             var cursor = parent.db.collection(model.collection).find(find,fields)
                 
             cursor.count(function(e, cnt) {         
                 if(cnt && cnt>0) {
+
                     cursor.sort(sort).limit(limit).skip(start).toArray(function(e,data) {
+       
                         callback({total: cnt, list: builData(data, model, parent), success: true},null)
                     })
                 } else {
@@ -408,7 +416,7 @@ exports.save = function(params, parent, callback, access, auth) {
                         }
                         
                         var calbk = function(out) {
-                            out.record = builData([out.record], model, parent)[0]
+                            out.record = builData([out.record], model, parent, true)[0]
                             callback(out);
                         }
                         
@@ -448,8 +456,7 @@ exports.save = function(params, parent, callback, access, auth) {
                
                                 parent.db.collection(model.collection).findOne({_id: o_id}, function(e, r) {                        
                                     func(r, function(insdata) {
-                                        globalLog.update(auth, parent, params.urlparams[0], r, function() {
-console.log(insdata)                                            
+                                        globalLog.update(auth, parent, params.urlparams[0], r, function() {                                          
                                             parent.db.collection(model.collection).update({_id: o_id}, {$set:insdata, $unset:{removed:""}}, {w:1}, function(e, r) {          
 
                                                 if(r) {
@@ -520,10 +527,10 @@ exports.del = function(params, parent, callback, auth) {
                     }
                     var o_id;
                     
-                    if(data[i]._id) data[i] = data[i]._id 
-                    
+                    if(data[i]._id && typeof data[i]._id !== 'function') data[i] = data[i]._id 
+                  
                     if((o_id = forms.strToId(data[i], callback)) === 0) return;
-                    
+                  
                     if(parent.server.config.SEARCH_ENGINE) {              
                         
                           parent.server.getModel('search.engine').remove_index(null, null, null, params.urlparams[0], model, o_id)
@@ -540,6 +547,7 @@ exports.del = function(params, parent, callback, auth) {
                         globalLog.delByMarking(auth, parent, params.urlparams[0], o_id)
                     } else {
                         globalLog.delByRemoving(auth, parent, params.urlparams[0], model.collection, o_id, function() {
+console.log('remove:', o_id)                            
                             parent.db.collection(model.collection).remove({_id: o_id}, function(e, r) {
                                 removeRow(i+1,callback)
                             })
@@ -585,9 +593,7 @@ exports.getdatatree = function(params, parent, callback, auth) {
                 fields.leaf = 1
                 
                 var findLayer = function() {
-                    
-                    parent.db.collection(model.collection).find(find,fields).toArray(function(e,data) {
-                        
+                    parent.db.collection(model.collection).find(find,fields).toArray(function(e,data) {   
                         callback(builData(data, model, parent),null)
                     })
                 }
@@ -622,13 +628,7 @@ exports.exportdir = function(params, parent, callback) {
             
             var file = params.fullData + '' // to str
                 ,insdata = {}
-                
-            //for(var i=0;i<model.fields.length;i++) if(model.fields[i].editable) insdata[model.fields[i].name] = model.fields[i].type
-        
-            //file.split('\n');
-            
-            
-            
+
             parent.db.collection(model.collection).remove({}, function(e,r) {
                 
                 var csv_options = (model.csv_options? model.csv_options:{delimiter: ';', escape: '"'})

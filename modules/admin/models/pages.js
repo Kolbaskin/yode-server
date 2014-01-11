@@ -81,9 +81,7 @@ exports.Plugin.prototype.reorder = function(req, callback, auth, colname) {
              //:{$gte:data[i].indx})
             
             //me.db.collection(colname).find({pid:pid, indx:findIndex}, {_id:1}).sort({indx:1}).toArray(function(e,pages) {
-                
-                
-                                
+            
             var set = {pid: pid}
             if(data[i].dir) set.dir = data[i].dir
             
@@ -101,8 +99,6 @@ exports.Plugin.prototype.reorder = function(req, callback, auth, colname) {
                     func(i+1)                   
                 })
             }
-                
-            //})
         }
         
         func(0)

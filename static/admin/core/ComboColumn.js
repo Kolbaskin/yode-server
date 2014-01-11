@@ -4,7 +4,7 @@ Ext.define('MyDesktop.core.ComboColumn',{
     
     guide: null,
     guideKeyField: '_id',
-    quideValueField: 'name',
+    guideValueField: 'name',
 
 
     defaultRenderer: function(v,x,y,z) {
@@ -38,7 +38,7 @@ Ext.define('MyDesktop.core.ComboColumn',{
         if(me.guide) {
             for(var i=0;i<me.guide.length;i++) {
                 if(me.guide[i][me.guideKeyField] && me.guide[i][me.guideKeyField] == v) {
-                    if(me.guide[i][me.quideValueField]) return me.guide[i][me.quideValueField];
+                    if(me.guide[i][me.guideValueField]) return me.guide[i][me.guideValueField];
                     return v;
                 }
             }

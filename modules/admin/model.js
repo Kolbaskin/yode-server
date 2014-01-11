@@ -72,7 +72,6 @@ exports.Plugin.prototype.module = function(params, callback, auth) {
 
 // Get modules names by permissions
 exports.Plugin.prototype.usermoduleslist = function(params, callback, auth) {    
-    
     this.server.getModel('admin.models.access').modules(params, callback, auth) // перенес в отдельный мо
     
     /*if(!!auth) {

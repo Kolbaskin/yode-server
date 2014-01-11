@@ -106,8 +106,6 @@ exports.Server.prototype.getModel = function(name) {
             return this.models[name]
         }
     }
-    return;
-
 }
 
 /**
@@ -257,7 +255,7 @@ exports.Server.prototype.serve = function(req, res, post, nohead) {
         }            
         if(typeof body === "object" && (!head || (head.heads && ['text/plain','text/json'].indexOf(head.heads['Content-Type']) != -1))) {
             if(!head) head = 'JSON'
-            body = JSON.stringify({response: body})
+            body = JSON.stringify(body)
         }        
         if((head == null || head == 200) && !nohead) res.writeHead(200, "OK", {'Content-Type': 'text/html; charset=utf-8'});
         else if(head == "JSON") {
@@ -351,12 +349,12 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
         if(post != null) for(var i in post) url.params[i] = post[i]       
         
         var run = function(a) {            
-            me.defaultPlugin.serve(url, function(result, e) {            
+            me.defaultPlugin.serve(url, function(result, e) {   
                 callback(result,e)
             },a)
         }
         
-        if(me.inits.checkauth != null) {  // if isser user checkauth function                
+        if(me.inits.checkauth !== null) {  // if isser user checkauth function                
             me.inits.checkauth(url.params, function(a) {
                 run(a)
             })                    
@@ -366,6 +364,14 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
         
     }
     
+}
+
+exports.Server.prototype.checkVersion = function(RequestData) {
+
+    if(RequestData && RequestData.header && RequestData.header.version && this.config.VERSION) {
+        return (RequestData.header.version == this.config.VERSION)
+    }
+    return true;
 }
 
 /**
@@ -388,7 +394,7 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
  * ищем в статике или возвращаем ошибку
  * 
 **/
-exports.Server.prototype.servePlugins = function(req, res, post, mcallback) {     
+exports.Server.prototype.servePlugins = function(req, res, post, outcallback) {     
     var url = urlutils.parse(req.url, true),
         u = url.pathname.split("/"),    
         par = [],
@@ -405,14 +411,43 @@ exports.Server.prototype.servePlugins = function(req, res, post, mcallback) {
             ,plugin = u[1][0]
             ,method = u[1][1]
             ,module = this.getModel(plugin)
-     
+        
+        var mcallback = function(data, err, headers) {
+            
+            if(typeof data !== "object") {
+                outcallback(data)
+                return;
+            }            
+            if(data && err) {
+                if(err.code === null || err.code === undefined) err.code = 0
+                if(!err.mess && me.config.ERROR_MESSAGES && me.config.ERROR_MESSAGES[err.code]) 
+                    err.mess = me.config.ERROR_MESSAGES[err.code]
+                
+                if(me.config.VERSION && !data.version)  data.version = me.config.VERSION
+                
+                outcallback({Response: {
+                    Method: method,
+                    Result: err,
+                    ResponseBody: data
+                }})
+            } else if(data) {
+                if(headers) {
+                    outcallback(data, null, headers)
+                } else {
+                    outcallback({response: data})                    
+                }
+            } else {
+                outcallback(data, err, headers)
+            }
+            
+        }
+        
         // Try to run model method
         var runModelPlugin = function(module, method) {
         
             var all = {urlparams:[]}
             
-            all.response = res
-            
+            all.response = res            
             
             for(var i=2;i<u.length;i++) all.urlparams.push(decodeURIComponent(u[i]));            
                
@@ -430,12 +465,24 @@ exports.Server.prototype.servePlugins = function(req, res, post, mcallback) {
                 if(!me.config.LOCALE[all.locale]) delete all.locale
             }
             
+            // Проверяем JSON в запросе
+            if(all.jsonData) {
+                try{ 
+                    all.RequestData = JSON.parse(all.jsonData) 
+                } catch(e) {}
+                if(all.RequestData && !me.checkVersion(all.RequestData)) {
+                    mcallback({}, {code: 4})
+                    return;
+                }
+            }
+            if(!all.RequestData) all.RequestData = {}
+            
             var run = function(auth) { 
                 all.href = req.url  
                 if(all.about !== null && all.about !== undefined && module[method].aboutObject !== null) {                
                     mcallback(module[method].aboutObject)
                 } else {
-                    module[method](all, mcallback, auth);
+                    module[method](all, mcallback, auth);                    
                 }
             }            
       

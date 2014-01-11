@@ -106,6 +106,10 @@ Ext.define('MyDesktop.core.GridWindow', {
     }
     
     ,buildItems: function() {
+        return  this.buildGrid()   
+    }
+    
+    ,buildGrid: function() {    
         var me = this;
 
         var grid = {
@@ -147,7 +151,7 @@ Ext.define('MyDesktop.core.GridWindow', {
         return grid
         
     }
-    
+            
     ,buildTbar: function() {
         return [{
             text: D.t('Add'),
