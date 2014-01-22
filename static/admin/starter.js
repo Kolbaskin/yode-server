@@ -45,6 +45,7 @@ Ext.onReady(function () {
                 Modules.requires.push('MyDesktop.modules.'+data[i].controller)
             }    
             Ext.require('MyDesktop.App', function() {
+                
                 //setTimeout(function() {
                     Core.Ajax.request({
                         url: 'model:getuserinfo',
@@ -58,7 +59,8 @@ Ext.onReady(function () {
                                 Sess.modelAccess = {}
                             
                             setTimeout(function() {
-                                myDesktopApp = new MyDesktop.App();                                
+                                                                                            
+                                myDesktopApp = new MyDesktop.App({desktopClassName: (data.group && data.group.desktopClassName? data.group.desktopClassName:null)});                                
                                 var dset = Sess.getState('desktop')
                                 if(dset) setTimeout(function() {
                                     myDesktopApp.desktop.setWallpaper(dset.wallPaper, dset.stretch);
@@ -84,8 +86,7 @@ Ext.onReady(function () {
                                 },500)
                             }, 1000)
                         }
-                    }) 
-                    
+                    })                    
                     
                 //}, 500)
             })

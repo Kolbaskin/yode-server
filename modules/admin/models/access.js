@@ -60,7 +60,7 @@ exports.Plugin.prototype.getuserinfo = function(req, callback, auth) {
             if(data.superuser) {
                 callback(data)
             } else {            
-                me.db.collection('groups').findOne({_id: data.group}, {modelAccess:1, pagesAccess: 1}, function(e, gdata) {
+                me.db.collection('groups').findOne({_id: data.group}, {modelAccess:1, pagesAccess: 1, desktopClassName: 1}, function(e, gdata) {
                     if(gdata) {                    
                         data.group = gdata
                     } 

@@ -1,9 +1,13 @@
 Ext.define('MyDesktop.modules.profile.view.ProfileWindow', {
-    extend: 'Ext.window.Window',
+    extend: 'Ext.window.Window'
     
-    width: 550,
-    height: 290,
-    layout: 'border'
+    ,width: 550
+    ,height: 290
+    ,layout: 'border'
+    
+    ,requires: [
+        'MyDesktop.core.widgets.ImageField'
+    ]
     
     
     ,initComponent: function() {
@@ -35,21 +39,12 @@ Ext.define('MyDesktop.modules.profile.view.ProfileWindow', {
             },
             layout: 'anchor',
             width: 150,
-            items:[{
-                xtype: 'image',
-                itemId: 'image'
-                //src: 'images/man.png'
-            },{
-
-                xtype: 'filefield',
-                msgTarget: 'side',
-                allowBlank: true,
-                buttonOnly: true,
-                buttonWidth: 120,
-                buttonText: D.t('Выбрать файл')
-            },{
-                xtype: 'textfield',
-                inputType: 'hidden',
+            items:[{      
+                xtype: 'imagefield',
+                hideLibel: true,
+                tumbSizes: '115x',
+                height: 115,
+                width: 115,
                 name: 'photo'
             }]
         }

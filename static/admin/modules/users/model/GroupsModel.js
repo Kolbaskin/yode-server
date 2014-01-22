@@ -31,5 +31,11 @@ exports.fields = [
         filterable: false,
         editable: true,
         visable: true
-    }        
+    },{
+        name: 'desktopClassName',
+        type: 'string',
+        filterable: false,
+        editable: true,
+        visable: true
+    }
 ]

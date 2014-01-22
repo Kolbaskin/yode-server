@@ -34,7 +34,7 @@ exports.fields = [
         visable: true
     },{
         name: 'photo',
-        type: 'file',
+        type: 'image',
         filterable: false,
         editable: true,
         visable: true

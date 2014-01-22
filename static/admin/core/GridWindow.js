@@ -54,20 +54,7 @@ Ext.define('MyDesktop.core.GridWindow', {
                             
                         
                         me.store.load({params:{reorder:JSON.stringify(jData)}})
-                        
-                        /*
-                        Core.Ajax.request({
-                            url: '',
-                            jsonData: {
-                                records:  recs,
-                                dropRec: {_id: dropRec.data._id, indx: dropRec.data.indx},
-                                position: dropPosition  
-                            }
-                            succ: function(r) {
-                                me.store.load()
-                            }
-                        }) 
-                        */
+
                     }
                 }
             }

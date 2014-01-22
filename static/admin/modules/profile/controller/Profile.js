@@ -25,32 +25,22 @@ Ext.define('MyDesktop.modules.profile.controller.Profile', {
             url: 'model:myinfo/',
             succ: function(data) {
                 data.pass = ''
+                data.photo = '/admin.models.fileOperations:getimage/admin_users/' + data._id + '/photo/0/img/'
                 me.mainWin.down('form').getForm().setValues(data)
-                var img = me.mainWin.down('#image')        
-                if(img) {                   
-                    img.setSrc('/admin.models.access:getuserphoto/'+data._id)
-                }
             }
         })
         return this.callParent();
     }
     
     ,addFormControls: function(win) {        
-        var me = this
-        
+        var me = this        
         this.control(win, {
             "[name=login]": {
                 change: function(el, val) {
                     me.checkLogin(el, val)                    
                 }
-            },
-            "[xtype=filefield]": {
-                change: function(el) {
-                    me.upload(win, el)
-                }
             }
-        })
-        
+        })        
         this.callParent(arguments);
     }
     
@@ -82,24 +72,6 @@ Ext.define('MyDesktop.modules.profile.controller.Profile', {
                 }
             }
         })
-    }
-    
-    ,upload: function(win, inp) {        
-        var me = this       
-        if(inp.fileInputEl.dom.files.length>0) {
-  
-            Core.Ajax.upload(inp.fileInputEl.dom.files[0], 'models.upload:img/80//', function(data) {
-                if(data.data && data.data.img) {
-                    var img = win.down('#image')
-                        ,img_inp = win.down('[name=photo]')
-                    if(img) {
-          
-                        img.setSrc('/tmp/'+data.data.img) 
-                        img_inp.setValue(data.data.img);
-                    }
-                }
-            })                    
-        }
     }
     
     ,addControls: function(win) {        

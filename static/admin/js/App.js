@@ -10,11 +10,11 @@ Ext.define('Ext.ux.desktop.App', {
         observable: 'Ext.util.Observable'
     },
 
-    requires: [
-        'Ext.container.Viewport',
 
-        'Ext.ux.desktop.Desktop'
+    requires: [
+        'Ext.container.Viewport'
     ],
+
 
     isReady: false,
     modules: null,
@@ -49,7 +49,10 @@ Ext.define('Ext.ux.desktop.App', {
         }
 
         desktopCfg = me.getDesktopConfig();
-        me.desktop = new Ext.ux.desktop.Desktop(desktopCfg);
+        
+        if(!me.desktopClassName) me.desktopClassName = 'Ext.ux.desktop.Desktop'
+        
+        me.desktop = Ext.create(me.desktopClassName, desktopCfg) //new Ext.ux.desktop.Desktop(desktopCfg);
 
         me.viewport = new Ext.container.Viewport({
             layout: 'fit',

@@ -82,6 +82,8 @@ Ext.define('Ext.ux.desktop.Desktop', {
     taskbarConfig: null,
 
     windowMenu: null,
+    
+    autorun: null,
 
     initComponent: function () {
         var me = this;
@@ -114,11 +116,14 @@ Ext.define('Ext.ux.desktop.Desktop', {
     
         
     },
+    
 
     afterRender: function () {
         var me = this;
         me.callParent();
         me.el.on('contextmenu', me.onDesktopMenu, me);
+    
+        if(me.autorun) setTimeout(function() {me.autorun()}, 500)
     },
 
     //------------------------------------------------------
@@ -326,6 +331,7 @@ Ext.define('Ext.ux.desktop.Desktop', {
 
         win.maximize();
         win.toFront();
+
     },
 
     onWindowMenuMinimize: function () {
@@ -381,17 +387,24 @@ Ext.define('Ext.ux.desktop.Desktop', {
             }
         });
     },
-
-    createWindow: function(config, cls) {
-  
-        var me = this, win, cfg = Ext.applyIf(config || {}, {
+    
+    getDefaultWindowConf: function() {
+        return {
                 stateful: false,
                 isWindow: true,
                 constrainHeader: true,
                 minimizable: true,
                 maximizable: true
-            });
+            }       
+    },
+
+    createWindow: function(config, cls) {
+  
+        var me = this, win, cfg = Ext.applyIf(config || {}, me.getDefaultWindowConf());
         cls = cls || 'Ext.window.Window';
+        
+        cfg.scope = me
+        
         win = me.add(new Ext.create(cls,cfg));
         me.windows.add(win);
 
@@ -495,7 +508,7 @@ Ext.define('Ext.ux.desktop.Desktop', {
 
                 win.setPosition(x, y);
                 x += w + me.xTickSize;
-                nextY = Math.max(nextY, y + win.el.getHeight() + me.yTickSize);
+                nextY = Math.max(nextY, y + win.el.getHeight() + me.yTickSize);              
             }
         });
     },

@@ -41,6 +41,9 @@ Ext.define('MyDesktop.modules.users.view.GroupsForm', {
             },{
                 name: 'description',
                 fieldLabel: D.t('Description')
+            },{
+                name: 'desktopClassName',
+                fieldLabel: D.t('Desktop class name')
             }]
         }
     }

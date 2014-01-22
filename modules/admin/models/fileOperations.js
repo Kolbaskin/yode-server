@@ -88,6 +88,7 @@ var makeImg = function(path, callback, sizes) {
         })        
     }
     
+
     getSizes(w1, h1, function(w,h) {
         conf1.width = w
         conf1.height = h
@@ -114,11 +115,15 @@ exports.Plugin.prototype.upload = function(req, callback, auth) {
             
                         
             fs.writeFile(path, req.fullData, function (e) {
-                if (e) callback(null, {code:500})
-                else {
+                if (e) {
+                    callback(null, {code:500})
+                } else {
                     
                     makeImg(path, function(imgs, e) {
-                        if (e) {callback(null, {code: 500});return;}
+                        if (e) {
+                            callback(null, {code: 500});
+                            return;
+                        }
                         imgs.img_s.name = token
                         callback(imgs.img_s);
                     }, req.urlparams[0])                  

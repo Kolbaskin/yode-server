@@ -171,6 +171,7 @@ var buildWhere = function(params, model, auth, server, callback) {
             var fname;
                 
             for(var i in model.fields) {
+                
                 if(model.fields[i].mapping) fname = model.fields[i].mapping
                 else fname = model.fields[i].name
                 if(fname == '_id' || model.fields[i].filterable) {
@@ -202,6 +203,21 @@ var buildWhere = function(params, model, auth, server, callback) {
         if($or.length>0) {find.$and.push({$or:$or})}
         if(!params.showRemoved) find.removed = {$ne:true}   
 
+
+        for(var i in model.fields) {
+            
+            
+            if(
+                params.parentField && 
+                params.parentCode &&
+                model.fields[i].name == params.parentField
+            ) {
+                if(model.fields[i].type == 'ObjectID') find[params.parentField] = params.parentCode._id()
+                else find[params.parentField] = params.parentCode
+            }      
+        }
+
+    
         return find;
     }    
     var func = function(find) {
@@ -283,6 +299,9 @@ exports.getdata = function(params, parent, callback, model, auth) {
             limit = parseInt(params.limit)
             if(isNaN(start)) start = 0;
             if(isNaN(limit)) limit = 25;
+            
+
+            
             var cursor = parent.db.collection(model.collection).find(find,fields)
                 
             cursor.count(function(e, cnt) {         

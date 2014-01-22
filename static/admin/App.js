@@ -12,12 +12,17 @@ Ext.define('MyDesktop.App', {
     extend: 'Ext.ux.desktop.App',
 
     requires: Modules.requires,
-
+    
+    constructor: function(cnfg) {
+        if(cnfg) {
+            for(var i in cnfg) this[i] = cnfg[i]  
+        }
+        this.callParent();
+    },
+    
     init: function() {
-        var me = this
-        
+        var me = this        
         this.runAuthChecker();
-
         this.callParent();
     },
 

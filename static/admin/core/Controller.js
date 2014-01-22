@@ -25,15 +25,19 @@ Ext.define('MyDesktop.core.Controller', {
     }
     
     ,init: function() {
-        if(!this.mainView) {
-            var name = this.getControllerName().replace('.controller.', '.view.')
-            this.detailFormView = name + 'Form'
+        var name = this.getControllerName().replace('.controller.', '.view.')
+        if(!this.mainView) {            
             this.mainView = name + 'List'
+        }
+        
+        if(!this.detailFormView) {
+            this.detailFormView = name + 'Form'
         }
         
         if(this.model && this.launcher) {
             this.launcher.model = this.model
         }
+
         
         this.getAccessRights()
         
@@ -92,7 +96,7 @@ Ext.define('MyDesktop.core.Controller', {
             var sets = Sess.getState(me.id)
             win = desktop.createWindow({
                 id: me.id,
-                title: me.launcher.text, 
+                title: (me.titlePrefix? me.titlePrefix + ': ':'') + me.launcher.text, 
                 maximized: (sets && sets.maximize),
                 iconCls: me.launcher.iconCls
                 
@@ -142,9 +146,8 @@ Ext.define('MyDesktop.core.Controller', {
     
     ,addFormControls: function(win) {
         var me = this
-        
         me.setAccessControls(me.accessRights)
-        
+
         me.control(win,{
             "[action=formsave]": {click: function() {me.save(win, true)}},
             "[action=formapply]": {click: function() {me.save(win, false)}},
@@ -197,23 +200,28 @@ Ext.define('MyDesktop.core.Controller', {
     }
     
     ,add: function() {
-        
+        var rec = {data:{}}
+        if(this.parentParams) {
+            rec.data[this.parentParams.parentField] = this.parentParams.parentCode;
+        }
         if(this.innerDetailForm) {
             var g = this.mainWin.down('grid')
                 ,s = (g? g.getStore():null)
             if(s) {
                 this.innerDetailForm.expand()
-                this.modifyInside(null, true)
+                this.modifyInside(rec, true)
             }
-        } else
-            this.modify({}, null, true)
+        } else {
+            
+            this.modify(rec, null, true)
+        }
         
     }
     
     ,getRecord: function(rec, callback) {
         
         var me = this
-        
+                        
         if(me.LocalFormData || !rec || !rec.data || !rec.data._id) {
             callback(rec)           
         } else {
@@ -225,7 +233,12 @@ Ext.define('MyDesktop.core.Controller', {
                 succ: function(data) {                    
                     if(data.list && data.list[0]) {
                         rec.data = data.list[0]    
-                    }                    
+                    }    
+                    
+                    if(me.parentParams && rec.data) {
+                        rec.data[me.parentParams.parentField] = me.parentParams.parentCode;
+                    }
+                    
                     callback(rec) 
                 }
             })                          
@@ -235,7 +248,7 @@ Ext.define('MyDesktop.core.Controller', {
     
     ,modifyInside: function(rec, innerCall) { 
         var me = this
-        me.getRecord(rec, function(rec) {
+        me.getRecord(rec, function(rec) {      
             me._modifyInside(rec, innerCall)
         })
     }   
@@ -248,8 +261,8 @@ Ext.define('MyDesktop.core.Controller', {
        
         if(!!this.beforeModify && this.beforeModify(this.innerDetailForm, (rec && rec.data? rec.data:{})) === false) return false;
         
+        this.innerDetailForm.getForm().reset()
         if(rec) this.innerDetailForm.setValues(rec.data);
-        else this.innerDetailForm.getForm().reset()
         
         var t = this.innerDetailForm.down('textfield')
         if(t) t.focus()
@@ -301,7 +314,7 @@ Ext.define('MyDesktop.core.Controller', {
             if(!!me.detailFormReconfig) wcnf = me.detailFormReconfig(wcnf)
                                     
             win = desktop.createWindow(wcnf).show();
-            
+         
             me.addFormControls(win)    
             
             
@@ -425,7 +438,7 @@ Ext.define('MyDesktop.core.Controller', {
                     if(sb1 && !!sb1.setDisabled) sb1.setDisabled(false)
                     if(sb2 && !!sb2.setDisabled) sb2.setDisabled(false)
           
-                    if(!!me.afterSave && me.afterSave(data.record) === false) {
+                    if(!!me.afterSave && me.afterSave(win, data.record) === false) {
                         if(callback) callback(data)
                         return;
                     }
@@ -509,6 +522,25 @@ Ext.define('MyDesktop.core.Controller', {
         this.mainWin.remove(form)
         this.innerDetailForm = null
         Sess.setState(this.id,{formPin: false})
+    }
+    
+    ,showAsChild: function(params) {
+        this.app = params.app  
+                
+        this.parentParams = {
+            parentField: params.parentField,
+            parentCode: params.parentCode
+        }
+        
+        this.id += ':' + params.parentCode
+        
+        if(params.title) this.titlePrefix = params.title
+        
+        var win = this.createWindow()                                
+        if(win.store) {
+            win.store.proxy.extraParams = this.parentParams                    
+        }                
+        win.show()
     }
    
 });
