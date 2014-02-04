@@ -53,8 +53,7 @@ exports.Plugin.prototype.reorder = function(req, callback, auth, colname) {
         data = dataAll.recs
             
         var func = function(i) {
-            if(!data[i]) {
-                
+            if(!data[i]) {                
                 if(dataAll.indexes) {
                     var idd;
                     for(var n in dataAll.indexes) {
@@ -67,38 +66,58 @@ exports.Plugin.prototype.reorder = function(req, callback, auth, colname) {
                 callback({success: true, data: data})
                 return;    
             }
-            var id, pid;
-            if((id = forms.strToId(data[i]._id)) === 0) {func(i+1);return;}
-            if((pid = forms.strToId(data[i].pid)) === 0) {func(i+1);return;}
-
+            var id, pid, findIndex = {$gt:data[i].indx};
             
-            var findIndex = {$gt:data[i].indx}
-            if(data[i].pos == 'after') data[i].indx++
-            else if(data[i].pos == 'before') {
-                data[i].indx--
-                findIndex = {$gte:data[i].indx}
-            }
-             //:{$gte:data[i].indx})
+            [
+                function(call) {
+                    if(data[i].pid == 'root') {
+                        me.db.collection(colname).findOne({root: true}, {_id:1}, function(e,d) {
+                            if(d && d._id) {
+                                pid = d._id
+                                call();
+                            } else {
+                                func(i+1);
+                            }
+                        })
+                    } else {
+                        if((pid = forms.strToId(data[i].pid)) === 0) func(i+1);
+                        else call();
+                    }
+                }
+                
+                ,function(call) {
+                    if((id = forms.strToId(data[i]._id)) === 0) {func(i+1);return;}
+                    
+                    if(data[i].pos == 'after') data[i].indx++
+                    else if(data[i].pos == 'before') {
+                        data[i].indx--
+                        findIndex = {$gte:data[i].indx}
+                    }
+                    
+                    call()                   
+                }
+                
+                ,function() {
+                    var set = {pid: pid}
+                    if(data[i].dir) set.dir = data[i].dir
+                    
+                    if(colname == 'pages') {
+                        dataFunc.parentpages(null, function(pages, dir) {
+                            set.parents = pages
+                            set.dir = dir
+                            data[i].dir = dir
+                            me.db.collection(colname).update({_id:id}, {$set:set}, function(e,r) {
+                                func(i+1)                   
+                            }) 
+                        }, {pid:set.pid+'', alias: data[i].alias}, {collection: colname}, null, me)
+                    } else {
+                        me.db.collection(colname).update({_id:id}, {$set:set}, function(e,r) {
+                            func(i+1)                   
+                        })
+                    }
+                }
+            ].runEach()           
             
-            //me.db.collection(colname).find({pid:pid, indx:findIndex}, {_id:1}).sort({indx:1}).toArray(function(e,pages) {
-            
-            var set = {pid: pid}
-            if(data[i].dir) set.dir = data[i].dir
-            
-            if(colname == 'pages') {
-                dataFunc.parentpages(null, function(pages, dir) {
-                    set.parents = pages
-                    set.dir = dir
-                    data[i].dir = dir
-                    me.db.collection(colname).update({_id:id}, {$set:set}, function(e,r) {
-                        func(i+1)                   
-                    }) 
-                }, {pid:set.pid+'', alias: data[i].alias}, {collection: colname}, null, me)
-            } else {
-                me.db.collection(colname).update({_id:id}, {$set:set}, function(e,r) {
-                    func(i+1)                   
-                })
-            }
         }
         
         func(0)

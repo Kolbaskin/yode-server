@@ -196,8 +196,8 @@ Ext.define('MyDesktop.modules.pages.controller.Pages', {
         this.callParent(arguments)
     }
     
-    ,afterSave: function(rec) {
-        
+    ,afterSave: function(win, rec) {
+
         if(rec.block) return true; // если сохраняем блок, то сразу выходим
         
         var me = this,

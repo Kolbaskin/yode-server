@@ -566,7 +566,6 @@ exports.del = function(params, parent, callback, auth) {
                         globalLog.delByMarking(auth, parent, params.urlparams[0], o_id)
                     } else {
                         globalLog.delByRemoving(auth, parent, params.urlparams[0], model.collection, o_id, function() {
-console.log('remove:', o_id)                            
                             parent.db.collection(model.collection).remove({_id: o_id}, function(e, r) {
                                 removeRow(i+1,callback)
                             })
