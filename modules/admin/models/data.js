@@ -300,21 +300,30 @@ exports.getdata = function(params, parent, callback, model, auth) {
             if(isNaN(start)) start = 0;
             if(isNaN(limit)) limit = 25;
             
-
+            var fun = function() {
+                var cursor = parent.db.collection(model.collection).find(find,fields)
+                cursor.count(function(e, cnt) {         
+                    if(cnt && cnt>0) {
+    
+                        cursor.sort(sort).limit(limit).skip(start).toArray(function(e,data) {
+           
+                            callback({total: cnt, list: builData(data, model, parent), success: true},null)
+                        })
+                    } else {
+                        callback({total:0, list:[]})
+                    }
+                })    
+            }
             
-            var cursor = parent.db.collection(model.collection).find(find,fields)
+            if(!!model.getdata) {
+                model.getdata(params, parent, {find:find, fields:fields, start:start, limit:limit, sort: sort}, callback, function(res) {
+                    if(res) fun()
+                }, auth)
+            } else {
+                fun()    
+            }
+            
                 
-            cursor.count(function(e, cnt) {         
-                if(cnt && cnt>0) {
-
-                    cursor.sort(sort).limit(limit).skip(start).toArray(function(e,data) {
-       
-                        callback({total: cnt, list: builData(data, model, parent), success: true},null)
-                    })
-                } else {
-                    callback({total:0, list:[]})
-                }
-            })    
         })
     }
     if(model) func(model)
@@ -398,6 +407,37 @@ var createDataRecord = function(data, cur_data, model, server, callback) {
         }
     insdata.mtime = new Date()
     f(0)
+}
+
+
+exports.copyrecord  = function(params, parent, callback, access, auth) { 
+    readmodel(params.urlparams[0], parent, function(model) {   
+        if(!model) {
+            callback(null)
+            return;
+        }
+        var data = params.jsonData || null            
+        if(data) {
+            try {
+                data = JSON.parse(data);
+            } catch(e) {
+                data = null    
+            }           
+            if(data && data._id) {
+                parent.db.collection(model.collection).findOne({_id: data._id._id()}, {}, function(e, r) {
+                    if(r) {
+                        delete r._id
+                        parent.db.collection(model.collection).insert(r, function(e,r) {
+                            if(r) callback(r[0])
+                             else callback(null,{code: 500})
+                        })
+                    } else callback(null,{code: 500}) 
+                });
+            } else {
+                callback(null,{code: 500})    
+            }
+        }
+    })
 }
 
 /*
@@ -641,53 +681,81 @@ exports.getdatatree = function(params, parent, callback, auth) {
  * в параметрах файл
  **/
 exports.exportdir = function(params, parent, callback) {
-    readmodel(params.urlparams[0], parent, function(model) {
-        if(model) { 
-            
-            var file = params.fullData + '' // to str
-                ,insdata = {}
-
-            parent.db.collection(model.collection).remove({}, function(e,r) {
-                
-                var csv_options = (model.csv_options? model.csv_options:{delimiter: ';', escape: '"'})
+    
+    var model;
         
-                csv().from.string(file, csv_options).to.array(function(file) {
-        
-                    var prev = {}
-                    
-                    var func = function(i) {
-                        if(i>=file.length) return;
-                        //file[i] = file[i].replace(/^\s+|\s+$/g, '')
-                        if(file[i]) {
-                            var data = {};
-                            //file[i] = file[i].split(';');
-                            
-                            for(var j=0;j<model.fields.length;j++) if(model.fields[j].editable) {
-                                if(!!model.fields[j].impRender) data[model.fields[j].name] = model.fields[j].impRender(file[i][j] || null)
-                                else data[model.fields[j].name] = file[i][j] || null
-                            }
-                                         
-                            createDataRecord(data, null, model, parent, function(data) {
-                                // добавляем остальные данные, если в модели есть соответствующая настройка
-                                if(model.importAll && j<file[i].length) {
-                                    data.ext_data = []
-                                    while(j<file[i].length) {
-                                        if(file[i][j]) data.ext_data.push(file[i][j]);
-                                        j++;
-                                    }
-                                }
-                                
-                                parent.db.collection(model.collection).insert(data, {w:1}, function(e, r) {})
-                                func(i+1)
-                            })                       
-                        } else func(i+1)
-                    }
-                    func(0)      
-                })
-                
-                callback({success:true})
+    
+    [
+        function(call) {
+            readmodel(params.urlparams[0], parent, function(m) {
+                if(m) {
+                    model = m;
+                    call()
+                } else {
+                    callback(null, {code: 500, mess: 'Model not found'})
+                }
             })
         }
-    })
+        
+        ,function(call) {
+            if(!!model.beforeImport) {
+                model.beforeImport(params, parent, callback, function(result) {
+                    if(result !== false) call();   
+                })
+            } else call()
+        }
+        
+        ,function(call) {
+            if(model.cleanAllBeforeImport === null || model.cleanAllBeforeImport === true) {
+                parent.db.collection(model.collection).remove({}, function(e,r) {
+                    call()    
+                })
+            } else {
+                call()    
+            }
+        }
+        
+        ,function(call) {
+            var csv_options = (model.csv_options? model.csv_options:{delimiter: ';', escape: '"'})
+                ,file = params.fullData + ''
+       
+            csv().from.string(file, csv_options).to.array(function(file) {
+                call(file)    
+            })
+        }
+        
+        ,function(file, call) {
+            var prev = {}
+                ,insdata = {};
+                
+            var func = function(i) {
+                if(i>=file.length) {
+                    callback({success: true})
+                    return;
+                }
+                if(file[i]) {
+                    var data = {};
+                    for(var j=0;j<model.fields.length;j++) if(model.fields[j].editable) {
+                        if(!!model.fields[j].impRender) data[model.fields[j].name] = model.fields[j].impRender(file[i][j] || null)
+                        else data[model.fields[j].name] = file[i][j] || null
+                    }                                 
+                    createDataRecord(data, null, model, parent, function(data) {
+                        // добавляем остальные данные, если в модели есть соответствующая настройка
+                        if(model.importAll && j<file[i].length) {
+                            data.ext_data = []
+                            while(j<file[i].length) {
+                                if(file[i][j]) data.ext_data.push(file[i][j]);
+                                j++;
+                            }
+                        }                        
+                        parent.db.collection(model.collection).insert(data, {w:1}, function(e, r) {})
+                        func(i+1)
+                    })                       
+                } else func(i+1)
+            }
+            func(0)
+        }        
+    ].runEach()
+    
     
 }

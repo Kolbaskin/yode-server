@@ -118,17 +118,19 @@ Ext.define('MyDesktop.core.Controller', {
         }       
         return win;
     }
+    
+    
    
     ,addControls: function(win) {
         
         var me = this
-        
         me.control(win,{
             
             "[action=add]": {click: function() {me.add()}},
             "[action=refresh]": {click: function() {me.refresh()}},
             "[action=remove]": {click: function() {me.remove()}}, 
             'form field': {change: function(fl, v) {me.formFieldsChange(fl,v);}},
+            "[action=import]":{change: function(th, val) {me.importCsv(th, win)}},
             "grid": {
                 celldblclick: function(cell, td, i, rec) {
                     if(!me.innerDetailForm) me.modify(rec, null)
@@ -136,12 +138,28 @@ Ext.define('MyDesktop.core.Controller', {
                 },
                 cellclick: function(cell, td, i, rec) {
                     if(me.innerDetailForm) me.modifyInside(rec)
+                },
+                itemcontextmenu: function(view, record, item, index, e, options){                
+                     e.stopEvent();
+                     win.menuContext.record = record;
+                     win.menuContext.showAt(e.xy);
                 }
-            } 
+            }
         })
         
+        if(win.menuContext) {
+            me.popupMenuControls(win);
+        }
         me.setAccessControls(me.accessRights, win)
         
+    }
+    
+    ,popupMenuControls: function(win) {
+        var me = this
+        me.control(win.menuContext,{   
+            "[action=copyitem]": {click: function() {me.copyRecord(win.menuContext)}},
+            "[action=pasteitem]": {click: function() {me.pasteRecord(win.menuContext)}}
+        })        
     }
     
     ,addFormControls: function(win) {
@@ -151,7 +169,7 @@ Ext.define('MyDesktop.core.Controller', {
         me.control(win,{
             "[action=formsave]": {click: function() {me.save(win, true)}},
             "[action=formapply]": {click: function() {me.save(win, false)}},
-            "[action=formclose]": {click: function() {win.close()}} 
+            "[action=formclose]": {click: function() {win.close()}}
         })
         me.setAccessControls(me.accessRights, win)
     }
@@ -246,10 +264,11 @@ Ext.define('MyDesktop.core.Controller', {
         
     }
     
-    ,modifyInside: function(rec, innerCall) { 
+    ,modifyInside: function(rec, innerCall, callback) { 
         var me = this
         me.getRecord(rec, function(rec) {      
             me._modifyInside(rec, innerCall)
+            if(!!callback) callback(me.innerDetailForm)
         })
     }   
     
@@ -263,6 +282,8 @@ Ext.define('MyDesktop.core.Controller', {
         
         this.innerDetailForm.getForm().reset()
         if(rec) this.innerDetailForm.setValues(rec.data);
+        
+        
         
         var t = this.innerDetailForm.down('textfield')
         if(t) t.focus()
@@ -278,7 +299,7 @@ Ext.define('MyDesktop.core.Controller', {
     }
     */
         
-    ,modify: function(rec, formClassName, innerCall) {    
+    ,modify: function(rec, formClassName, innerCall, callback) {    
         if(!innerCall && this.accessRights && !this.accessRights.modify) return;
         
         if(!rec.data) rec.data = {}
@@ -325,9 +346,10 @@ Ext.define('MyDesktop.core.Controller', {
                 if(!!form.setValues) form.setValues(rec.data);
                 else {
                     var inForm = form.down('form')
-                    if(inForm && !!inForm.setValues) inForm.setValues(rec.data);
-                    
+                    if(inForm && !!inForm.setValues) inForm.setValues(rec.data);                    
                 }
+                
+                if(!!callback) callback(form)
                 
                 if(!!me.afterModify) me.afterModify(form, rec.data) 
             })
@@ -541,6 +563,38 @@ Ext.define('MyDesktop.core.Controller', {
             win.store.proxy.extraParams = this.parentParams                    
         }                
         win.show()
+    }
+    
+    ,copyRecord: function(menu) {  
+        var pasteButton = menu.down('[action=pasteitem]')
+        if(pasteButton) {
+            pasteButton.setDisabled(false)
+            menu.clipboardItemId = menu.record.data._id + ''
+        }
+    }
+    
+    ,pasteRecord: function(menu) {
+        var me = this
+            ,modelName = me.getModelName() 
+            
+        Core.Ajax.request({
+            url: 'model:copyrecord/' + modelName,
+            jsonData: {_id: menu.clipboardItemId},
+            succ: function(data) {  
+                me.refresh()
+                if(me.innerDetailForm) me.modifyInside({data: data}) 
+                else me.modify({data: data})
+            }
+        })
+    }
+    
+    ,importCsv: function(th, win) {        
+        var me = this;        
+        if(th.fileInputEl.dom.files.length>0) {
+            Core.Ajax.upload(th.fileInputEl.dom.files[0], 'model:upload/'+me.model, function(data) {
+                win.down('grid').getStore().load();
+            })                    
+        }    
     }
    
 });

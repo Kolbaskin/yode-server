@@ -155,6 +155,7 @@ div.ux-taskbar div.x-toolbar {
 
 .ux-wallpaper {
     background-color: #3d71b8;
+    background-size: cover;
 }
 
 .ux-wallpaper-tiled {

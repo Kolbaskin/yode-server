@@ -35,7 +35,13 @@ exports.float = function(s, callback) {
 }
 
 exports.ObjectID = function(s, callback) {
-    callback(!s || s == ''? null:new BSON.ObjectID(s));
+    var id
+    if(s) {
+        try {
+            id = new BSON.ObjectID(s)
+        } catch(e) {id = null}
+    }
+    callback(id);
 }
 
 exports.boolean = function(s, callback) {
@@ -94,6 +100,26 @@ exports.image = function(s, callback, record, model, fieldName, server) {
     
     var path = server.server.dir + '/' + server.server.config.STATIC_DIR + '/tmp/'+s 
         ,res = {}
+    
+    if(/^\/admin.models.fileOperations:getimage\//.test(s)) {    
+        if((new RegExp(record._id+'')).test(s)) {
+            callback(null)    
+        } else {
+            // при копировании, прочитаем картинку с другой записи
+            var p = s.split('/')
+                ,fld = {}
+            fld[p[4]] = 1;
+            server.db.collection(p[2]).findOne({_id:p[3]._id()}, fld, function(e,d) {
+                if(d) {
+                    callback(d[p[4]])
+                } else {
+                    callback(null)
+                }
+            })
+        }
+        return;
+    }
+    
         
     fs.exists(path, function(e) {
         if(e) {
@@ -208,9 +234,20 @@ exports.images_l = function(arr, record, model, key, server, oldData) {
     return arr;
 }
 
-exports.date = function(s, callback) {
+exports.date = function(s, callback) {    
     callback(new Date(s))
 }
+
+exports.datefix = function(s, callback) {    
+    s = s.split('+')
+    s = s[0] + '+0000';
+    callback(new Date(s))
+}
+
+//exports.datefix_l  = function(s) {
+    //s = (s.toUTCString()).split('.')
+//    return s.getFullYear()+'-'+s.getMonth()+'-'+s.getDate()+' '+s.getHours()+':'+s.getMinutes()
+//}
 
 // Тип поля используется когда нужно определить все родительские
 // узлы в дереве (требуется обязательное наличие поля "pid")

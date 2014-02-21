@@ -211,3 +211,15 @@ exports.Plugin.prototype.upload = function(params, callback, auth) {
         callback(null, {code: 401});    
     }    
 }
+
+exports.Plugin.prototype.copyrecord = function(params, callback, auth) {
+    if(auth) {
+        var me = this
+        me.server.getModel('admin.models.access').checkAccess2Model({urlparams:[null,params.urlparams[0]]}, function(access) {
+            data.copyrecord(params, me, callback, access, auth);
+        }, auth, auth)
+        
+    } else {
+        callback(null, {code: 401});    
+    }
+}

@@ -297,7 +297,7 @@ exports.Server.prototype.error = function(error, res) {
 
     var me = this 
         ,text = 'nternal Server Error'
-        ,headers = {'Content-Type': 'text/html; charset=urf-8'}
+        ,headers = {'Content-Type': 'text/html; charset=utf-8'}
     
     if(error.redirect) headers = {'Location': error.redirect}
 

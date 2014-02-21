@@ -35,6 +35,7 @@ var projects = {}
 **/
 var port = config.port
     ,maxUploadSize = config.maxUploadSize
+    ,maxPostSize = config.maxPostSize
     ,staticParams = config.staticParams
     ,formConfig = config.formConfig
 
@@ -166,14 +167,15 @@ var serveMultipartForm = function(req, res, runMethod) {
     var form = new formidable.IncomingForm()
         ,files = {}
         ,fields = {}
-        ,size = 0                
+        ,fileSize = 0 
+        ,postSize = 0
 
     for(var i in formConfig) {
         form[i] = formConfig[i]
     }
     form.on('file', function(field, file) {
-        size += file.size
-        if(size > maxUploadSize) {
+        fileSize += file.size
+        if(fileSize > maxUploadSize) {
             return false;
         }
         if(files[field]) {
@@ -184,6 +186,10 @@ var serveMultipartForm = function(req, res, runMethod) {
         }
     })            
     form.on('field', function(field, value) {
+        postSize += value.length;
+        if(postSize > maxPostSize) {
+            return false;
+        }
         if(fields[field]) {
             if(!util.isArray(fields[field])) fields[field] = [fields[field]]                    
             fields[field].push(value)        

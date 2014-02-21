@@ -26,6 +26,8 @@ Ext.define('MyDesktop.core.GridWindow', {
         this.store = this.createStore()
         
         this.items = this.buildItems()
+        
+        this.menuContext = this.buildContextMenu()
                     
         this.callParent();
     }
@@ -95,6 +97,8 @@ Ext.define('MyDesktop.core.GridWindow', {
     ,buildItems: function() {
         return  this.buildGrid()   
     }
+    
+
     
     ,buildGrid: function() {    
         var me = this;
@@ -169,6 +173,20 @@ Ext.define('MyDesktop.core.GridWindow', {
             }]
         
         return null
+    }
+    
+    ,buildContextMenu: function() {
+        return Ext.create('Ext.menu.Menu', {
+            items: [{
+                text: D.t('Copy'),
+                action: 'copyitem'
+            },{
+                text: D.t('Paste'),
+                disabled: true,
+                action: 'pasteitem'
+            }
+            ]
+        });
     }
     
     

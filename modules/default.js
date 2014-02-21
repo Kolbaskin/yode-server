@@ -12,7 +12,7 @@ var fs = require('fs')
 **/
 exports.Plugin = function(server) {
     this.server = server;
-    this.db = this.server.inits.db
+    this.db = server.inits.db
     
     this.tpls = {}
     this.controllers = {}
@@ -28,6 +28,8 @@ exports.Plugin = function(server) {
 exports.Plugin.prototype.readTemplates = function() {
     var me = this,
         plg, ctr;
+
+        
     this.db.collection('admin_templates').find({removed:{$ne:true}}, {blocks:1, tpl:1, controller:1}).toArray(function(e,data) {
         if(data) {
             for(var i=0;i<data.length;i++) {
