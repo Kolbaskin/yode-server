@@ -26,6 +26,18 @@ Ext.define('MyDesktop.modules.users.view.PublUsersForm', {
             width: 500,
             fieldLabel: D.t('Email')
         },{
+            name: 'rate',
+            xtype: 'numberfield',
+            labelWidth:200,
+            width: 500,
+            fieldLabel: D.t('Рейтинг')
+        },{
+            name: 'premium',
+            xtype: 'checkbox',
+            labelWidth:200,
+            width: 500,
+            fieldLabel: D.t('Премиум')
+        },{
             xtype: 'combo',
             labelWidth:200,
             width: 500,

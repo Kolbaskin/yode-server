@@ -253,6 +253,10 @@ var builData = function(data, model, server, is_save) {
     return data
 }
 
+exports.builData = function(data, model, server, is_save) {
+    return builData(data, model, server, is_save);
+}
+
 var buildSort = function(params, model) {
     var sort = {}
     
@@ -282,7 +286,7 @@ var buildSort = function(params, model) {
 *
 */
 exports.getdata = function(params, parent, callback, model, auth) {            
-    
+    var me = this;
     var func = function(model) {
         if(!model) {
             callback(null, {code:404});
@@ -318,7 +322,7 @@ exports.getdata = function(params, parent, callback, model, auth) {
             if(!!model.getdata) {
                 model.getdata(params, parent, {find:find, fields:fields, start:start, limit:limit, sort: sort}, callback, function(res) {
                     if(res) fun()
-                }, auth)
+                }, auth, me)
             } else {
                 fun()    
             }
@@ -384,7 +388,6 @@ var createDataRecord = function(data, cur_data, model, server, callback) {
                 callback(insdata)
                 return;
             }
-            
             if(data[model.fields[i].name] !== undefined || model.fields[i].type == 'boolean' || model.fields[i].emptySave) {
                 if(model.fields[i].editable) {
                     if(!!model.fields[i].type && !!dataFunc[model.fields[i].type]) {
@@ -494,6 +497,7 @@ exports.save = function(params, parent, callback, access, auth) {
                     // Insert 
                         if(access && access.add) {
                             func(null, function(insdata) {
+                                insdata.ctime = new Date()
                                 parent.db.collection(model.collection).insert(insdata, {w:1}, function(e, r) {
                                     globalLog.insert(auth, parent, params.urlparams[0], insdata)
                                     //insdata._id = r[0]
@@ -735,9 +739,13 @@ exports.exportdir = function(params, parent, callback) {
                 }
                 if(file[i]) {
                     var data = {};
+                    
+//console.log(model.fields)                    
                     for(var j=0;j<model.fields.length;j++) if(model.fields[j].editable) {
                         if(!!model.fields[j].impRender) data[model.fields[j].name] = model.fields[j].impRender(file[i][j] || null)
                         else data[model.fields[j].name] = file[i][j] || null
+                        if(Object.prototype.toString.call(data[model.fields[j].name]) === '[object Array]')
+                            data[model.fields[j].name] = data[model.fields[j].name].join(' ' )
                     }                                 
                     createDataRecord(data, null, model, parent, function(data) {
                         // добавляем остальные данные, если в модели есть соответствующая настройка
@@ -747,9 +755,11 @@ exports.exportdir = function(params, parent, callback) {
                                 if(file[i][j]) data.ext_data.push(file[i][j]);
                                 j++;
                             }
-                        }                        
-                        parent.db.collection(model.collection).insert(data, {w:1}, function(e, r) {})
-                        func(i+1)
+                        }    
+                        parent.db.collection(model.collection).insert(data, {w:1}, function(e, r) {
+                            func(i+1)
+                        })
+                        
                     })                       
                 } else func(i+1)
             }

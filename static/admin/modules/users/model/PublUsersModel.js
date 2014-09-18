@@ -90,6 +90,18 @@ exports.fields = [
         type: 'int',
         editable: true,
         visable: false
+    },{
+        name: 'rate',
+        type: 'float',
+        filterable: true,
+        editable: true,
+        visable: true
+    },{
+        name: 'premium',
+        type: 'boolean',
+        filterable: true,
+        editable: true,
+        visable: false
     }
         
 ]

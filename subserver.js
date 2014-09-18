@@ -249,6 +249,8 @@ exports.Server.prototype.serve = function(req, res, post, nohead) {
     }
     
     var mcallback = function(body, error, head) {            
+        
+        
         if(!body && error) {
             th.error(error, res)
             return;        
@@ -257,17 +259,46 @@ exports.Server.prototype.serve = function(req, res, post, nohead) {
             if(!head) head = 'JSON'
             body = JSON.stringify(body)
         }        
-        if((head == null || head == 200) && !nohead) res.writeHead(200, "OK", {'Content-Type': 'text/html; charset=utf-8'});
-        else if(head == "JSON") {
-            res.writeHead(200, "OK", {'Content-Type': 'text/plain'});
+        if((head == null || head == 200) && !nohead) {
+            head = {
+                code: 200,
+                status: 'OK',
+                heads: {'Content-Type': 'text/html; charset=utf-8'}
+            }
+        } else if(head == "JSON") {
+            head = {
+                code: 200,
+                status: 'OK',
+                heads: {'Content-Type': 'text/plain; charset=utf-8'}
+            }
             if(body == null && error != null) {
                 body = JSON.stringify({error: error})
             }
-        } else if(!nohead) res.writeHead(head.code, head.status, head.heads);
+        }
+        
         if(th.config.TIME_TO_CONSOLE_LOG) {
             Time_Log = new Date().getTime() - Time_Log; 
             console.log(req.url + ': ' +Time_Log+ ' ms');
-        }            
+        }     
+        
+        if(!nohead) {
+            if(!head) {
+                head = {
+                    code: 200,
+                    status: 'OK',
+                    heads: {'Content-Type': 'text/plain; charset=utf-8'}
+                }    
+            }
+            if(req.setCookies) {
+                head.heads["Set-Cookie"] = []
+                for(var i in req.setCookies) {
+                    head.heads["Set-Cookie"].push(req.setCookies[i])
+                }
+            }
+                     
+            res.writeHead(head.code, head.status, head.heads);
+        }
+
         res.end(body); 
     }    
 
@@ -314,6 +345,24 @@ exports.Server.prototype.error = function(error, res) {
     } else res.end();    
 }
 
+exports.Server.prototype.getCookie = function(req, name) {
+    if(req.headers.cookie) {
+        var items = req.headers.cookie.split(';')
+            ,parts
+        for(var i=0;i<items.length;i++) {
+            parts = items[i].split('=');
+            if(parts[0].trim() == name) return decodeURIComponent((parts[1] || '').trim())
+        }
+    }
+    return null;
+}
+
+exports.Server.prototype.setCookie = function(req, name, value, path, expires, secure) {    
+    if(!req.setCookies) req.setCookies = {}
+    req.setCookies[name] = name + "=" + encodeURIComponent(value) + "; " + (path? "path="+path+"; ":"") + (expires? "expires="+expires + "; ":"") + (secure? secure+"; ":"")
+    return;
+}
+
 /**
  * Пробуем получить виртуальную страницу
  * через "контроллер по-умолчанию"
@@ -340,14 +389,20 @@ exports.Server.prototype.serveVirtualPages = function(req, res, post, callback) 
         
         url.params = {}
         url.headers = req.headers
-        url.response = res
+        url.cookies = {}
+        
         req.headers.cookie && req.headers.cookie.split(';').forEach(function( cookie ) {
-            var parts = cookie.split('=');
-            url.params[parts[0].trim()] = decodeURIComponent((parts[1] || '').trim());
+            var parts = cookie.split('=')
+                ,key = parts[0].trim()
+                ,val = decodeURIComponent((parts[1] || '').trim());
+            url.params[key] = val;
+            url.cookies[key] = val;
         });
         if(url.query != null) for(var i in url.query) url.params[i] = url.query[i]
         if(post != null) for(var i in post) url.params[i] = post[i]       
         
+        url.response = res;
+        url.request = req;
         var run = function(a) {            
             me.defaultPlugin.serve(url, function(result, e) {   
                 callback(result,e)
@@ -413,9 +468,8 @@ exports.Server.prototype.servePlugins = function(req, res, post, outcallback) {
             ,module = this.getModel(plugin)
         
         var mcallback = function(data, err, headers) {
-            
             if(typeof data !== "object") {
-                outcallback(data)
+                outcallback(data, null, headers)
                 return;
             }            
             if(data && err) {
@@ -447,17 +501,24 @@ exports.Server.prototype.servePlugins = function(req, res, post, outcallback) {
         
             var all = {urlparams:[]}
             
-            all.response = res            
+            
             
             for(var i=2;i<u.length;i++) all.urlparams.push(decodeURIComponent(u[i]));            
-               
+            
+            req.cookies = {} 
+                                
             req.headers.cookie && req.headers.cookie.split(';').forEach(function( cookie ) {
-                var parts = cookie.split('=');
-                all[parts[0].trim()] = decodeURIComponent((parts[1] || '').trim());
+                var parts = cookie.split('=')
+                    ,key = parts[0].trim()
+                    ,val = decodeURIComponent((parts[1] || '').trim());
+                all[key] = val;
+                req.cookies[key] = val
             });   
             if(url.query != null) for(var i in url.query) all[i] = url.query[i]
             if(post != null) for(var i in post) all[i] = post[i]
             
+            all.response = res
+            all.request = req
             all._query = url.query
             
             if(me.config.LOCALE && !all.locale) {

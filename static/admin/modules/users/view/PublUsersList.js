@@ -51,6 +51,16 @@ Ext.define('MyDesktop.modules.users.view.PublUsersList', {
                         if(v===false) return 'Заблокирован'
                         return 'Не актив.' 
                     }
+                },{
+                    text: D.t("Премиум"),
+                    width: 70,
+                    sortable: true,
+                    dataIndex: 'premium'
+                },{
+                    text: D.t("Рейтинг"),
+                    width: 70,
+                    sortable: true,
+                    dataIndex: 'rate'
                 }
             ]        
     }

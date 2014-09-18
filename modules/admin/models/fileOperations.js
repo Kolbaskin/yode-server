@@ -3,6 +3,10 @@ var crypto = require('crypto')
     ,easyimg = require('easyimage')
     ,forms = require('forms')
     ,util = require('util')
+    //,gd = require('easy-gd')
+    
+var WaterFile = '/var/www/www/www.metry.ru/static/images/metry-wmk-floorplan-center.png'				
+	 ,WaterPos = {x:0, y:1}	
 
 exports.Plugin = function(server) {
     this.db = server.inits.db;
@@ -133,7 +137,7 @@ exports.Plugin.prototype.upload = function(req, callback, auth) {
     } else callback(null, {code: 401});
 }
 
-exports.Plugin.prototype.getimage = function(req, callback, auth) {
+exports.Plugin.prototype.getimage = function(req, cb, auth) {
     var me = this
         ,o_id
         ,collName = (req.urlparams[0] || '')
@@ -144,10 +148,31 @@ exports.Plugin.prototype.getimage = function(req, callback, auth) {
         ,num = (req.urlparams[3]? parseInt(req.urlparams[3]) : 0)
         ,size = req.urlparams[4]
 
+	 var callback = function(buff, e, h) {
+	 	
+         if(buff) {		
+			/*
+            gd.createFrom(WaterFile, function (err, water) {
+			    gd.createFromPtr(buff ,function(e, img) {
+					img.watermark(water, WaterPos)				
+					var buffer = img.ptr({format: 'jpeg', jpegquality: 80})			 	   	
+					h.heads['Content-Length'] = buffer.length			 	   	
+			 	   cb(buffer,e,h)
+			 	})
+			})
+            */
+            h.heads['Content-Length'] = buff.length    		 	   	
+			cb(buff,e,h)
+	 	} else {
+	 		cb(buff, e, h)
+	 	}
+	 }
+
     folder[folderName]=1
     
     var func404 = function() {
         if(me.server.config.DEFAULT_IMAGE) {
+//console.log(me.server.dir + '/' + me.server.config.STATIC_DIR + '/' + me.server.config.DEFAULT_IMAGE)            
             fs.readFile(me.server.dir + '/' + me.server.config.STATIC_DIR + '/' + me.server.config.DEFAULT_IMAGE, function(e, file) {
                 if(e) {
                     callback(null, {code: 404})
@@ -195,6 +220,12 @@ exports.Plugin.prototype.getimage = function(req, callback, auth) {
                 if(data[folderName][size]) {
                     head.heads['Content-Length'] = data[folderName][size].length
                     callback(new Buffer(data[folderName][size]),null, head)
+                    return;
+                } else {
+                    if(data[folderName].buffer && data[folderName].buffer.length) {
+                        head.heads['Content-Length'] = data[folderName].buffer.length
+                        callback(data[folderName].buffer,null, head)
+                    }
                     return;
                 }
             }                

@@ -71,7 +71,10 @@ exports.Plugin.prototype.serve = function(request, callback, auth) {
     request.path = request.pathname.substr(0,i+1)
     request.page = request.pathname.substr(i+1)
 
-
+    if(request.path == '/' && request.page) {
+        callback(null, {code: 404})
+        return;
+    }
 
     this.db.collection('pages').findOne({dir:request.path, removed:{$ne:true}}, function(e,data) {
 
@@ -103,6 +106,7 @@ exports.Plugin.prototype.serve = function(request, callback, auth) {
 **/
 exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
     var me = this
+        ,controllersCount = 0
 
     data.breaker = false
     
@@ -117,6 +121,11 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
     // Готовые данные кладем в шаблон
     var push2tpl = function(data) {
         if(data.blocks) delete data.blocks
+        
+        if(!controllersCount && request.page) {
+            callback(null, {code: 404})
+            return;
+        }
         
         data.request = request
        
@@ -152,7 +161,7 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
       
             
             if(b.controller && b.controller != '') {
-         
+                                
                 ctr = b.controller.split(':')
                 b.controller = ctr[0]
                 if(!ctr[1]) ctr[1] = 'run' // метод контролера по-умолчанию
@@ -160,7 +169,9 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
 
 
                 if(!!(plg = me.server.getModel(ctr[0])) && !!plg[ctr[1]]) {
-
+                    
+                    controllersCount++;
+                    
                     request.pageData = data
                     
                     if(ctr.length>2) {
@@ -282,7 +293,7 @@ exports.Plugin.prototype.html = function(rq, callback, auth) {
                         
             var limit = parseInt(req.params.limit)
             
-            if(!limit || isNaN(limit) || limit>100) limit = 10;
+            if(!limit || isNaN(limit) || limit>10000) limit = 10;
                 
             req.params.start = pages.getstart((req.params && req.params.page? parseInt(req.params.page):1), limit);
             req.params.limit = limit

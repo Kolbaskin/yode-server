@@ -75,6 +75,11 @@ exports.file = function(s, callback, record, model, fieldName, server, cur_data)
         callback(cur_data)        
         return;
     }
+    
+    if(s === '-') {
+        callback(null, true)
+        return;
+    }
         
     var path = server.server.dir + '/' + server.server.config.STATIC_DIR + '/tmp/'+s 
     fs.exists(path, function(e) {
@@ -132,9 +137,12 @@ exports.image = function(s, callback, record, model, fieldName, server) {
                     fs.readFile(path, function(e, s) {
                         if(s) {
                             fs.unlink(path)
-                            res.preview = s    
+                            res.preview = s  
+                            callback([res])
+                        } else {
+                            callback(res.img)
                         }
-                        callback([res])
+                            
                     })
                 } else callback(null)
             })
@@ -239,15 +247,22 @@ exports.date = function(s, callback) {
 }
 
 exports.datefix = function(s, callback) {    
-    s = s.split('+')
-    s = s[0] + '+0000';
-    callback(new Date(s))
+	if(s) {
+		s=parseInt(s)
+      if(!isNaN(s)) {
+			var theDate = new Date(s * 1000);  
+  			callback(theDate.toGMTString());
+  			return;  	      
+      } 	
+	}
+   callback(null)
 }
 
-//exports.datefix_l  = function(s) {
-    //s = (s.toUTCString()).split('.')
-//    return s.getFullYear()+'-'+s.getMonth()+'-'+s.getDate()+' '+s.getHours()+':'+s.getMinutes()
-//}
+exports.datefix_l  = function(s) {
+	if(!s.getTime) s = new Date(s)
+    return Math.round(s.getTime()/1000.0)
+    //return s.getFullYear()+'-'+s.getMonth()+'-'+s.getDate()+' '+s.getHours()+':'+s.getMinutes()
+}
 
 // Тип поля используется когда нужно определить все родительские
 // узлы в дереве (требуется обязательное наличие поля "pid")

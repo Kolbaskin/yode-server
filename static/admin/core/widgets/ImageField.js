@@ -34,6 +34,26 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
         });
     }
     
+    ,setWidth: function(w) {
+        var me = this
+            ,btn = me.down('[xtype=filefield]').button
+        if(btn) {
+            var bt = btn.getEl()            
+            bt.setStyle('width', w+'px')
+        }
+        this.callParent(arguments);
+    }
+    
+    ,setHeight: function(w) {
+        var me = this
+            ,btn = me.down('[xtype=filefield]').button
+        if(btn) {
+            var bt = btn.getEl()            
+            bt.setStyle('height', w+'px')
+        }
+        this.callParent(arguments);
+    }
+    
     ,showImage: function() {
         var me = this
             ,btn = me.down('[xtype=filefield]').button
@@ -146,6 +166,8 @@ Ext.define('MyDesktop.core.widgets.ImageField',{
             })                    
         }
     }
+    
+    
     
     ,removeImage: function() {
         this.down('[xtype=textfield]').setValue('-')

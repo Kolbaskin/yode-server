@@ -29,28 +29,15 @@ Ext.onReady(function () {
     });
     
     Ext.define('Ext.override.grid.ViewDropZone', {
-        override: 'Ext.grid.ViewDropZone',
-    	handleNodeDrop: function()
-    	{
-    		var sm = this.view.getSelectionModel(),
-    			onLastFocusChanged = sm.onLastFocusChanged;
-    
-    		sm.onLastFocusChanged = Ext.emptyFn;
-    		this.callParent(arguments);
-    		sm.onLastFocusChanged = onLastFocusChanged;
-    	}
-    });
-    
-    Ext.override(Ext.window.Window, {
-        fitContainer: function(animate) {
-            var me = this,
-                parent = me.floatParent,
-                container = parent ? parent.getTargetEl() : me.container,
-                newBox = container.getViewSize(false),
-                newPosition = container.getXY();            
-            newBox.x = newPosition[0];
-            newBox.y = newPosition[1];
-            me.setBox(newBox, animate);
-        }
-    });
+    override: 'Ext.grid.ViewDropZone',
+	handleNodeDrop: function()
+	{
+		var sm = this.view.getSelectionModel(),
+			onLastFocusChanged = sm.onLastFocusChanged;
+
+		sm.onLastFocusChanged = Ext.emptyFn;
+		this.callParent(arguments);
+		sm.onLastFocusChanged = onLastFocusChanged;
+	}
+});
 })

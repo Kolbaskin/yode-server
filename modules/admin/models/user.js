@@ -19,7 +19,7 @@ exports.Plugin = function(server) {
  * pass - строка пароля
  * callback - функция
  **/
-exports.Plugin.prototype.getAutorization = function(collectionName, find, pass, callback, exp) {
+exports.Plugin.prototype.getAutorization = function(collectionName, find, pass, callback, exp, privat) {
 
     var collection = this.db.collection(collectionName)
         ,mail = this.server.inits.mail
@@ -34,7 +34,7 @@ exports.Plugin.prototype.getAutorization = function(collectionName, find, pass, 
                 return;
             }
             
-            if(r.pass == crypto.createHash(config.HASH_ALG).update(pass).digest('hex')) {
+            if(privat || r.pass == crypto.createHash(config.HASH_ALG).update(pass).digest('hex')) {
                 // login success
                 
                 // generate token and put it into memcoache
