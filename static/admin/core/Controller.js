@@ -342,7 +342,7 @@ Ext.define('MyDesktop.core.Controller', {
             me.getRecord(rec, function(rec) {
                 
                 if(!!me.beforeModify && me.beforeModify(form, rec.data) === false) return false;
-                
+
                 if(!!form.setValues) form.setValues(rec.data);
                 else {
                     var inForm = form.down('form')
