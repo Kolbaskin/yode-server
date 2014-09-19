@@ -304,7 +304,10 @@ exports.getdata = function(params, parent, callback, model, auth) {
             if(isNaN(start)) start = 0;
             if(isNaN(limit)) limit = 25;
             
+            
+            
             var fun = function() {
+    
                 var cursor = parent.db.collection(model.collection).find(find,fields)
                 cursor.count(function(e, cnt) {         
                     if(cnt && cnt>0) {

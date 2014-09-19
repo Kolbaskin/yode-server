@@ -157,8 +157,15 @@ exports.Plugin.prototype.mainTpl = function(request, data, callback, auth) {
                 push2tpl(data)
                 return;
             }
-      
-      
+
+            if(!b.viewarea || 
+            (request.page && b.viewarea == 2) ||
+            (!request.page && b.viewarea == 1)) {}
+            else {
+                 recur(j+1)
+                 return;
+            }
+            
             
             if(b.controller && b.controller != '') {
                                 

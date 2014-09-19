@@ -105,3 +105,13 @@ exports.fields = [
     }
         
 ]
+
+
+
+exports.beforeSave = function(data, auth, cb, serv) {
+    data.activated = !!data.activated
+    var id = (data._id+'')._id()
+    serv.db.collection('ads').update({owner: id}, {$set: {lock: !data.activated}}, {multi:1}, function(e, d) {
+        cb(data)    
+    })
+}

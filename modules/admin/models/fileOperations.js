@@ -32,25 +32,57 @@ var makeImg = function(path, callback, sizes) {
             y:0
         }
 
-    var resize = function() {    
-        easyimg.thumbnail(conf1, function(err, image) {
-            	if (err) {
-                    callback(null, {code: 500});
-                    return;
-                } 
+
+        var resize = function() {    
+        
+        [
+            function(next) {
+                if(conf1.width>=w1 && conf1.height>=h1) {
+                    fs.rename(conf1.src, conf1.dst, function(e,d) {
+                        next({
+                            width: w1,
+                            height: h1,
+                            name: conf1.dst
+                        })
+                    })
+                } else {
+                    easyimg.thumbnail(conf1, function(err, image) {
+                        if (err) {
+                            callback(null, {code: 500});
+                            return;
+                        }
+                        next(image);
+                    })
+                }
+            }
+            ,function(image, next) {
                 if(conf2.width && conf2.height) {
+                    if(conf2.width>=w2 && conf2.height>=h2) {
+                        fs.rename(conf2.src, conf2.dst, function(e,d) {
+                            next({
+                                width: w2,
+                                height: h2,
+                                name: conf2.dst
+                            })
+                        })
+                    }
                     easyimg.thumbnail(conf2, function(err, image_small) {
                         if (err) {
                             callback(null, {code: 500});
                             return;
                         }
-                        callback({img: image, img_s:image_small});
+                        next(image, image_small);
                     });
                 } else {
-                    callback({img: null , img_s:image});
+                    next(null , image);
                 }
-        	}
-        );
+            }
+            
+            ,function(image, image_small) {
+                callback({img: image, img_s:image_small});
+            }
+            
+        ].runEach();
     }
         
     if(sizes) {

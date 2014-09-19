@@ -9,10 +9,14 @@ Ext.define('MyDesktop.core.DetailForm', {
         
     initComponent: function() {        
         this.items = this.buildItems()         
-        this.items.push({xtype: 'textfield', name: '_id', region: 'west', inputType:'hidden'})        
+        this.defaultItems()       
         this.tbar = this.buildTbar()        
         this.buttons = this.buildButtons()        
         this.callParent();
+    }
+    
+    ,defaultItems: function() {
+        this.items.push({xtype: 'textfield', name: '_id', region: 'west', inputType:'hidden'}) 
     }
     
     ,buildItems: function() {
