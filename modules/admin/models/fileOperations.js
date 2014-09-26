@@ -3,10 +3,10 @@ var crypto = require('crypto')
     ,easyimg = require('easyimage')
     ,forms = require('forms')
     ,util = require('util')
-    //,gd = require('easy-gd')
+    ,gd = require('easy-gd')
     
 var WaterFile = '/var/www/www/www.metry.ru/static/images/metry-wmk-floorplan-center.png'				
-	 ,WaterPos = {x:0, y:1}	
+	 ,WaterPos = {x:1, y:1}	
 
 exports.Plugin = function(server) {
     this.db = server.inits.db;
@@ -183,18 +183,19 @@ exports.Plugin.prototype.getimage = function(req, cb, auth) {
 	 var callback = function(buff, e, h) {
 	 	
          if(buff) {		
-			/*
-            gd.createFrom(WaterFile, function (err, water) {
-			    gd.createFromPtr(buff ,function(e, img) {
-					img.watermark(water, WaterPos)				
-					var buffer = img.ptr({format: 'jpeg', jpegquality: 80})			 	   	
-					h.heads['Content-Length'] = buffer.length			 	   	
-			 	   cb(buffer,e,h)
-			 	})
-			})
-            */
-            h.heads['Content-Length'] = buff.length    		 	   	
-			cb(buff,e,h)
+			if(['dir_serydescript', 'ads'].indexOf(collName)!=-1) {
+                gd.createFrom(WaterFile, function (err, water) {
+    			    gd.createFromPtr(buff ,function(e, img) {
+    					img.watermark(water, WaterPos)				
+    					var buffer = img.ptr({format: 'jpeg', jpegquality: 80})			 	   	
+    					h.heads['Content-Length'] = buffer.length			 	   	
+    			 	   cb(buffer,e,h)
+    			 	})
+    			})
+			} else {
+                h.heads['Content-Length'] = buff.length    		 	   	
+    			cb(buff,e,h)
+			}
 	 	} else {
 	 		cb(buff, e, h)
 	 	}
