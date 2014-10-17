@@ -42,7 +42,7 @@ exports.string = function(data, name) {
      
     if(data.operator == 'like') {        
         try {            
-            o[name] = new RegExp('^' + str,'i')
+            o[name] = new RegExp(str,'i')
         } catch(e) {return {}}
     }     
     return o
