@@ -304,7 +304,10 @@ exports.getdata = function(params, parent, callback, model, auth) {
             if(isNaN(start)) start = 0;
             if(isNaN(limit)) limit = 25;
             
+            
+            
             var fun = function() {
+    
                 var cursor = parent.db.collection(model.collection).find(find,fields)
                 cursor.count(function(e, cnt) {         
                     if(cnt && cnt>0) {
@@ -745,7 +748,7 @@ exports.exportdir = function(params, parent, callback) {
                         if(!!model.fields[j].impRender) data[model.fields[j].name] = model.fields[j].impRender(file[i][j] || null)
                         else data[model.fields[j].name] = file[i][j] || null
                         if(Object.prototype.toString.call(data[model.fields[j].name]) === '[object Array]')
-                            data[model.fields[j].name] = data[model.fields[j].name].join(' ' )
+                            data[model.fields[j].name] = data[model.fields[j].name].join(' ')
                     }                                 
                     createDataRecord(data, null, model, parent, function(data) {
                         // добавляем остальные данные, если в модели есть соответствующая настройка
@@ -756,6 +759,7 @@ exports.exportdir = function(params, parent, callback) {
                                 j++;
                             }
                         }    
+                        data.publ = true
                         parent.db.collection(model.collection).insert(data, {w:1}, function(e, r) {
                             func(i+1)
                         })

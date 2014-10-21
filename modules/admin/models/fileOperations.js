@@ -3,10 +3,10 @@ var crypto = require('crypto')
     ,easyimg = require('easyimage')
     ,forms = require('forms')
     ,util = require('util')
-    //,gd = require('easy-gd')
+    ,gd = require('easy-gd')
     
 var WaterFile = '/var/www/www/www.metry.ru/static/images/metry-wmk-floorplan-center.png'				
-	 ,WaterPos = {x:0, y:1}	
+	 ,WaterPos = {x:1, y:1}	
 
 exports.Plugin = function(server) {
     this.db = server.inits.db;
@@ -32,25 +32,57 @@ var makeImg = function(path, callback, sizes) {
             y:0
         }
 
-    var resize = function() {    
-        easyimg.thumbnail(conf1, function(err, image) {
-            	if (err) {
-                    callback(null, {code: 500});
-                    return;
-                } 
+
+        var resize = function() {    
+        
+        [
+            function(next) {
+                if(conf1.width>=w1 && conf1.height>=h1) {
+                    fs.rename(conf1.src, conf1.dst, function(e,d) {
+                        next({
+                            width: w1,
+                            height: h1,
+                            name: conf1.dst
+                        })
+                    })
+                } else {
+                    easyimg.thumbnail(conf1, function(err, image) {
+                        if (err) {
+                            callback(null, {code: 500});
+                            return;
+                        }
+                        next(image);
+                    })
+                }
+            }
+            ,function(image, next) {
                 if(conf2.width && conf2.height) {
+                    if(conf2.width>=w2 && conf2.height>=h2) {
+                        fs.rename(conf2.src, conf2.dst, function(e,d) {
+                            next({
+                                width: w2,
+                                height: h2,
+                                name: conf2.dst
+                            })
+                        })
+                    }
                     easyimg.thumbnail(conf2, function(err, image_small) {
                         if (err) {
                             callback(null, {code: 500});
                             return;
                         }
-                        callback({img: image, img_s:image_small});
+                        next(image, image_small);
                     });
                 } else {
-                    callback({img: null , img_s:image});
+                    next(null , image);
                 }
-        	}
-        );
+            }
+            
+            ,function(image, image_small) {
+                callback({img: image, img_s:image_small});
+            }
+            
+        ].runEach();
     }
         
     if(sizes) {
@@ -151,18 +183,19 @@ exports.Plugin.prototype.getimage = function(req, cb, auth) {
 	 var callback = function(buff, e, h) {
 	 	
          if(buff) {		
-			/*
-            gd.createFrom(WaterFile, function (err, water) {
-			    gd.createFromPtr(buff ,function(e, img) {
-					img.watermark(water, WaterPos)				
-					var buffer = img.ptr({format: 'jpeg', jpegquality: 80})			 	   	
-					h.heads['Content-Length'] = buffer.length			 	   	
-			 	   cb(buffer,e,h)
-			 	})
-			})
-            */
-            h.heads['Content-Length'] = buff.length    		 	   	
-			cb(buff,e,h)
+			if(['dir_serydescript', 'ads'].indexOf(collName)!=-1) {
+                gd.createFrom(WaterFile, function (err, water) {
+    			    gd.createFromPtr(buff ,function(e, img) {
+    					img.watermark(water, WaterPos)				
+    					var buffer = img.ptr({format: 'jpeg', jpegquality: 80})			 	   	
+    					h.heads['Content-Length'] = buffer.length			 	   	
+    			 	   cb(buffer,e,h)
+    			 	})
+    			})
+			} else {
+                h.heads['Content-Length'] = buff.length    		 	   	
+    			cb(buff,e,h)
+			}
 	 	} else {
 	 		cb(buff, e, h)
 	 	}

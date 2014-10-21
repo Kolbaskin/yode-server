@@ -42,7 +42,11 @@ exports.string = function(data, name) {
      
     if(data.operator == 'like') {        
         try {            
+<<<<<<< HEAD
             o[name] = new RegExp(str,'i')
+=======
+            o[name] = new RegExp( str,'i')
+>>>>>>> 4b8d6ada867b5b1d419b729bb08fa6f202e46df5
         } catch(e) {return {}}
     }     
     return o

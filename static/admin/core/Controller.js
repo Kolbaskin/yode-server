@@ -97,7 +97,7 @@ Ext.define('MyDesktop.core.Controller', {
             win = desktop.createWindow({
                 id: me.id,
                 title: (me.titlePrefix? me.titlePrefix + ': ':'') + me.launcher.text, 
-                maximized: (sets && sets.maximize),
+                //maximized: (sets && sets.maximize),
                 iconCls: me.launcher.iconCls
                 
             }, me.mainView);
@@ -105,7 +105,12 @@ Ext.define('MyDesktop.core.Controller', {
             me.addControls(win)
             me.mainWin = win
             
-            setTimeout(function() {                
+            setTimeout(function() {    
+                
+                if(sets.maximize) {
+                    win.maximize()    
+                }
+                
                 win.on('maximize', function() {Sess.setState(me.id,{maximize: true})})
                 win.on('resize', function(th, w, h) {Sess.setState(me.id,{maximize: false})})
                     //win.on('move', function(th, x, y) {Sess.setState(me.id,{maximize: false, x:x, y:y})})
@@ -342,7 +347,7 @@ Ext.define('MyDesktop.core.Controller', {
             me.getRecord(rec, function(rec) {
                 
                 if(!!me.beforeModify && me.beforeModify(form, rec.data) === false) return false;
-                
+
                 if(!!form.setValues) form.setValues(rec.data);
                 else {
                     var inForm = form.down('form')

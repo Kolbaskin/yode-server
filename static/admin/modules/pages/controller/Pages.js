@@ -327,6 +327,8 @@ Ext.define('MyDesktop.modules.pages.controller.Pages', {
             form = win.down('form')
         //win.record = row
         win.editingBlock = row
+       
+        
         form.getForm().setValues(row.data)
         
         if(newblk || (row.data.controller && row.data.controller != '')) {

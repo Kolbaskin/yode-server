@@ -9,7 +9,8 @@ Ext.define('MyDesktop.modules.pages.view.PageEditBlocks', {
             {name:'block'}, 
             {name:'controller'},
             {name:'descript'},
-            {name: 'text'}
+            {name: 'text'},
+            {name: 'viewarea'}
         ],
         data: []
     }),

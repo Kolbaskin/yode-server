@@ -97,7 +97,7 @@ Ext.define('MyDesktop.modules.pages.view.BlockEditWindow', {
                 store: Ext.create('Ext.data.ArrayStore', {
                     fields: ['name','model']
                 }),
-                fieldLabel: D.t("Conten type"),
+                fieldLabel: D.t("Content type"),
                 name: 'controller',
                 queryMode: 'local',
                 allowBlank: true,
@@ -106,6 +106,18 @@ Ext.define('MyDesktop.modules.pages.view.BlockEditWindow', {
             },{
                 fieldLabel: D.t('Description'),   
                 name: 'descript'
+            },{                
+                xtype: 'combo',
+                store: Ext.create('Ext.data.ArrayStore', {
+                    fields: ['code','name'],
+                    data: [[0, D.t('Always')],[1, D.t('List view')],[2, D.t('Full view')]]
+                }),
+                fieldLabel: D.t("Content view area"),
+                name: 'viewarea',
+                queryMode: 'local',
+                allowBlank: true,
+                displayField: 'name',
+                valueField: 'code'
             },{
                 inputType: 'hidden',   
                 name: 'id'
