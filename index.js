@@ -313,7 +313,7 @@ exports.start = function(conf, callback) {
         console.log('Server HTTPS started on port ' + config.https.port)        
     } 
     
-    process.title = 'yode'
+    process.title = 'yode-server'
     if(process.argv.indexOf('-d') != -1) {
         //require('daemon')();
         
